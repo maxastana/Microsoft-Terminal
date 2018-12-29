@@ -85,6 +85,7 @@ namespace Microsoft::Console::VirtualTerminal
         virtual BOOL PrivateEnableButtonEventMouseMode(const bool fEnabled) = 0;
         virtual BOOL PrivateEnableAnyEventMouseMode(const bool fEnabled) = 0;
         virtual BOOL PrivateEnableAlternateScroll(const bool fEnabled) = 0;
+        virtual BOOL PrivateEnableXtermBracketedPaste(const bool fEnabled) = 0;
         virtual BOOL PrivateEraseAll() = 0;
         virtual BOOL SetCursorStyle(const CursorType cursorType) = 0;
         virtual BOOL SetCursorColor(const COLORREF cursorColor) = 0;

@@ -1639,6 +1639,20 @@ void DoSrvPrivateEnableAlternateScroll(const bool fEnable)
 }
 
 // Routine Description:
+// - A private API call for enabling Xterm bracketed paste mode
+// Parameters:
+// - fEnable - true to enable bracketed paste mode, false to disable.
+// Return value:
+// None
+void DoSrvPrivateEnableXtermBracketedPaste(const bool fEnable)
+{
+    CONSOLE_INFORMATION& gci = ServiceLocator::LocateGlobals().getConsoleInformation();
+    // Empirically observed: xterm does not care whether the alt buffer is in use.
+    SCREEN_INFORMATION& screenBuffer = gci.GetActiveOutputBuffer();
+    screenBuffer.SetXtermBracketedPaste(fEnable);
+}
+
+// Routine Description:
 // - A private API call for performing a VT-style erase all operation on the buffer.
 //      See SCREEN_INFORMATION::VtEraseAll's description for details.
 // Parameters:

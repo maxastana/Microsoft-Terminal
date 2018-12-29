@@ -1135,6 +1135,9 @@ bool AdaptDispatch::_PrivateModeParamsHelper(_In_ DispatchTypes::PrivateModePara
     case DispatchTypes::PrivateModeParams::ASB_AlternateScreenBuffer:
         fSuccess = fEnable? UseAlternateScreenBuffer() : UseMainScreenBuffer();
         break;
+    case DispatchTypes::PrivateModeParams::XTERM_BRACKETED_PASTE:
+        fSuccess = EnableXtermBracketedPaste(fEnable);
+        break;
     default:
         // If no functions to call, overall dispatch was a failure.
         fSuccess = false;
@@ -1741,6 +1744,19 @@ bool AdaptDispatch::EnableAnyEventMouseMode(const bool fEnabled)
 bool AdaptDispatch::EnableAlternateScroll(const bool fEnabled)
 {
     return !!_conApi->PrivateEnableAlternateScroll(fEnabled);
+}
+
+//Routine Description:
+// Enable Xterm Bracketed Paste Mode - When bracketed paste mode is enabled,
+//      pasted content is emitted between ESC[200~ and ESC[201~ so that an
+//      application can differentiate keyboard input from pasted input.
+//Arguments:
+// - fEnabled - true to enable, false to disable.
+// Return value:
+// True if handled successfully. False othewise.
+bool AdaptDispatch::EnableXtermBracketedPaste(const bool fEnabled)
+{
+    return !!_conApi->PrivateEnableXtermBracketedPaste(fEnabled);
 }
 
 //Routine Description:

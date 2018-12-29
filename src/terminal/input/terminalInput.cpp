@@ -551,3 +551,10 @@ void TerminalInput::_SendInputSequence(_In_ PCWSTR const pwszSequence) const
         }
     }
 }
+
+void TerminalInput::SendBracketedPasteSequence(const bool fIntroducer) const
+{
+    _SendInputSequence(fIntroducer
+                       ? L"\x1b[200~"
+                       : L"\x1b[201~");
+}

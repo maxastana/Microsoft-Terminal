@@ -60,6 +60,7 @@ void DoSrvPrivateEnableSGRExtendedMouseMode(const bool fEnable);
 void DoSrvPrivateEnableButtonEventMouseMode(const bool fEnable);
 void DoSrvPrivateEnableAnyEventMouseMode(const bool fEnable);
 void DoSrvPrivateEnableAlternateScroll(const bool fEnable);
+void DoSrvPrivateEnableXtermBracketedPaste(const bool fEnable);
 
 void DoSrvPrivateSetConsoleXtermTextAttribute(SCREEN_INFORMATION& screenInfo,
                                               const int iXtermTableEntry,

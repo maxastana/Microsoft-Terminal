@@ -130,6 +130,8 @@ public:
     BOOL PrivateEnableButtonEventMouseMode(const bool fEnabled) override;
     BOOL PrivateEnableAnyEventMouseMode(const bool fEnabled) override;
     BOOL PrivateEnableAlternateScroll(const bool fEnabled) override;
+    BOOL PrivateEnableXtermBracketedPaste(const bool fEnabled) override;
+
     BOOL PrivateEraseAll() override;
 
     BOOL PrivateGetConsoleScreenBufferAttributes(_Out_ WORD* const pwAttributes) override;

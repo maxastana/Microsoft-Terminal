@@ -91,5 +91,7 @@ namespace Microsoft::Console::VirtualTerminal
         const size_t GetKeyMappingLength(const KeyEvent& keyEvent) const;
         const _TermKeyMap* GetKeyMapping(const KeyEvent& keyEvent) const;
 
+        void SendBracketedPasteSequence(const bool fIntroducer) const;
+
     };
 }

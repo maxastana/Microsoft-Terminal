@@ -595,6 +595,20 @@ BOOL ConhostInternalGetSet::PrivateEnableAlternateScroll(const bool fEnabled)
 }
 
 // Routine Description:
+// - Connects the PrivateEnableXtermBracketedPaste call directly into our Driver Message servicing call inside Conhost.exe
+//   PrivateEnableXtermBracketedPaste is an internal-only "API" call that the vt commands can execute,
+//     but it is not represented as a function call on out public API surface.
+// Arguments:
+// - fEnabled - set to true to enable alternate scroll mode, false to disable
+// Return Value:
+// - TRUE if successful (see DoSrvPrivateEnableAnyEventMouseMode). FALSE otherwise.
+BOOL ConhostInternalGetSet::PrivateEnableXtermBracketedPaste(const bool fEnabled)
+{
+    DoSrvPrivateEnableXtermBracketedPaste(fEnabled);
+    return TRUE;
+}
+
+// Routine Description:
 // - Connects the PrivateEraseAll call directly into our Driver Message servicing call inside Conhost.exe
 //   PrivateEraseAll is an internal-only "API" call that the vt commands can execute,
 //     but it is not represented as a function call on our public API surface.

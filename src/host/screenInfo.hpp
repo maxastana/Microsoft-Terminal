@@ -162,6 +162,9 @@ public:
 
     bool CursorIsDoubleWidth() const;
 
+    void SetXtermBracketedPaste(const bool fEnabled) noexcept;
+    bool IsXtermBracketedPaste() const noexcept;
+
     DWORD OutputMode;
     WORD ResizingWindow;    // > 0 if we should ignore WM_SIZE messages
 
@@ -322,6 +325,8 @@ private:
     short _virtualBottom;
 
     ScreenBufferRenderTarget _renderTarget;
+
+    bool _xtermBracketedPaste;
 
 #ifdef UNIT_TESTING
     friend class TextBufferIteratorTests;
