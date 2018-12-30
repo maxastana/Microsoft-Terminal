@@ -28,12 +28,16 @@ namespace Microsoft::Console::VirtualTerminal
         bool HandleKey(const IInputEvent* const pInEvent) const;
         void ChangeKeypadMode(const bool fApplicationMode);
         void ChangeCursorKeysMode(const bool fApplicationMode);
+        void EnableXtermBracketedPaste(const bool fEnable);
+
+        void TransmogrifyEventsForPaste(_Inout_ std::deque<std::unique_ptr<IInputEvent>>& inputEvents) const;
 
     private:
 
         std::function<void(std::deque<std::unique_ptr<IInputEvent>>&)> _pfnWriteEvents;
         bool _fKeypadApplicationMode = false;
         bool _fCursorApplicationMode = false;
+        bool _fXtermBracketedPasteEnabled = false;
 
         void _SendNullInputSequence(const DWORD dwControlKeyState) const;
         void _SendInputSequence(_In_ PCWSTR const pwszSequence) const;
@@ -90,8 +94,5 @@ namespace Microsoft::Console::VirtualTerminal
     public:
         const size_t GetKeyMappingLength(const KeyEvent& keyEvent) const;
         const _TermKeyMap* GetKeyMapping(const KeyEvent& keyEvent) const;
-
-        void SendBracketedPasteSequence(const bool fIntroducer) const;
-
     };
 }

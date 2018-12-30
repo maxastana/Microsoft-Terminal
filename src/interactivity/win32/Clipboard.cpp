@@ -107,23 +107,10 @@ void Clipboard::StringPaste(_In_reads_(cchData) const wchar_t* const pData,
 
     try
     {
-        auto fXtermEnabled = gci.GetActiveOutputBuffer().IsXtermBracketedPaste();
         std::deque<std::unique_ptr<IInputEvent>> inEvents = TextToKeyEvents(pData, cchData);
-
-        if (fXtermEnabled) {
-            inEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'~', 0));
-            inEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
-            inEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
-            inEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'2', 0));
-            inEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'[', 0));
-            inEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'\x1b', 0));
-            // swaddle the baby
-            inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'\x1b', 0));
-            inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'[', 0));
-            inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'2', 0));
-            inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
-            inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'1', 0));
-            inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'~', 0));
+        if (IsInVirtualTerminalInputMode())
+        {
+            gci.pInputBuffer->GetTerminalInput().TransmogrifyEventsForPaste(inEvents);
         }
 
         gci.pInputBuffer->Write(inEvents);

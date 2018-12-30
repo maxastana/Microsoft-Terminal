@@ -57,8 +57,7 @@ SCREEN_INFORMATION::SCREEN_INFORMATION(
     _virtualBottom{ 0 },
     _renderTarget{ *this },
     _currentFont{ fontInfo },
-    _desiredFont{ fontInfo },
-    _xtermBracketedPaste{ false }
+    _desiredFont{ fontInfo }
 {
     LineChar[0] = UNICODE_BOX_DRAW_LIGHT_DOWN_AND_RIGHT;
     LineChar[1] = UNICODE_BOX_DRAW_LIGHT_DOWN_AND_LEFT;
@@ -2930,14 +2929,4 @@ Viewport SCREEN_INFORMATION::GetScrollingRegion() const noexcept
                                                   buffer.RightInclusive(),
                                                   marginsSet ? marginRect.Bottom : buffer.BottomInclusive()});
     return margin;
-}
-
-void SCREEN_INFORMATION::SetXtermBracketedPaste(const bool fEnabled) noexcept
-{
-    _xtermBracketedPaste = fEnabled;
-}
-
-bool SCREEN_INFORMATION::IsXtermBracketedPaste() const noexcept
-{
-    return IsInVirtualTerminalInputMode() && _xtermBracketedPaste;
 }

@@ -1756,7 +1756,17 @@ bool AdaptDispatch::EnableAlternateScroll(const bool fEnabled)
 // True if handled successfully. False othewise.
 bool AdaptDispatch::EnableXtermBracketedPaste(const bool fEnabled)
 {
-    return !!_conApi->PrivateEnableXtermBracketedPaste(fEnabled);
+    bool fSuccess = !!_conApi->PrivateEnableXtermBracketedPaste(fEnabled);
+
+    bool isPty = false;
+    _conApi->IsConsolePty(&isPty);
+    if (isPty)
+    {
+        // Make sure we send ?2004[hl] to the pty host as well.
+        return false;
+    }
+
+    return fSuccess;
 }
 
 //Routine Description:

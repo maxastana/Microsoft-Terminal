@@ -1647,9 +1647,9 @@ void DoSrvPrivateEnableAlternateScroll(const bool fEnable)
 void DoSrvPrivateEnableXtermBracketedPaste(const bool fEnable)
 {
     CONSOLE_INFORMATION& gci = ServiceLocator::LocateGlobals().getConsoleInformation();
-    // Empirically observed: xterm does not care whether the alt buffer is in use.
-    SCREEN_INFORMATION& screenBuffer = gci.GetActiveOutputBuffer();
-    screenBuffer.SetXtermBracketedPaste(fEnable);
+    // xterm does not care whether the alt buffer is in use, so we can keep this
+    // as global state.
+    gci.pInputBuffer->GetTerminalInput().EnableXtermBracketedPaste(fEnable);
 }
 
 // Routine Description:

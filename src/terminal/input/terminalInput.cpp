@@ -213,6 +213,11 @@ void TerminalInput::ChangeCursorKeysMode(const bool fApplicationMode)
     _fCursorApplicationMode = fApplicationMode;
 }
 
+void TerminalInput::EnableXtermBracketedPaste(const bool fEnable)
+{
+    _fXtermBracketedPasteEnabled = fEnable;
+}
+
 const size_t TerminalInput::GetKeyMappingLength(const KeyEvent& keyEvent) const
 {
     size_t length = 0;
@@ -552,9 +557,34 @@ void TerminalInput::_SendInputSequence(_In_ PCWSTR const pwszSequence) const
     }
 }
 
-void TerminalInput::SendBracketedPasteSequence(const bool fIntroducer) const
+// Routine Description:
+// - Sends ...
+// Arguments:
+// - keyEvents - Events.
+// Return Value:
+// - None
+void TerminalInput::TransmogrifyEventsForPaste(std::deque<std::unique_ptr<IInputEvent>>& inputEvents) const
 {
-    _SendInputSequence(fIntroducer
-                       ? L"\x1b[200~"
-                       : L"\x1b[201~");
+    try
+    {
+        if (_fXtermBracketedPasteEnabled) {
+            inputEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'~', 0));
+            inputEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
+            inputEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
+            inputEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'2', 0));
+            inputEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'[', 0));
+            inputEvents.push_front(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'\x1b', 0));
+            // swaddle the baby
+            inputEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'\x1b', 0));
+            inputEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'[', 0));
+            inputEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'2', 0));
+            inputEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
+            inputEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'1', 0));
+            inputEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'~', 0));
+        }
+    }
+    catch (...)
+    {
+        LOG_HR(wil::ResultFromCaughtException());
+    }
 }
