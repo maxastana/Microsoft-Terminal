@@ -314,6 +314,12 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
     switch(wch)
     {
         case CsiActionCodes::Generic:
+            if (cParams == 1 && (rgusParams[0] == 200 || rgusParams[0] == 201)) {
+                // handle later
+                fSuccess = true;
+                break;
+            }
+
             dwModifierState = _GetGenericKeysModifierState(rgusParams, cParams);
             fSuccess = _GetGenericVkey(rgusParams, cParams, &vkey);
             break;
@@ -375,6 +381,18 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
                 }
                 __fallthrough;
             case CsiActionCodes::Generic:
+                if (cParams == 1 && (rgusParams[0] == 200 || rgusParams[0] == 201)) {
+                    std::deque<std::unique_ptr<IInputEvent>> inEvents;
+                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'\x1b', 0));
+                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'[', 0));
+                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'2', 0));
+                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
+                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, rgusParams[0] == 200 ? L'0' : L'1', 0));
+                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'~', 0));
+                    fSuccess = _pDispatch->WriteInput(inEvents);
+                    break;
+                }
+                __fallthrough;
             case CsiActionCodes::ArrowUp:
             case CsiActionCodes::ArrowDown:
             case CsiActionCodes::ArrowRight:
