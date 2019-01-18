@@ -34,7 +34,8 @@ enum class InputEventType
     MouseEvent,
     WindowBufferSizeEvent,
     MenuEvent,
-    FocusEvent
+    FocusEvent,
+    PasteEvent
 };
 
 class IInputEvent
@@ -475,4 +476,40 @@ private:
 
 #ifdef UNIT_TESTING
 std::wostream& operator<<(std::wostream& stream, const FocusEvent* const pFocusEvent);
+#endif
+
+class PasteEvent : public IInputEvent
+{
+public:
+    constexpr PasteEvent(const std::wstring_view content) :
+        _content{ content }
+    {
+    }
+
+    ~PasteEvent();
+    PasteEvent(const PasteEvent&) = default;
+    PasteEvent(PasteEvent&&) = default;
+    PasteEvent& operator=(const PasteEvent&)& = default;
+    PasteEvent& operator=(PasteEvent&&)& = default;
+
+    INPUT_RECORD ToInputRecord() const noexcept override;
+    InputEventType EventType() const noexcept override;
+
+    const std::wstring& GetContent() const noexcept
+    {
+        return _content;
+    }
+
+    void SetContent(const std::wstring_view content) noexcept;
+
+private:
+    std::wstring _content;
+
+#ifdef UNIT_TESTING
+    friend std::wostream& operator<<(std::wostream& stream, const PasteEvent* const pPasteEvent);
+#endif
+};
+
+#ifdef UNIT_TESTING
+std::wostream& operator<<(std::wostream& stream, const PasteEvent* const pPasteEvent);
 #endif

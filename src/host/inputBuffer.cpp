@@ -6,6 +6,7 @@
 #include "dbcs.h"
 #include "stream.h"
 #include "../types/inc/GlyphWidth.hpp"
+#include "../types/inc/convert.hpp"
 
 #include <functional>
 
@@ -614,6 +615,22 @@ void InputBuffer::_WriteBuffer(_Inout_ std::deque<std::unique_ptr<IInputEvent>>&
         // If it's not coalesced, append it to the buffer.
         std::unique_ptr<IInputEvent> inEvent = std::move(inEvents.front());
         inEvents.pop_front();
+
+        if (inEvent->EventType() == InputEventType::PasteEvent) {
+            const auto pPasteEvent = static_cast<const PasteEvent* const>(inEvent.get());
+            const auto& content = pPasteEvent->GetContent();
+            std::deque<std::unique_ptr<IInputEvent>> convertedEvents = TextToKeyEvents(content.c_str(), content.size());
+            if (vtInputMode)
+            {
+                _termInput.TransmogrifyEventsForPaste(convertedEvents);
+            }
+            std::copy(std::make_move_iterator(convertedEvents.begin()),
+                      std::make_move_iterator(convertedEvents.end()),
+                      std::back_inserter(_storage));
+            eventsWritten++;
+            continue;
+        }
+
         if (vtInputMode)
         {
             const bool handled = _termInput.HandleKey(inEvent.get());
@@ -867,3 +884,116 @@ TerminalInput& InputBuffer::GetTerminalInput()
 {
     return _termInput;
 }
+
+///////////////////
+
+// Routine Description:
+// - converts a wchar_t* into a series of KeyEvents as if it was typed
+// from the keyboard
+// Arguments:
+// - pData - the text to convert
+// - cchData - the size of pData, in wchars
+// Return Value:
+// - deque of KeyEvents that represent the string passed in
+// Note:
+// - will throw exception on error
+std::deque<std::unique_ptr<IInputEvent>> InputBuffer::TextToKeyEvents(_In_reads_(cchData) const wchar_t* const pData,
+                                                                      const size_t cchData)
+{
+    THROW_IF_NULL_ALLOC(pData);
+
+    std::deque<std::unique_ptr<IInputEvent>> keyEvents;
+
+    for (size_t i = 0; i < cchData; ++i)
+    {
+        wchar_t currentChar = pData[i];
+
+        const bool charAllowed = FilterCharacterOnPaste(&currentChar);
+        // filter out linefeed if it's not the first char and preceded
+        // by a carriage return
+        const bool skipLinefeed = (i != 0 &&
+                                   currentChar == UNICODE_LINEFEED &&
+                                   pData[i - 1] == UNICODE_CARRIAGERETURN);
+
+        if (!charAllowed || skipLinefeed)
+        {
+            continue;
+        }
+
+        if (currentChar == 0)
+        {
+            break;
+        }
+
+        // MSFT:12123975 / WSL GH#2006
+        // If you paste text with ONLY linefeed line endings (unix style) in wsl,
+        //      then we faithfully pass those along, which the underlying terminal
+        //      interprets as C-j. In nano, C-j is mapped to "Justify text", which
+        //      causes the pasted text to get broken at the width of the terminal.
+        // This behavior doesn't occur in gnome-terminal, and nothing like it occurs
+        //      in vi or emacs.
+        // This change doesn't break pasting text into any of those applications
+        //      with CR/LF (Windows) line endings either. That apparently always
+        //      worked right.
+        if (IsInVirtualTerminalInputMode() && currentChar == UNICODE_LINEFEED)
+        {
+            currentChar = UNICODE_CARRIAGERETURN;
+        }
+
+        const UINT codepage = ServiceLocator::LocateGlobals().getConsoleInformation().OutputCP;
+        std::deque<std::unique_ptr<KeyEvent>> convertedEvents = CharToKeyEvents(currentChar, codepage);
+        std::copy(std::make_move_iterator(convertedEvents.begin()),
+                  std::make_move_iterator(convertedEvents.end()),
+                  std::back_inserter(keyEvents));
+    }
+    return keyEvents;
+}
+
+// Returns true if the character should be emitted to the paste stream
+// -- in some cases, we will change what character should be emitted, as in the case of "smart quotes"
+// Returns false if the character should not be emitted (e.g. <TAB>)
+bool InputBuffer::FilterCharacterOnPaste(_Inout_ WCHAR * const pwch)
+{
+    const CONSOLE_INFORMATION& gci = ServiceLocator::LocateGlobals().getConsoleInformation();
+    bool fAllowChar = true;
+    if (gci.GetFilterOnPaste() &&
+        (WI_IsFlagSet(InputMode, ENABLE_PROCESSED_INPUT)))
+    {
+        switch (*pwch)
+        {
+            // swallow tabs to prevent inadvertant tab expansion
+        case UNICODE_TAB:
+        {
+            fAllowChar = false;
+            break;
+        }
+
+        // Replace Unicode space with standard space
+        case UNICODE_NBSP:
+        case UNICODE_NARROW_NBSP:
+        {
+            *pwch = UNICODE_SPACE;
+            break;
+        }
+
+        // Replace "smart quotes" with "dumb ones"
+        case UNICODE_LEFT_SMARTQUOTE:
+        case UNICODE_RIGHT_SMARTQUOTE:
+        {
+            *pwch = UNICODE_QUOTE;
+            break;
+        }
+
+        // Replace Unicode dashes with a standard hypen
+        case UNICODE_EM_DASH:
+        case UNICODE_EN_DASH:
+        {
+            *pwch = UNICODE_HYPHEN;
+            break;
+        }
+        }
+    }
+
+    return fAllowChar;
+}
+

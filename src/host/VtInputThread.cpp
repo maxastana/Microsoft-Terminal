@@ -42,7 +42,9 @@ VtInputThread::VtInputThread(_In_ wil::unique_hfile hPipe,
     auto engine = std::make_unique<InputStateMachineEngine>(new InteractDispatch(pGetSet.release()), inheritCursor);
     THROW_IF_NULL_ALLOC(engine.get());
 
-    _pInputStateMachine = std::make_unique<StateMachine>(engine.release());
+    _pInputStateMachine = std::make_unique<StateMachine>(engine.get());
+    engine->SetFlushToTerminal(std::bind(&StateMachine::FlushToTerminal, _pInputStateMachine.get()));
+    engine.release();
     THROW_IF_NULL_ALLOC(_pInputStateMachine.get());
 }
 

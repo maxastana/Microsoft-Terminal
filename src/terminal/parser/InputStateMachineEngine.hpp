@@ -67,10 +67,25 @@ namespace Microsoft::Console::VirtualTerminal
         bool FlushAtEndOfString() const override;
         bool DispatchControlCharsFromEscape() const override;
 
+        void SetFlushToTerminal(std::function<bool()> pfnFlushToTerminal)
+        {
+            _pfnFlushToTerminal = pfnFlushToTerminal;
+        }
+
     private:
 
         const std::unique_ptr<IInteractDispatch> _pDispatch;
-        bool _lookingForDSR;
+
+        enum class InputStates
+        {
+            Ground,
+            LookingForDSR,
+            BracketedPaste
+        };
+
+        InputStates _state;
+
+        std::wstring _bufferedPasteContent;
 
         enum CsiActionCodes : wchar_t
         {
@@ -188,5 +203,19 @@ namespace Microsoft::Console::VirtualTerminal
                             _Out_ unsigned int* const puiColumn) const;
 
         bool _DoControlCharacter(const wchar_t wch, const bool writeAlt);
+
+        bool _AppendPaste(const wchar_t wch)
+        {
+            _bufferedPasteContent += wch;
+            return true;
+        }
+
+        bool _AppendPaste(const std::wstring_view wstr)
+        {
+            _bufferedPasteContent += wstr;
+            return true;
+        }
+
+        std::function<bool()> _pfnFlushToTerminal;
     };
 }

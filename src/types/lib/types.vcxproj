@@ -14,6 +14,7 @@
     <ClCompile Include="..\Utf16Parser.cpp" />
     <ClCompile Include="..\Viewport.cpp" />
     <ClCompile Include="..\WindowBufferSizeEvent.cpp" />
+    <ClCompile Include="..\PasteEvent.cpp" />
     <ClCompile Include="..\precomp.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

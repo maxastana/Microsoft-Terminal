@@ -84,8 +84,12 @@ InputStateMachineEngine::InputStateMachineEngine(IInteractDispatch* const pDispa
 
 InputStateMachineEngine::InputStateMachineEngine(IInteractDispatch* const pDispatch, const bool lookingForDSR) :
     _pDispatch(THROW_IF_NULL_ALLOC(pDispatch)),
-    _lookingForDSR(lookingForDSR)
+    _state(InputStates::Ground)
 {
+    if (lookingForDSR)
+    {
+        _state = InputStates::LookingForDSR;
+    }
 }
 
 // Method Description:
@@ -102,6 +106,11 @@ bool InputStateMachineEngine::ActionExecute(const wchar_t wch)
 
 bool InputStateMachineEngine::_DoControlCharacter(const wchar_t wch, const bool writeAlt)
 {
+    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    {
+        return _pfnFlushToTerminal();
+    }
+
     bool fSuccess = false;
     if (wch == UNICODE_ETX && !writeAlt)
     {
@@ -202,6 +211,11 @@ bool InputStateMachineEngine::ActionExecuteFromEscape(const wchar_t wch)
 // - true iff we successfully dispatched the sequence.
 bool InputStateMachineEngine::ActionPrint(const wchar_t wch)
 {
+    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    {
+        return _pfnFlushToTerminal();
+    }
+
     short vkey = 0;
     DWORD dwModifierState = 0;
     bool fSuccess =  _GenerateKeyFromChar(wch, &vkey, &dwModifierState);
@@ -227,6 +241,12 @@ bool InputStateMachineEngine::ActionPrintString(const wchar_t* const rgwch,
     {
         return true;
     }
+
+    if (_state == InputStates::BracketedPaste)
+    {
+        return _AppendPaste({ rgwch, cch });
+    }
+
     return _pDispatch->WriteString(rgwch, cch);
 }
 
@@ -258,6 +278,11 @@ bool InputStateMachineEngine::ActionEscDispatch(const wchar_t wch,
                                                 const unsigned short /*cIntermediate*/,
                                                 const wchar_t /*wchIntermediate*/)
 {
+    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    {
+        return _pfnFlushToTerminal();
+    }
+
     bool fSuccess = false;
 
     // 0x7f is DEL, which we treat effectively the same as a ctrl character.
@@ -300,6 +325,28 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
                                                 _In_reads_(cParams) const unsigned short* const rgusParams,
                                                 const unsigned short cParams)
 {
+    if (wch == CsiActionCodes::Generic
+            && cParams == 1
+            && rgusParams[0] == 200
+            && _state != InputStates::BracketedPaste)
+    {
+        // Transition into bracketed paste
+        _state = InputStates::BracketedPaste;
+        return true;
+    } 
+    else if (wch == CsiActionCodes::Generic
+            && cParams == 1
+            && rgusParams[0] == 201
+            && _state == InputStates::BracketedPaste)
+    {
+        // Flush paste content.
+        std::deque<std::unique_ptr<IInputEvent>> events;
+        events.push_back(std::make_unique<PasteEvent>(_bufferedPasteContent));
+        _bufferedPasteContent.clear();
+        _state = InputStates::Ground;
+        return _pDispatch->WriteInput(events);
+    }
+
     DWORD dwModifierState = 0;
     short vkey = 0;
     unsigned int uiFunction = 0;
@@ -314,12 +361,6 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
     switch(wch)
     {
         case CsiActionCodes::Generic:
-            if (cParams == 1 && (rgusParams[0] == 200 || rgusParams[0] == 201)) {
-                // handle later
-                fSuccess = true;
-                break;
-            }
-
             dwModifierState = _GetGenericKeysModifierState(rgusParams, cParams);
             fSuccess = _GetGenericVkey(rgusParams, cParams, &vkey);
             break;
@@ -328,7 +369,7 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
             // The F3 case is special - it shares a code with the DeviceStatusResponse.
             // If we're looking for that response, then do that, and break out.
             // Else, fall though to the _GetCursorKeysModifierState handler.
-            if (_lookingForDSR)
+            if (_state == InputStates::LookingForDSR)
             {
                 fSuccess = true;
                 fSuccess = _GetXYPosition(rgusParams, cParams, &row, &col);
@@ -371,28 +412,16 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
             // The F3 case is special - it shares a code with the DeviceStatusResponse.
             // If we're looking for that response, then do that, and break out.
             // Else, fall though to the _GetCursorKeysModifierState handler.
-                if (_lookingForDSR)
+                if (_state == InputStates::LookingForDSR)
                 {
                     fSuccess = _pDispatch->MoveCursor(row, col);
                     // Right now we're only looking for on initial cursor
                     //      position response. After that, only look for F3.
-                    _lookingForDSR = false;
+                    _state = InputStates::Ground;
                     break;
                 }
                 __fallthrough;
             case CsiActionCodes::Generic:
-                if (cParams == 1 && (rgusParams[0] == 200 || rgusParams[0] == 201)) {
-                    std::deque<std::unique_ptr<IInputEvent>> inEvents;
-                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'\x1b', 0));
-                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'[', 0));
-                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'2', 0));
-                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'0', 0));
-                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, rgusParams[0] == 200 ? L'0' : L'1', 0));
-                    inEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, L'~', 0));
-                    fSuccess = _pDispatch->WriteInput(inEvents);
-                    break;
-                }
-                __fallthrough;
             case CsiActionCodes::ArrowUp:
             case CsiActionCodes::ArrowDown:
             case CsiActionCodes::ArrowRight:
@@ -435,6 +464,11 @@ bool InputStateMachineEngine::ActionSs3Dispatch(const wchar_t wch,
                                                 _In_reads_(_Param_(3)) const unsigned short* const /*rgusParams*/,
                                                 const unsigned short /*cParams*/)
 {
+    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    {
+        return _pfnFlushToTerminal();
+    }
+
     // Ss3 sequence keys aren't modified.
     // When F1-F4 *are* modified, they're sent as CSI sequences, not SS3's.
     DWORD dwModifierState = 0;
@@ -471,6 +505,11 @@ bool InputStateMachineEngine::ActionClear()
 // - true iff we successfully dispatched the sequence.
 bool InputStateMachineEngine::ActionIgnore()
 {
+    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    {
+        return _pfnFlushToTerminal();
+    }
+
     return true;
 }
 
@@ -489,6 +528,11 @@ bool InputStateMachineEngine::ActionOscDispatch(const wchar_t /*wch*/,
                                                 _Inout_updates_(_Param_(4)) wchar_t* const /*pwchOscStringBuffer*/,
                                                 const unsigned short /*cchOscString*/)
 {
+    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    {
+        return _pfnFlushToTerminal();
+    }
+
     return false;
 }
 
@@ -890,7 +934,17 @@ bool InputStateMachineEngine::_GenerateKeyFromChar(const wchar_t wch,
 // - True iff we should manually dispatch on the last character of a string.
 bool InputStateMachineEngine::FlushAtEndOfString() const
 {
-    return true;
+    bool fShouldFlush = true;
+    switch (_state)
+    {
+        case InputStates::Ground:
+        case InputStates::LookingForDSR:
+            break;
+        case InputStates::BracketedPaste:
+            fShouldFlush = false;
+            break;
+    }
+    return fShouldFlush;
 }
 
 // Routine Description:
