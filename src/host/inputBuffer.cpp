@@ -619,7 +619,7 @@ void InputBuffer::_WriteBuffer(_Inout_ std::deque<std::unique_ptr<IInputEvent>>&
         if (inEvent->EventType() == InputEventType::PasteEvent) {
             const auto pPasteEvent = static_cast<const PasteEvent* const>(inEvent.get());
             const auto& content = pPasteEvent->GetContent();
-            std::deque<std::unique_ptr<IInputEvent>> convertedEvents = TextToKeyEvents(content.c_str(), content.size());
+            std::deque<std::unique_ptr<IInputEvent>> convertedEvents = _WriteTextAsKeyEvents(content);
             if (vtInputMode)
             {
                 _termInput.TransmogrifyEventsForPaste(convertedEvents);
@@ -891,29 +891,25 @@ TerminalInput& InputBuffer::GetTerminalInput()
 // - converts a wchar_t* into a series of KeyEvents as if it was typed
 // from the keyboard
 // Arguments:
-// - pData - the text to convert
-// - cchData - the size of pData, in wchars
+// - view - a wstring_view over the text to convert
 // Return Value:
-// - deque of KeyEvents that represent the string passed in
+// - none (well)
 // Note:
 // - will throw exception on error
-std::deque<std::unique_ptr<IInputEvent>> InputBuffer::TextToKeyEvents(_In_reads_(cchData) const wchar_t* const pData,
-                                                                      const size_t cchData)
+std::deque<std::unique_ptr<IInputEvent>> InputBuffer::_WriteTextAsKeyEvents(const std::wstring_view view)
 {
-    THROW_IF_NULL_ALLOC(pData);
-
     std::deque<std::unique_ptr<IInputEvent>> keyEvents;
 
-    for (size_t i = 0; i < cchData; ++i)
+    for (size_t i = 0; i < view.size(); ++i)
     {
-        wchar_t currentChar = pData[i];
+        wchar_t currentChar = view[i];
 
         const bool charAllowed = FilterCharacterOnPaste(&currentChar);
         // filter out linefeed if it's not the first char and preceded
         // by a carriage return
         const bool skipLinefeed = (i != 0 &&
                                    currentChar == UNICODE_LINEFEED &&
-                                   pData[i - 1] == UNICODE_CARRIAGERETURN);
+                                   view[i - 1] == UNICODE_CARRIAGERETURN);
 
         if (!charAllowed || skipLinefeed)
         {
@@ -952,7 +948,7 @@ std::deque<std::unique_ptr<IInputEvent>> InputBuffer::TextToKeyEvents(_In_reads_
 // Returns true if the character should be emitted to the paste stream
 // -- in some cases, we will change what character should be emitted, as in the case of "smart quotes"
 // Returns false if the character should not be emitted (e.g. <TAB>)
-bool InputBuffer::FilterCharacterOnPaste(_Inout_ WCHAR * const pwch)
+bool InputBuffer::FilterCharacterOnPaste(_Inout_ wchar_t* const pwch)
 {
     const CONSOLE_INFORMATION& gci = ServiceLocator::LocateGlobals().getConsoleInformation();
     bool fAllowChar = true;

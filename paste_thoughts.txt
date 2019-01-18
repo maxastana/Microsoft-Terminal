@@ -1,0 +1,22 @@
+skip LF in CRLF.
+VT: convert LF to CR
+
+convert character to key event -- look up scan code for current input key layout and output cp
+this can be: numpad, keyboard event (scancode)
+
+keyboard event: press keys for modifiers, press key, release key, release modifiers
+
+numpad event: alt down, keypad X, Y, Z, apt up
+
+default mode:
+these keys get stuffed directly into the input buffer
+NOT DEDUPLICATED because they're pushed in in batch sizes > 1
+
+virtual terminal input mode:
+pasted content gets transformed by default through TerminalInput,
+character by character.
+
+
+thoughts-
+stream.cpp converts alt-numpad events into characters again (i think)
+stream.cpp passes through KeyDown in VT mode as just the character

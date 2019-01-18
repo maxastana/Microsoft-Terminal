@@ -104,9 +104,8 @@ private:
 
     void _HandleTerminalInputCallback(_In_ std::deque<std::unique_ptr<IInputEvent>>& inEvents);
 
-    std::deque<std::unique_ptr<IInputEvent>> TextToKeyEvents(_In_reads_(cchData) const wchar_t* const pData,
-                                                             const size_t cchData);
-    bool FilterCharacterOnPaste(_Inout_ WCHAR * const pwch);
+    std::deque<std::unique_ptr<IInputEvent>> _WriteTextAsKeyEvents(const std::wstring_view view);
+    bool FilterCharacterOnPaste(_Inout_ wchar_t* const pwch);
 
 #ifdef UNIT_TESTING
     friend class InputBufferTests;

@@ -36,6 +36,7 @@ SOURCES= \
     ..\MenuEvent.cpp \
     ..\ModifierKeyState.cpp \
     ..\MouseEvent.cpp \
+    ..\PasteEvent.cpp \
     ..\Viewport.cpp \
     ..\WindowBufferSizeEvent.cpp \
     ..\convert.cpp \
