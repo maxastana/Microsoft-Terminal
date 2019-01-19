@@ -85,7 +85,9 @@ namespace Microsoft::Console::VirtualTerminal
 
         InputStates _state;
 
-        std::wstring _bufferedPasteContent;
+        std::wstring _pasteBuffer;
+
+        std::function<bool()> _pfnFlushToTerminal;
 
         enum CsiActionCodes : wchar_t
         {
@@ -138,6 +140,13 @@ namespace Microsoft::Console::VirtualTerminal
             F10 = 21,
             F11 = 23,
             F12 = 24,
+        };
+
+        // Sequences ending in '~' whose numbers do not represent keys.
+        enum SpecialKeyIdentifiers : unsigned short
+        {
+            PasteIntroducer = 200,
+            PasteTerminator = 201,
         };
 
         struct CSI_TO_VKEY {
@@ -204,18 +213,26 @@ namespace Microsoft::Console::VirtualTerminal
 
         bool _DoControlCharacter(const wchar_t wch, const bool writeAlt);
 
-        bool _AppendPaste(const wchar_t wch)
-        {
-            _bufferedPasteContent += wch;
-            return true;
-        }
+        void _EnterGround() noexcept;
+        void _EnterLookingForDSR() noexcept;
+        void _EnterBracketedPaste() noexcept;
 
-        bool _AppendPaste(const std::wstring_view wstr)
-        {
-            _bufferedPasteContent += wstr;
-            return true;
-        }
-
-        std::function<bool()> _pfnFlushToTerminal;
+        bool _ActionCsiFromDSRWait(const wchar_t wch,
+                            const unsigned short cIntermediate,
+                            const wchar_t wchIntermediate,
+                            _In_reads_(cParams) const unsigned short* const rgusParams,
+                            const unsigned short cParams);
+        bool _ActionCsiFromGround(const wchar_t wch,
+                            const unsigned short cIntermediate,
+                            const wchar_t wchIntermediate,
+                            _In_reads_(cParams) const unsigned short* const rgusParams,
+                            const unsigned short cParams);
+        bool _ActionCsiFromBracketedPaste(const wchar_t wch,
+                            const unsigned short cIntermediate,
+                            const wchar_t wchIntermediate,
+                            _In_reads_(cParams) const unsigned short* const rgusParams,
+                            const unsigned short cParams);
+        bool _AppendToPasteBuffer(const std::wstring_view wstr);
+        bool _TryFlushToTerminal();
     };
 }

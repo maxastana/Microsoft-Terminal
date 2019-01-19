@@ -88,7 +88,7 @@ InputStateMachineEngine::InputStateMachineEngine(IInteractDispatch* const pDispa
 {
     if (lookingForDSR)
     {
-        _state = InputStates::LookingForDSR;
+        _EnterLookingForDSR();
     }
 }
 
@@ -101,16 +101,24 @@ InputStateMachineEngine::InputStateMachineEngine(IInteractDispatch* const pDispa
 // - true iff we successfully dispatched the sequence.
 bool InputStateMachineEngine::ActionExecute(const wchar_t wch)
 {
-    return _DoControlCharacter(wch, false);
+    bool fSuccess = false;
+    switch (_state)
+    {
+        case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
+            fSuccess = _DoControlCharacter(wch, false);
+            break;
+        case InputStates::BracketedPaste:
+            fSuccess = _TryFlushToTerminal();
+            break;
+    }
+
+    return fSuccess;
 }
 
 bool InputStateMachineEngine::_DoControlCharacter(const wchar_t wch, const bool writeAlt)
 {
-    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
-    {
-        return _pfnFlushToTerminal();
-    }
-
     bool fSuccess = false;
     if (wch == UNICODE_ETX && !writeAlt)
     {
@@ -199,7 +207,20 @@ bool InputStateMachineEngine::_DoControlCharacter(const wchar_t wch, const bool 
 // - true iff we successfully dispatched the sequence.
 bool InputStateMachineEngine::ActionExecuteFromEscape(const wchar_t wch)
 {
-    return _DoControlCharacter(wch, true);
+    bool fSuccess = false;
+    switch (_state)
+    {
+        case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
+            fSuccess = _DoControlCharacter(wch, true);
+            break;
+        case InputStates::BracketedPaste:
+            fSuccess = _TryFlushToTerminal();
+            break;
+    }
+
+    return fSuccess;
 }
 
 // Method Description:
@@ -211,18 +232,27 @@ bool InputStateMachineEngine::ActionExecuteFromEscape(const wchar_t wch)
 // - true iff we successfully dispatched the sequence.
 bool InputStateMachineEngine::ActionPrint(const wchar_t wch)
 {
-    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    bool fSuccess = false;
+    switch (_state)
     {
-        return _pfnFlushToTerminal();
+        case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
+        {
+            short vkey = 0;
+            DWORD dwModifierState = 0;
+            fSuccess =  _GenerateKeyFromChar(wch, &vkey, &dwModifierState);
+            if (fSuccess)
+            {
+                fSuccess = _WriteSingleKey(wch, vkey, dwModifierState);
+            }
+            break;
+        }
+        case InputStates::BracketedPaste:
+            fSuccess = _TryFlushToTerminal();
+            break;
     }
 
-    short vkey = 0;
-    DWORD dwModifierState = 0;
-    bool fSuccess =  _GenerateKeyFromChar(wch, &vkey, &dwModifierState);
-    if (fSuccess)
-    {
-        fSuccess = _WriteSingleKey(wch, vkey, dwModifierState);
-    }
     return fSuccess;
 }
 
@@ -242,12 +272,20 @@ bool InputStateMachineEngine::ActionPrintString(const wchar_t* const rgwch,
         return true;
     }
 
-    if (_state == InputStates::BracketedPaste)
+    bool fSuccess = false;
+    switch (_state)
     {
-        return _AppendPaste({ rgwch, cch });
+        case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
+            fSuccess = _pDispatch->WriteString(rgwch, cch);
+            break;
+        case InputStates::BracketedPaste:
+            fSuccess = _AppendToPasteBuffer({ rgwch, cch });
+            break;
     }
 
-    return _pDispatch->WriteString(rgwch, cch);
+    return fSuccess;
 }
 
 // Method Description:
@@ -261,6 +299,7 @@ bool InputStateMachineEngine::ActionPrintString(const wchar_t* const rgwch,
 bool InputStateMachineEngine::ActionPassThroughString(const wchar_t* const rgwch,
                                                       _In_ size_t const cch)
 {
+    // Same for all states.
     return ActionPrintString(rgwch, cch);
 }
 
@@ -278,29 +317,67 @@ bool InputStateMachineEngine::ActionEscDispatch(const wchar_t wch,
                                                 const unsigned short /*cIntermediate*/,
                                                 const wchar_t /*wchIntermediate*/)
 {
-    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
-    {
-        return _pfnFlushToTerminal();
-    }
-
     bool fSuccess = false;
+    switch (_state)
+    {
+        case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
+        {
+            // 0x7f is DEL, which we treat effectively the same as a ctrl character.
+            if (wch == 0x7f)
+            {
+                fSuccess = _DoControlCharacter(wch, true);
+            }
+            else
+            {
+                DWORD dwModifierState = 0;
+                short vk = 0;
+                fSuccess = _GenerateKeyFromChar(wch, &vk, &dwModifierState);
+                if (fSuccess)
+                {
+                    // Alt is definitely pressed in the esc+key case.
+                    dwModifierState = WI_SetFlag(dwModifierState, LEFT_ALT_PRESSED);
 
-    // 0x7f is DEL, which we treat effectively the same as a ctrl character.
-    if (wch == 0x7f)
-    {
-        fSuccess = _DoControlCharacter(wch, true);
+                    fSuccess = _WriteSingleKey(wch, vk, dwModifierState);
+                }
+            }
+            break;
+        }
+        case InputStates::BracketedPaste:
+            fSuccess = _TryFlushToTerminal();
+            break;
     }
-    else
+
+    return fSuccess;
+}
+
+// Method Description:
+// - Handles incoming DSR sequences during DSR wait
+// Arguments:
+// - as in ActionCsiDispatch
+// Return Value:
+// - true iff the sequence was an awaited DSR
+bool InputStateMachineEngine::_ActionCsiFromDSRWait(const wchar_t wch,
+                                                    const unsigned short /*cIntermediate*/,
+                                                    const wchar_t /*wchIntermediate*/,
+                                                    _In_reads_(cParams) const unsigned short* const rgusParams,
+                                                    const unsigned short cParams)
+{
+    bool fSuccess = false;
+    // DSR_DeviceStatusReportResponse == CSI_F3
+    if (wch == CsiActionCodes::CSI_F3)
     {
-        DWORD dwModifierState = 0;
-        short vk = 0;
-        fSuccess = _GenerateKeyFromChar(wch, &vk, &dwModifierState);
+        unsigned int col = 0;
+        unsigned int row = 0;
+
+        fSuccess = _GetXYPosition(rgusParams, cParams, &row, &col);
         if (fSuccess)
         {
-            // Alt is definitely pressed in the esc+key case.
-            dwModifierState = WI_SetFlag(dwModifierState, LEFT_ALT_PRESSED);
-
-            fSuccess = _WriteSingleKey(wch, vk, dwModifierState);
+            fSuccess = _pDispatch->MoveCursor(row, col);
+            // Right now we're only looking for on initial cursor
+            //      position response. After that, only look for F3.
+            _EnterGround();
         }
     }
 
@@ -308,73 +385,44 @@ bool InputStateMachineEngine::ActionEscDispatch(const wchar_t wch,
 }
 
 // Method Description:
-// - Triggers the CsiDispatch action to indicate that the listener should handle
-//      a control sequence. These sequences perform various API-type commands
-//      that can include many parameters.
+// - Handles incoming CSI sequences during the Ground state
+// - See ActionCsiDispatch
 // Arguments:
-// - wch - Character to dispatch.
-// - cIntermediate - Number of "Intermediate" characters found - such as '!', '?'
-// - wchIntermediate - Intermediate character in the sequence, if there was one.
-// - rgusParams - set of numeric parameters collected while pasring the sequence.
-// - cParams - number of parameters found.
+// - as in ActionCsiDispatch
 // Return Value:
-// - true iff we successfully dispatched the sequence.
-bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
-                                                const unsigned short /*cIntermediate*/,
-                                                const wchar_t /*wchIntermediate*/,
-                                                _In_reads_(cParams) const unsigned short* const rgusParams,
-                                                const unsigned short cParams)
+// - as in ActionCsiDispatch
+bool InputStateMachineEngine::_ActionCsiFromGround(const wchar_t wch,
+                                                   const unsigned short /*cIntermediate*/,
+                                                   const wchar_t /*wchIntermediate*/,
+                                                   _In_reads_(cParams) const unsigned short* const rgusParams,
+                                                   const unsigned short cParams)
 {
-    if (wch == CsiActionCodes::Generic
-            && cParams == 1
-            && rgusParams[0] == 200
-            && _state != InputStates::BracketedPaste)
+    if (wch == CsiActionCodes::Generic &&
+        cParams == 1 &&
+        rgusParams[0] == SpecialKeyIdentifiers::PasteIntroducer)
     {
-        // Transition into bracketed paste
-        _state = InputStates::BracketedPaste;
+        _EnterBracketedPaste();
         return true;
-    } 
-    else if (wch == CsiActionCodes::Generic
-            && cParams == 1
-            && rgusParams[0] == 201
-            && _state == InputStates::BracketedPaste)
-    {
-        // Flush paste content.
-        std::deque<std::unique_ptr<IInputEvent>> events;
-        events.push_back(std::make_unique<PasteEvent>(_bufferedPasteContent));
-        _bufferedPasteContent.clear();
-        _state = InputStates::Ground;
-        return _pDispatch->WriteInput(events);
     }
 
+    bool fSuccess = false;
     DWORD dwModifierState = 0;
     short vkey = 0;
     unsigned int uiFunction = 0;
-    unsigned int col = 0;
-    unsigned int row = 0;
 
     // This is all the args after the first arg, and the count of args not including the first one.
     const unsigned short* const rgusRemainingArgs = (cParams > 1) ? rgusParams + 1 : rgusParams;
     const unsigned short cRemainingArgs = (cParams >= 1) ? cParams - 1 : 0;
 
-    bool fSuccess = false;
     switch(wch)
     {
         case CsiActionCodes::Generic:
             dwModifierState = _GetGenericKeysModifierState(rgusParams, cParams);
             fSuccess = _GetGenericVkey(rgusParams, cParams, &vkey);
             break;
-        // case CsiActionCodes::DSR_DeviceStatusReportResponse:
         case CsiActionCodes::CSI_F3:
-            // The F3 case is special - it shares a code with the DeviceStatusResponse.
-            // If we're looking for that response, then do that, and break out.
-            // Else, fall though to the _GetCursorKeysModifierState handler.
-            if (_state == InputStates::LookingForDSR)
-            {
-                fSuccess = true;
-                fSuccess = _GetXYPosition(rgusParams, cParams, &row, &col);
-                break;
-            }
+            // F3 has another meaning (DeviceStatusResponse), but that meaning is handled
+            // in the LookingForDSR state.
         case CsiActionCodes::ArrowUp:
         case CsiActionCodes::ArrowDown:
         case CsiActionCodes::ArrowRight:
@@ -407,20 +455,9 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
     {
         switch(wch)
         {
-            // case CsiActionCodes::DSR_DeviceStatusReportResponse:
             case CsiActionCodes::CSI_F3:
-            // The F3 case is special - it shares a code with the DeviceStatusResponse.
-            // If we're looking for that response, then do that, and break out.
-            // Else, fall though to the _GetCursorKeysModifierState handler.
-                if (_state == InputStates::LookingForDSR)
-                {
-                    fSuccess = _pDispatch->MoveCursor(row, col);
-                    // Right now we're only looking for on initial cursor
-                    //      position response. After that, only look for F3.
-                    _state = InputStates::Ground;
-                    break;
-                }
-                __fallthrough;
+                // F3 has another meaning (DeviceStatusResponse), but that meaning is handled
+                // in the LookingForDSR state.
             case CsiActionCodes::Generic:
             case CsiActionCodes::ArrowUp:
             case CsiActionCodes::ArrowDown:
@@ -450,6 +487,80 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
     return fSuccess;
 }
 
+// Method Description:
+// - Handles incoming CSI sequences during Bracketed Paste
+// - See ActionCsiDispatch
+// Arguments:
+// - as in ActionCsiDispatch
+// Return Value:
+// - as in ActionCsiDispatch
+bool InputStateMachineEngine::_ActionCsiFromBracketedPaste(const wchar_t wch,
+                                                           const unsigned short /*cIntermediate*/,
+                                                           const wchar_t /*wchIntermediate*/,
+                                                           _In_reads_(cParams) const unsigned short* const rgusParams,
+                                                           const unsigned short cParams)
+{
+    bool fSuccess = false;
+    if (wch == CsiActionCodes::Generic &&
+        cParams == 1 &&
+        rgusParams[0] == SpecialKeyIdentifiers::PasteTerminator)
+    {
+        std::deque<std::unique_ptr<IInputEvent>> events;
+        events.push_back(std::make_unique<PasteEvent>(_pasteBuffer));
+        fSuccess = _pDispatch->WriteInput(events);
+
+        _pasteBuffer.clear();
+        _EnterGround();
+        fSuccess = true;
+    }
+    else
+    {
+        fSuccess = _TryFlushToTerminal();
+    }
+
+    return fSuccess;
+}
+
+// Method Description:
+// - Triggers the CsiDispatch action to indicate that the listener should handle
+//      a control sequence. These sequences perform various API-type commands
+//      that can include many parameters.
+// Arguments:
+// - wch - Character to dispatch.
+// - cIntermediate - Number of "Intermediate" characters found - such as '!', '?'
+// - wchIntermediate - Intermediate character in the sequence, if there was one.
+// - rgusParams - set of numeric parameters collected while pasring the sequence.
+// - cParams - number of parameters found.
+// Return Value:
+// - true iff we successfully dispatched the sequence.
+bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
+                                                const unsigned short cIntermediate,
+                                                const wchar_t wchIntermediate,
+                                                _In_reads_(cParams) const unsigned short* const rgusParams,
+                                                const unsigned short cParams)
+{
+    bool fSuccess = false;
+    switch (_state)
+    {
+        case InputStates::LookingForDSR:
+            fSuccess = _ActionCsiFromDSRWait(wch, cIntermediate, wchIntermediate, rgusParams, cParams);
+            if (fSuccess)
+            {
+                break;
+            }
+            // This wasn't a DSR, but LookingForDSR continues to handle other input.
+            __fallthrough;
+        case InputStates::Ground:
+            fSuccess = _ActionCsiFromGround(wch, cIntermediate, wchIntermediate, rgusParams, cParams);
+            break;
+        case InputStates::BracketedPaste:
+            fSuccess = _ActionCsiFromBracketedPaste(wch, cIntermediate, wchIntermediate, rgusParams, cParams);
+            break;
+    }
+
+    return fSuccess;
+}
+
 // Routine Description:
 // - Triggers the Ss3Dispatch action to indicate that the listener should handle
 //      a control sequence. These sequences perform various API-type commands
@@ -464,21 +575,30 @@ bool InputStateMachineEngine::ActionSs3Dispatch(const wchar_t wch,
                                                 _In_reads_(_Param_(3)) const unsigned short* const /*rgusParams*/,
                                                 const unsigned short /*cParams*/)
 {
-    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    bool fSuccess = false;
+    switch (_state)
     {
-        return _pfnFlushToTerminal();
-    }
+        case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
+        {
+            // Ss3 sequence keys aren't modified.
+            // When F1-F4 *are* modified, they're sent as CSI sequences, not SS3's.
+            DWORD dwModifierState = 0;
+            short vkey = 0;
 
-    // Ss3 sequence keys aren't modified.
-    // When F1-F4 *are* modified, they're sent as CSI sequences, not SS3's.
-    DWORD dwModifierState = 0;
-    short vkey = 0;
+            fSuccess = _GetSs3KeysVkey(wch, &vkey);
 
-    bool fSuccess = _GetSs3KeysVkey(wch, &vkey);
+            if (fSuccess)
+            {
+                fSuccess = _WriteSingleKey(vkey, dwModifierState);
+            }
 
-    if (fSuccess)
-    {
-        fSuccess = _WriteSingleKey(vkey, dwModifierState);
+            break;
+        }
+        case InputStates::BracketedPaste:
+            fSuccess = _TryFlushToTerminal();
+            break;
     }
 
     return fSuccess;
@@ -505,11 +625,6 @@ bool InputStateMachineEngine::ActionClear()
 // - true iff we successfully dispatched the sequence.
 bool InputStateMachineEngine::ActionIgnore()
 {
-    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
-    {
-        return _pfnFlushToTerminal();
-    }
-
     return true;
 }
 
@@ -528,12 +643,20 @@ bool InputStateMachineEngine::ActionOscDispatch(const wchar_t /*wch*/,
                                                 _Inout_updates_(_Param_(4)) wchar_t* const /*pwchOscStringBuffer*/,
                                                 const unsigned short /*cchOscString*/)
 {
-    if (_pfnFlushToTerminal && _state == InputStates::BracketedPaste)
+    bool fSuccess = false;
+    switch (_state)
     {
-        return _pfnFlushToTerminal();
+        case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
+            // Nothing.
+            break;
+        case InputStates::BracketedPaste:
+            fSuccess = _TryFlushToTerminal();
+            break;
     }
 
-    return false;
+    return fSuccess;
 }
 
 // Method Description:
@@ -937,8 +1060,9 @@ bool InputStateMachineEngine::FlushAtEndOfString() const
     bool fShouldFlush = true;
     switch (_state)
     {
-        case InputStates::Ground:
         case InputStates::LookingForDSR:
+            __fallthrough; // for most intents and purposes, DSR-wait acts like Ground
+        case InputStates::Ground:
             break;
         case InputStates::BracketedPaste:
             fShouldFlush = false;
@@ -1049,5 +1173,74 @@ bool InputStateMachineEngine::_GetXYPosition(_In_reads_(cParams) const unsigned 
 
     }
 
+    return fSuccess;
+}
+
+// Routine Description:
+// - Moves the state machine into the Ground state.
+//   This state is entered:
+//   1. By default
+//   2. After exiting a bracketed paste or Looking for DSR state
+// Arguments:
+// - <none>
+// Return Value:
+// - <none>
+void InputStateMachineEngine::_EnterGround() noexcept
+{
+    _state = InputStates::Ground;
+}
+
+// Routine Description:
+// - Moves the state machine into the LookingForDSR state.
+//   This state is entered:
+//   1. By default if the state machine engine begins awaiting a DSR
+// Arguments:
+// - <none>
+// Return Value:
+// - <none>
+void InputStateMachineEngine::_EnterLookingForDSR() noexcept
+{
+    _state = InputStates::LookingForDSR;
+}
+
+// Routine Description:
+// - Moves the state machine into the BracketedPaste state.
+//   This state is entered:
+//   1. After the Ground state evaluates a CSI '200~'
+// Arguments:
+// - <none>
+// Return Value:
+// - <none>
+void InputStateMachineEngine::_EnterBracketedPaste() noexcept
+{
+    _state = InputStates::BracketedPaste;
+}
+
+// Routine Description:
+// - Appends the provided string to the bracketed paste content.
+// Arguments:
+// - wstr - String view over characters to append to the bracketed paste content.
+// Return Value:
+// - True if the append was successful.
+bool InputStateMachineEngine::_AppendToPasteBuffer(const std::wstring_view wstr)
+{
+    _pasteBuffer += wstr;
+    return true;
+}
+
+// Routine Description:
+// - Instructs the underlying state machine to pass the
+//   last parsed string unmodified.
+// Arguments:
+// - <none>
+// Return Value:
+// - true iff the string was successfully emitted
+bool InputStateMachineEngine::_TryFlushToTerminal()
+{
+    bool fSuccess = false;
+    if (_pfnFlushToTerminal)
+    {
+        fSuccess = _pfnFlushToTerminal();
+    }
     return fSuccess;
 }
