@@ -54,7 +54,6 @@ namespace winrt::TerminalApp::implementation
         HRESULT _settingsLoadedResult;
 
         bool _loadedInitialSettings;
-        std::shared_mutex _dialogLock;
 
         ScopedResourceLoader _resourceLoader;
 

@@ -16,7 +16,6 @@ using namespace winrt::Microsoft::Terminal;
 using namespace winrt::Microsoft::Terminal::Settings;
 using namespace winrt::Microsoft::Terminal::TerminalControl;
 using namespace ::TerminalApp;
-using namespace winrt::TerminalApp;
 
 namespace winrt
 {
@@ -29,9 +28,7 @@ namespace winrt::TerminalApp::implementation
     App::App() :
         _settings{},
         _loadedInitialSettings{ false },
-        _settingsLoadedResult{ S_OK },
-        _dialogLock{},
-        _resourceLoader{ L"TerminalApp/Resources" }
+        _settingsLoadedResult{ S_OK }
     {
         // For your own sanity, it's better to do setup outside the ctor.
         // If you do any setup in the ctor that ends up throwing an exception,
@@ -71,14 +68,14 @@ namespace winrt::TerminalApp::implementation
             // Remove the TabView from the page. We'll hang on to it, we need to
             // put it in the titlebar.
             uint32_t index = 0;
-            TerminalApp::TabRowControl* tabRow = terminalPage->GetTabRow();
-            if (terminalPage->Root().Children().IndexOf(*tabRow, index))
+            TerminalApp::TabRowControl tabRow = terminalPage->GetTabRow();
+            if (terminalPage->Root().Children().IndexOf(tabRow, index))
             {
                 terminalPage->Root().Children().RemoveAt(index);
             }
 
             // Inform the host that our titlebar content has changed.
-            _setTitleBarContentHandlers(*this, *tabRow);
+            _setTitleBarContentHandlers(*this, tabRow);
         }
     }
 
@@ -273,8 +270,6 @@ namespace winrt::TerminalApp::implementation
         _settingsLoadedResult = _TryLoadSettings(false);
 
         auto terminalPage = _root.as<TerminalPage>();
-        // Update the settings in TerminalPage
-        terminalPage->SetSettings(_settings.get());
 
         if (FAILED(_settingsLoadedResult))
         {
@@ -289,6 +284,9 @@ namespace winrt::TerminalApp::implementation
 
         // Here, we successfully reloaded the settings, and created a new
         // TerminalSettings object.
+
+        // Update the settings in TerminalPage
+        terminalPage->SetSettings(_settings.get());
 
         // Inform Page to update the UI
         terminalPage->RefreshUIAfterSettingsReloaded();
