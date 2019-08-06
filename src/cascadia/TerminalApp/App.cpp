@@ -326,6 +326,15 @@ namespace winrt::TerminalApp::implementation
         _requestedThemeChangedHandlers(*this, newTheme);
     }
 
+    winrt::event_token App::SetTitleBarContent(Windows::Foundation::TypedEventHandler<TerminalApp::App, winrt::Windows::UI::Xaml::UIElement> const& handler)
+    {
+        return _root.as<TerminalPage>()->SetTitleBarContent(handler);
+    }
+    void App::SetTitleBarContent(winrt::event_token const& token) noexcept
+    {
+        return _root.as<TerminalPage>()->SetTitleBarContent(token);
+    }
+
     // -------------------------------- WinRT Events ---------------------------------
     // Winrt events need a method for adding a callback to the event and removing the callback.
     // These macros will define them both for you.

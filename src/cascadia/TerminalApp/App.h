@@ -68,6 +68,9 @@ namespace winrt::TerminalApp::implementation
         void _ApplyTheme(const Windows::UI::Xaml::ElementTheme& newTheme);
 
         void _OnLoaded(const IInspectable& sender, const Windows::UI::Xaml::RoutedEventArgs& eventArgs);
+
+        winrt::event_token SetTitleBarContent(Windows::Foundation::TypedEventHandler<TerminalApp::App, winrt::Windows::UI::Xaml::UIElement> const& handler);
+        void SetTitleBarContent(winrt::event_token const& token) noexcept;
     };
 }
 

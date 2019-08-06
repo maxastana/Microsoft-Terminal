@@ -1195,4 +1195,5 @@ namespace winrt::TerminalApp::implementation
     // These macros will define them both for you.
     DEFINE_EVENT(TerminalPage, TitleChanged, _titleChangeHandlers, winrt::Microsoft::Terminal::TerminalControl::TitleChangedEventArgs);
     DEFINE_EVENT(TerminalPage, LastTabClosed, _lastTabClosedHandlers, winrt::TerminalApp::LastTabClosedEventArgs);
+    DEFINE_EVENT_WITH_TYPED_EVENT_HANDLER(TerminalPage, SetTitleBarContent, _setTitleBarContentHandlers, TerminalApp::TerminalPage, winrt::Windows::UI::Xaml::UIElement);
 }
