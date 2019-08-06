@@ -39,7 +39,7 @@ namespace winrt::TerminalApp::implementation
         // -------------------------------- WinRT Events ---------------------------------
         DECLARE_EVENT(TitleChanged, _titleChangeHandlers, winrt::Microsoft::Terminal::TerminalControl::TitleChangedEventArgs);
         DECLARE_EVENT(LastTabClosed, _lastTabClosedHandlers, winrt::TerminalApp::LastTabClosedEventArgs);
-        DECLARE_EVENT_WITH_TYPED_EVENT_HANDLER(SetTitleBarContent, _setTitleBarContentHandlers, TerminalApp::App, winrt::Windows::UI::Xaml::UIElement);
+        DECLARE_EVENT_WITH_TYPED_EVENT_HANDLER(SetTitleBarContent, _setTitleBarContentHandlers, TerminalApp::TerminalPage, winrt::Windows::UI::Xaml::UIElement);
 
     private:
         Microsoft::UI::Xaml::Controls::TabView _tabView{ nullptr };
