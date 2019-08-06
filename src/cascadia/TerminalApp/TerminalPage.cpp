@@ -55,9 +55,9 @@ namespace winrt::TerminalApp::implementation
             // Remove the TabView from the page. We'll hang on to it, we need to
             // put it in the titlebar.
             uint32_t index = 0;
-            if (terminalPage->Root().Children().IndexOf(_tabRow, index))
+            if (this->Root().Children().IndexOf(_tabRow, index))
             {
-                terminalPage->Root().Children().RemoveAt(index);
+                this->Root().Children().RemoveAt(index);
             }
 
             // Inform the host that our titlebar content has changed.
