@@ -7,7 +7,6 @@
 #include "CascadiaSettings.h"
 #include "App.g.h"
 #include "App.base.h"
-#include "ScopedResourceLoader.h"
 #include "../../cascadia/inc/cppwinrt_utils.h"
 
 #include <winrt/Microsoft.Terminal.TerminalControl.h>
@@ -54,8 +53,6 @@ namespace winrt::TerminalApp::implementation
         HRESULT _settingsLoadedResult;
 
         bool _loadedInitialSettings;
-
-        ScopedResourceLoader _resourceLoader;
 
         wil::unique_folder_change_reader_nothrow _reader;
 
