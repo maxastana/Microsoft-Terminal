@@ -27,7 +27,7 @@ jobs:
     AppxBundleName: Microsoft.WindowsTerminal_8wekyb3d8bbwe.msixbundle
 
   pool:
-    name: Package ES Lab E
+    name: Package ES Standard Build
 
   steps:
   - checkout: self

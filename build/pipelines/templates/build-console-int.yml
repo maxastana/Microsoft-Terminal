@@ -11,7 +11,7 @@ jobs:
     BuildPlatform: ${{ parameters.platform }}
 
   pool:
-    name: Package ES Lab E
+    name: Package ES Standard Build
     demands:
     - msbuild
     - visualstudio

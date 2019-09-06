@@ -37,4 +37,19 @@ jobs:
 
   - template: ./templates/check-formatting.yml
 
-  - template: ./templates/release-sign-and-bundle.yml
+  - deployment: PackageSign
+    displayName: "Package and Sign for release"
+    pool:
+      name: Package ES Standard Build
+    dependsOn:
+      - Buildx64AuditMode
+      - Buildx64Release
+      - Buildx86Release
+      - Buildarm64Release
+      - CodeFormatCheck
+    environment: store-release
+    strategy: 
+      runOnce:
+        deploy:
+          steps:
+            - template: ./templates/release-sign-and-bundle.yml
