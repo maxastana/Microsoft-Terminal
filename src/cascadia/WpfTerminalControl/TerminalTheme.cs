@@ -52,7 +52,6 @@ namespace Microsoft.Terminal.Wpf
     /// <summary>
     /// Structure for color handling in the terminal.
     /// </summary>
-    /// <remarks>Pack = 1 removes the padding added by some compilers/processors for optimization purposes.</remarks>
     [StructLayout(LayoutKind.Sequential)]
     public struct TerminalTheme
     {
@@ -65,6 +64,11 @@ namespace Microsoft.Terminal.Wpf
         /// The default foreground color of the terminal, represented in Win32 COLORREF format.
         /// </summary>
         public uint DefaultForeground;
+
+        /// <summary>
+        /// The default selection background of the terminal, represented in wind32 COLORREF format.
+        /// </summary>
+        public uint DefaultSelectionBackground;
 
         /// <summary>
         /// The style of cursor to use in the terminal.

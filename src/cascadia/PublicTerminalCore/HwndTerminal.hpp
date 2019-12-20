@@ -13,6 +13,7 @@ typedef struct _TerminalTheme
 {
     COLORREF DefaultBackground;
     COLORREF DefaultForeground;
+    COLORREF DefaultSelectionBackground;
     DispatchTypes::CursorStyle CursorStyle;
     COLORREF ColorTable[16];
 } TerminalTheme, *LPTerminalTheme;
