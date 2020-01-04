@@ -90,9 +90,14 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
         if (e.OriginalKey() == winrt::Windows::System::VirtualKey::Escape)
         {
             _ClosedHandlers(*this, e);
-            e.Handled(true);
         }
+        e.Handled(true);
     }
+
+    /*void SearchBoxControl::OnKeyDown(Input::KeyRoutedEventArgs const& e)
+    {
+        e.Handled(true);
+    }*/
 
     // Method Description:
     // - Handler for pressing Enter on TextBox, trigger

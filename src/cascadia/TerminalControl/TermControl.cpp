@@ -703,7 +703,7 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
         // I don't believe there's a difference between KeyDown and
         //      PreviewKeyDown for our purposes
         // These two handlers _must_ be on this, not _root.
-        this->PreviewKeyDown({ this, &TermControl::_KeyDownHandler });
+        this->KeyDown({ this, &TermControl::_KeyDownHandler });
         this->CharacterReceived({ this, &TermControl::_CharacterHandler });
 
         auto pfnTitleChanged = std::bind(&TermControl::_TerminalTitleChanged, this, std::placeholders::_1);
@@ -771,10 +771,10 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
     {
         // If the current focused element is a child element of searchbox,
         // we do not send this event up to terminal
-        if (_searchBox && _searchBox->ContainsFocus())
+        /*if (_searchBox && _searchBox->ContainsFocus())
         {
             return;
-        }
+        }*/
 
         // mark event as handled and do nothing if...
         //   - closing

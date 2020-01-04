@@ -35,6 +35,8 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
         void GoForwardClicked(winrt::Windows::Foundation::IInspectable const& /*sender*/, winrt::Windows::UI::Xaml::RoutedEventArgs const& /*e*/);
         void CloseClick(winrt::Windows::Foundation::IInspectable const& /*sender*/, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
 
+        //void OnKeyDown(winrt::Windows::UI::Xaml::Input::KeyRoutedEventArgs const& e);
+
         WINRT_CALLBACK(Search, SearchHandler);
         TYPED_EVENT(Closed, TerminalControl::SearchBoxControl, Windows::UI::Xaml::RoutedEventArgs);
 
@@ -43,7 +45,7 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
 
         bool _GoForward();
         bool _CaseSensitive();
-        void _KeyDownHandler(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::Input::KeyRoutedEventArgs const& e);
+        void _KeyDownHandler(winrt::Windows::Foundation::IInspectable const& /*sender*/, winrt::Windows::UI::Xaml::Input::KeyRoutedEventArgs const& e);
         void _CharacterHandler(winrt::Windows::Foundation::IInspectable const& /*sender*/, winrt::Windows::UI::Xaml::Input::CharacterReceivedRoutedEventArgs const& e);
     };
 }
