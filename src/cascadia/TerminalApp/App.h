@@ -18,6 +18,7 @@ namespace winrt::TerminalApp::implementation
 
     private:
         bool _isUwp = false;
+        TerminalApp::AppLogic _logic;
     };
 }
 

@@ -25,6 +25,21 @@ AppHost::AppHost() noexcept :
     _logic = _app.Logic(); // get a ref to app's logic
 
     _useNonClientArea = _logic.GetShowTabsInTitlebar();
+    /*
+    auto configTheme{ _logic.GetRequestedTheme() };
+    switch (configTheme)
+    {
+    case ElementTheme::Light:
+        _app.RequestedTheme(ApplicationTheme::Light);
+        break;
+    case ElementTheme::Dark:
+        _app.RequestedTheme(ApplicationTheme::Dark);
+        break;
+    case ElementTheme::Default:
+    default:
+        ; // do nothing; let the app decide
+    }
+    */
 
     // If there were commandline args to our process, try and process them here.
     // Do this before AppLogic::Create, otherwise this will have no effect
@@ -152,11 +167,10 @@ void AppHost::Initialize()
     // application layer.
     _window->DragRegionClicked([this]() { _logic.TitlebarClicked(); });
 
-    _logic.RequestedThemeChanged({ this, &AppHost::_UpdateTheme });
-    _logic.ToggleFullscreen({ this, &AppHost::_ToggleFullscreen });
-
     _logic.Create();
 
+    _logic.RequestedThemeChanged({ this, &AppHost::_UpdateTheme });
+    _logic.ToggleFullscreen({ this, &AppHost::_ToggleFullscreen });
     _logic.TitleChanged({ this, &AppHost::AppTitleChanged });
     _logic.LastTabClosed({ this, &AppHost::LastTabClosed });
 

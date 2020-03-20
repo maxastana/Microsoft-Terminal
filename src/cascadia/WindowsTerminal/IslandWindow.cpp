@@ -20,7 +20,7 @@ using namespace ::Microsoft::Console::Types;
 IslandWindow::IslandWindow() noexcept :
     _interopWindowHandle{ nullptr },
     _rootGrid{ nullptr },
-    _source{ nullptr },
+    _source{},
     _pfnCreateCallback{ nullptr }
 {
 }
@@ -239,7 +239,7 @@ void IslandWindow::Initialize()
 {
     const bool initialized = (_interopWindowHandle != nullptr);
 
-    _source = DesktopWindowXamlSource{};
+    //_source = DesktopWindowXamlSource{};
 
     auto interop = _source.as<IDesktopWindowXamlSourceNative>();
     winrt::check_hresult(interop->AttachToWindow(_window.get()));

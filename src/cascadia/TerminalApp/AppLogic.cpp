@@ -148,12 +148,7 @@ namespace winrt::TerminalApp::implementation
         // then it might look like App just failed to activate, which will
         // cause you to chase down the rabbit hole of "why is App not
         // registered?" when it definitely is.
-
-        // The TerminalPage has to be constructed during our construction, to
-        // make sure that there's a terminal page for callers of
-        // SetTitleBarContent
         _isElevated = _isUserAdmin();
-        _root = winrt::make_self<TerminalPage>();
     }
 
     // Method Description:
@@ -204,6 +199,12 @@ namespace winrt::TerminalApp::implementation
         // Assert that we've already loaded our settings. We have to do
         // this as a MTA, before the app is Create()'d
         WINRT_ASSERT(_loadedInitialSettings);
+
+        _root = winrt::make_self<TerminalPage>();
+
+        _root->SetTitleBarContent([this](auto&& /*s*/, auto&& e) {
+            _SetTitleBarContentHandlers(*this, e);
+        });
 
         _root->ShowDialog({ this, &AppLogic::_ShowDialog });
 

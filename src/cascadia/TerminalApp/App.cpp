@@ -15,7 +15,8 @@ using namespace winrt::Windows::UI::Xaml::Navigation;
 
 namespace winrt::TerminalApp::implementation
 {
-    App::App()
+    App::App() :
+        _logic{}
     {
         // This is the same trick that Initialize() is about to use to figure out whether we're coming
         // from a UWP context or from a Win32 context
@@ -26,13 +27,26 @@ namespace winrt::TerminalApp::implementation
             _isUwp = true;
         }
 
+        auto configTheme{ _logic.GetRequestedTheme() };
+        switch (configTheme)
+        {
+        case ElementTheme::Light:
+            RequestedTheme(ApplicationTheme::Light);
+            break;
+        case ElementTheme::Dark:
+            RequestedTheme(ApplicationTheme::Dark);
+            break;
+        case ElementTheme::Default:
+        default:
+            ; // do nothing; let the app decide
+        }
+
         Initialize();
     }
 
     AppLogic App::Logic()
     {
-        static AppLogic logic;
-        return logic;
+        return _logic;
     }
 
     /// <summary>
