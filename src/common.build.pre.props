@@ -6,10 +6,15 @@
        that consumes them will complain if you do this. So they'll set
        NoOutputRedirection before including this props file.
   -->
-  <PropertyGroup Condition="'$(NoOutputRedirection)'!='true'">
-    <OutputPath>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutputPath>
-    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  <PropertyGroup>
+    <!-- General MSBuild output directories -->
+    <OutputPath Condition="'$(GenerateProjectSpecificOutputFolder)'!='true'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutputPath>
+    <OutputPath Condition="'$(GenerateProjectSpecificOutputFolder)'=='true'">$(SolutionDir)bin\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
+
+    <!-- vcxproj output directories -->
+    <OutDir>$(OutputPath)</OutDir>
+    <IntDir>$(IntermediateOutputPath)</IntDir>
   </PropertyGroup>
   <PropertyGroup>
     <!-- This one is always set so that non-redirected projects can depend on it. -->

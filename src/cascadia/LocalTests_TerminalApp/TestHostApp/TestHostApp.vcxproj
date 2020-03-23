@@ -13,7 +13,7 @@
     <OutputSubDir>Tests\Data</OutputSubDir>
     <UseWmXml>true</UseWmXml>
     <ConfigurationType>Application</ConfigurationType>
-    <NoOutputRedirection>true</NoOutputRedirection>
+    <GenerateProjectSpecificOutputFolder>true</GenerateProjectSpecificOutputFolder>
 
     <!--
     These two properties are very important!
@@ -100,13 +100,15 @@
       <Project>{ca5cad1a-44bd-4ac7-ac72-f16e576fdd12}</Project>
     </ProjectReference>
 
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\LocalTests_TerminalApp\TerminalApp.LocalTests.vcxproj">
+      <Project>{CA5CAD1A-b11c-4ddb-a4fe-c3afae9b5506}</Project>
+    </ProjectReference>
+
   </ItemGroup>
 
   <PropertyGroup>
     <!-- Some helper paths to find our test code -->
-    <_TestBinRoot>$(OpenConsoleDir)\bin\$(Platform)\$(Configuration)</_TestBinRoot>
-    <_CppWinrtBinRoot>$(OpenConsoleDir)\$(Platform)\$(Configuration)</_CppWinrtBinRoot>
-    <_CppWinrtBinRoot Condition="'$(Platform)'=='Win32'">$(OpenConsoleDir)\$(Configuration)</_CppWinrtBinRoot>
+    <_CppWinrtBinRoot>$(OpenConsoleDir)\bin\$(Platform)\$(Configuration)</_CppWinrtBinRoot>
     <_TAEFPlatformName>$(Platform)</_TAEFPlatformName>
     <_TAEFPlatformName Condition="'$(Platform)'=='Win32'">x86</_TAEFPlatformName>
   </PropertyGroup>
@@ -137,7 +139,7 @@
     rules instead.
   -->
   <ItemGroup>
-      <TerminalConnectionDlls Include="$(_CppWinrtBinRoot)\TerminalConnection\*.dll"/>
+      <TerminalConnectionDlls Include="$(_CppWinrtBinRoot)\TerminalConnection\TerminalConnection\*.dll"/>
   </ItemGroup>
 
   <Import Project="$(OpenConsoleDir)\src\common.build.post.props" />
@@ -148,10 +150,6 @@
       deploying the app, it'll delete the AppxManifest.xml file from this
       directory when it tries to clean up after itself. -->
     <Copy SourceFiles="$(TargetDir)\AppxManifest.xml" DestinationFiles="$(TargetDir)\TestHostAppXManifest.xml" />
-
-    <!-- Copy our test code from LocalTests_TerminalApp into this directory -->
-    <Copy SourceFiles="$(_TestBinRoot)\LocalTests_TerminalApp\TerminalApp.LocalTests.dll"
-          DestinationFiles="$(TargetDir)\TerminalApp.LocalTests.dll" />
 
     <!-- Copy some dlls which TerminalConnection is dependent upon that didn't
       get rolled up into this  directory -->

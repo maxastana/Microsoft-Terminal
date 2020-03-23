@@ -43,7 +43,7 @@
   -->
   <PropertyGroup>
     <_NoWinAPIFamilyApp>true</_NoWinAPIFamilyApp>
-    <GenerateProjectSpecificOutputFolder>false</GenerateProjectSpecificOutputFolder>
+    <GenerateProjectSpecificOutputFolder>true</GenerateProjectSpecificOutputFolder>
   </PropertyGroup>
 
   <PropertyGroup Label="Configuration">

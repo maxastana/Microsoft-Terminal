@@ -15,7 +15,7 @@
       Setting this will tell cppwinrt.build.post.props to copy our output from
       the default OutDir up one level, so the wapproj will be able to find it.
      -->
-    <NoOutputRedirection>true</NoOutputRedirection>
+    <GenerateProjectSpecificOutputFolder>true</GenerateProjectSpecificOutputFolder>
   </PropertyGroup>
 
   <Import Project="..\..\..\common.openconsole.props" Condition="'$(OpenConsoleDir)'==''" />

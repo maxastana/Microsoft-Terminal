@@ -15,7 +15,7 @@
       Setting this will tell cppwinrt.build.post.props to copy our output from
       the default OutDir up one level, so the wapproj will be able to find it.
      -->
-    <NoOutputRedirection>true</NoOutputRedirection>
+    <GenerateProjectSpecificOutputFolder>true</GenerateProjectSpecificOutputFolder>
     <!--
       This is an override that, puzzlingly, _forces XBF (XAML binary) embedding_.
       We have to do this to overcome a layout issue in the WAP packaging project.
@@ -226,50 +226,21 @@
       make sure that if you add a cppwinrt dependency to any of these projects,
       you also update all the consumers
     -->
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettings\TerminalSettings.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalConnection\TerminalConnection.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalControl\TerminalControl.vcxproj" />
     <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj" />
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\WinRTUtils\WinRTUtils.vcxproj">
       <Project>{CA5CAD1A-039A-4929-BA2A-8BEB2E4106FE}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <!-- For whatever reason, we can't include the TerminalControl and
-    TerminalSettings projects' winmds via project references. So we'll have to
-    manually include the winmds as References below -->
   </ItemGroup>
-  <PropertyGroup>
-    <!-- A small helper for paths to the compiled cppwinrt projects -->
-    <_BinRoot Condition="'$(Platform)' != 'Win32'">$(OpenConsoleDir)$(Platform)\$(Configuration)\</_BinRoot>
-    <_BinRoot Condition="'$(Platform)' == 'Win32'">$(OpenConsoleDir)$(Configuration)\</_BinRoot>
-  </PropertyGroup>
   <PropertyGroup>
     <!-- This is a hack to get the ARM64 CI build working. See
     https://github.com/Microsoft/msbuild/issues/3746 - it looks like MsBuild
     just has a bug in it.-->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>Warning</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
-  <ItemGroup>
-    <!-- Manually add references to each of our dependent winmds. Mark them as
-    private=false and CopyLocalSatelliteAssemblies=false, so that we don't
-    propagate them upwards (which can make referencing this project result in
-    duplicate type definitions)-->
-    <Reference Include="Microsoft.Terminal.Settings">
-      <HintPath>$(_BinRoot)TerminalSettings\Microsoft.Terminal.Settings.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </Reference>
-    <Reference Include="Microsoft.Terminal.TerminalConnection">
-      <HintPath>$(_BinRoot)TerminalConnection\Microsoft.Terminal.TerminalConnection.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </Reference>
-    <Reference Include="Microsoft.Terminal.TerminalControl">
-      <HintPath>$(_BinRoot)TerminalControl\Microsoft.Terminal.TerminalControl.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </Reference>
-  </ItemGroup>
   <!-- ====================== Compiler & Linker Flags ===================== -->
   <ItemDefinitionGroup>
     <ClCompile>
