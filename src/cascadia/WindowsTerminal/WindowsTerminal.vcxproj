@@ -77,6 +77,8 @@
 
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalApp\TerminalApp.vcxproj" />
 
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsEditor\TerminalSettingsEditor.vcxproj" />
+
     <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj" />
   </ItemGroup>
 

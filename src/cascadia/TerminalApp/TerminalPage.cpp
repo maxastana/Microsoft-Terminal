@@ -49,6 +49,8 @@ namespace winrt::TerminalApp::implementation
         _startupActions{ winrt::single_threaded_vector<winrt::TerminalApp::ActionAndArgs>() }
     {
         InitializeComponent();
+
+        _settingsUI = winrt::Microsoft::Terminal::Settings::Editor::MainPage();
     }
 
     // Function Description:
@@ -1908,12 +1910,13 @@ namespace winrt::TerminalApp::implementation
                 auto tab{ _GetStrongTabImpl(index) };
 
                 _tabContent.Children().Clear();
-                _tabContent.Children().Append(tab->GetRootElement());
+                _tabContent.Children().Append(_settingsUI);
+                //_tabContent.Children().Append(tab->GetRootElement());
 
-                tab->SetFocused(true);
+                //tab->SetFocused(true);
 
-                // Raise an event that our title changed
-                _titleChangeHandlers(*this, tab->GetActiveTitle());
+                //// Raise an event that our title changed
+                //_titleChangeHandlers(*this, tab->GetActiveTitle());
             }
             CATCH_LOG();
         }

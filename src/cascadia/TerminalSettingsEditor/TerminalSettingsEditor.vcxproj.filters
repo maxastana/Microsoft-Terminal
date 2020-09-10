@@ -75,6 +75,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
+    <None Include="TerminalSettingsEditor.def" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="AddProfile.xaml" />
@@ -90,6 +91,7 @@
     <Page Include="NewTabOptionPanelControl.xaml" />
     <Page Include="Profiles.xaml" />
     <Page Include="Rendering.xaml" />
+    <Page Include="ResourceDictionary.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ObjectModel">

@@ -92,6 +92,8 @@ namespace winrt::TerminalApp::implementation
         winrt::com_ptr<Tab> _GetStrongTabImpl(const uint32_t index) const;
         winrt::com_ptr<Tab> _GetStrongTabImpl(const ::winrt::TerminalApp::Tab& tab) const;
 
+        winrt::Microsoft::Terminal::Settings::Editor::MainPage _settingsUI{ nullptr };
+
         bool _isInFocusMode{ false };
         bool _isFullscreen{ false };
         bool _isAlwaysOnTop{ false };
