@@ -48,9 +48,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest" />
-  </ItemGroup>
-  <ItemGroup>
     <Midl Include="HomeGridItem.idl" />
     <Midl Include="ObjectModel\ColorSchemeModel.idl">
       <Filter>ObjectModel</Filter>

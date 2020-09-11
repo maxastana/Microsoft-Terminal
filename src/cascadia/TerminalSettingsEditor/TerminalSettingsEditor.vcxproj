@@ -143,11 +143,6 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
-      <SubType>Designer</SubType>
-    </AppxManifest>
-  </ItemGroup>
   <!-- ========================= Cpp Files ======================== -->
   <ItemGroup>
     <ClCompile Include="AddProfile.cpp">
