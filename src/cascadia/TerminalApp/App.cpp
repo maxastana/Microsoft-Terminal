@@ -5,6 +5,8 @@
 #include "App.h"
 #include "App.g.cpp"
 
+#include "winrt/Windows.UI.ViewManagement.h"
+
 using namespace winrt;
 using namespace winrt::Windows::ApplicationModel::Activation;
 using namespace winrt::Windows::Foundation;
@@ -62,6 +64,18 @@ namespace winrt::TerminalApp::implementation
                 Window::Current().Content(page);
                 Window::Current().Activate();
             }
+
+            Logic().LastTabClosed([](auto&&, auto&&) {
+                ExitProcess(0);
+            });
+
+            Logic().TitleChanged([](auto&&, winrt::hstring title) {
+                auto applicationView = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView();
+                if (applicationView)
+                {
+                    applicationView.Title(title);
+                }
+            });
         }
     }
 }
