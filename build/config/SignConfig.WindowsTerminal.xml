@@ -1,5 +1,6 @@
 <SignConfigXML>
   <job platform="" configuration="" certSubject="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" jobname="EngFunSimpleSign" approvers="">
-   <file src="__INPATHROOT__\Microsoft.WindowsTerminal*.msixbundle" signType="136020001" />
+   <file src="__INPATHROOT__\Microsoft.WindowsTerminal_*.msixbundle" signType="136020001" />
+   <file src="__INPATHROOT__\Microsoft.WindowsTerminalUniversal_*.msixbundle" signType="136020001" />
   </job>
 </SignConfigXML>
