@@ -1786,7 +1786,7 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
 
         if (TSFInputControl() != nullptr)
         {
-            TSFInputControl().NotifyFocusEnter();
+            //TSFInputControl().NotifyFocusEnter();
         }
 
         if (_cursorTimer.has_value())
@@ -1838,7 +1838,7 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
 
         if (TSFInputControl() != nullptr)
         {
-            TSFInputControl().NotifyFocusLeave();
+            //TSFInputControl().NotifyFocusLeave();
         }
 
         if (_cursorTimer.has_value())
