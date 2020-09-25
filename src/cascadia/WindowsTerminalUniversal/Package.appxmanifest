@@ -2,8 +2,12 @@
 
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" 
          xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" 
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
          xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" 
-         IgnorableNamespaces="uap mp">
+         xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4"
+         xmlns:uap7="http://schemas.microsoft.com/appx/manifest/uap/windows10/7"
+         xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+         IgnorableNamespaces="rescap uap uap4 uap10 mp">
          
   <Identity
     Name="Microsoft.WindowsTerminalUniversal"
@@ -18,7 +22,8 @@
   </Properties>
   
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.18362.0" MaxVersionTested="10.0.18362.0" />
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.18362.0" MaxVersionTested="10.0.32767.0" />
+    <TargetDeviceFamily Name="Windows.Core" MinVersion="10.0.18362.0" MaxVersionTested="10.0.32767.0" />
   </Dependencies>
   
   <Resources>
@@ -28,7 +33,9 @@
   <Applications>
     <Application Id="App" 
       Executable="$targetnametoken$.exe" 
-      EntryPoint="WindowsTerminalUniversal.App">
+      EntryPoint="WindowsTerminalUniversal.App"
+      uap10:TrustLevel="mediumIL"
+      uap10:RuntimeBehavior="windowsApp">
       <uap:VisualElements 
         DisplayName="ms-resource:AppName" 
         Description="ms-resource:AppDescription"
@@ -43,5 +50,16 @@
   
   <Capabilities>
     <Capability Name="internetClient" />
+    <rescap:Capability Name="runFullTrust"/>
+    <uap4:CustomCapability Name="Microsoft.coreAppActivation_8wekyb3d8bbwe" />
+    <uap4:CustomCapability Name="Microsoft.deployFullTrustOnHost_8wekyb3d8bbwe" />
   </Capabilities>
+
+  <Extensions>
+    <uap7:Extension Category="windows.sharedFonts">
+      <uap7:SharedFonts>
+        <uap4:Font File="CascadiaMono.ttf" />
+      </uap7:SharedFonts>
+    </uap7:Extension>
+  </Extensions>
 </Package>

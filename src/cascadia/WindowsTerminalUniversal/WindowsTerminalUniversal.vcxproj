@@ -107,10 +107,10 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest" Condition="'$(WindowsTerminalOfficialBuild)'=='true'">
+    <AppxManifest Include="Package.appxmanifest" Condition="'$(WindowsTerminalBranding)'!=''">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <AppxManifest Include="Package-Dev.appxmanifest" Condition="'$(WindowsTerminalOfficialBuild)'!='true'">
+    <AppxManifest Include="Package-Dev.appxmanifest" Condition="'$(WindowsTerminalBranding)'==''">
       <SubType>Designer</SubType>
     </AppxManifest>
   </ItemGroup>
@@ -127,7 +127,7 @@
     <!-- This is picked up by CascadiaResources.build.items. -->
     <WindowsTerminalAssetSuffix>-Universal</WindowsTerminalAssetSuffix>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(WindowsTerminalOfficialBuild)'!='true'">
+  <PropertyGroup Condition="'$(WindowsTerminalBranding)'==''">
     <!-- This is picked up by CascadiaResources.build.items. -->
     <WindowsTerminalAssetSuffix>$(WindowsTerminalAssetSuffix)Dev</WindowsTerminalAssetSuffix>
   </PropertyGroup>
@@ -141,6 +141,12 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
+    <None Include="coreAppActivation.sccd" Condition="Exists('coreAppActivation.sccd')">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="deployFullTrustOnHost.sccd" Condition="Exists('deployFullTrustOnHost.sccd')">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalControl\TerminalControl.vcxproj" />
