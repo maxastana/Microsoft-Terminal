@@ -78,9 +78,9 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
                     }
                     else if (const auto stringTag{ tag.try_as<hstring>() })
                     {
-                        if (stringTag == globalProfileTag || stringTag == addProfileTag)
+                        if (stringTag == addProfileTag)
                         {
-                            // hide NavViewItem pointing to "Add Profile" or "Base Layer"
+                            // hide NavViewItem pointing to "Add Profile"
                             navViewItem.Visibility(Visibility::Collapsed);
                         }
                     }
