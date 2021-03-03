@@ -5,7 +5,7 @@ last updated: 2021-03-03
 issue id: #2634
 ---
 
-# Boradcast Input
+# Broadcast Input
 
 ## Abstract
 
@@ -246,9 +246,9 @@ It probably makes the most sense to have pane titlebars (#4998) also display
 that icon.
 
 In the original PR, it was suggested to use some variant of the [accent color]
-to on the borders of panes that are currently recieving broadcasted input. This
+to on the borders of panes that are currently receiving broadcasted input. This
 would be a decent visual indicator that they're _not_ the active pane, but they
-are going to recieve input. Something a bit like:
+are going to receive input. Something a bit like:
 
 ![A sample of using the border to indicate the broadcasted-to panes](broadcast-input-borders.gif)
 
