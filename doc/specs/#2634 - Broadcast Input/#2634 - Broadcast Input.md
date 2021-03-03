@@ -52,9 +52,6 @@ iTerm2 supports the following actions:
 * **Story D:** _Toggle broadcast input to current session_: Toggles whether this
   session receives broadcasted keystrokes within this window.
 
-### Future Considerations
-
-This is supposed to be a quick & dirty spec, so I'm skipping this.
 
 ## Solution Design
 
@@ -222,9 +219,9 @@ of just the tab-level property.
 ## Conclusion
 
 I'm proposing these settings for broader discussion. I'm not really sure which I
-like most at this point. I'm maybe leaning towards 1 or 3? That might be just
-because of the prior art though. Might be worthwhile to investigate if there are
-bug reports on iTerm2 or open feature requests related to this functionality.
+like most at this point. 1 & 3 have the advantage of being most similar to the
+prior art, but 2 is more easily extendable to "groups" (see [Future
+Considerations](#Future-Considerations)).
 
 **TODO**: Make a decision.
 
@@ -255,6 +252,11 @@ are going to recieve input. Something a bit like:
 
 ![A sample of using the border to indicate the broadcasted-to panes](broadcast-input-borders.gif)
 
+iTerm2 also supports displaying "stripes" in the background of all the panes
+that are being broadcast too. That's certainly another way of indicating this
+feature to the user. I'm not sure how we'd layer it with the background image
+though.
+
 ## Potential Issues
 
 <table>
@@ -271,6 +273,55 @@ are going to recieve input. Something a bit like:
 
 [comment]: # If there are any other potential issues, make sure to include them here.
 
+### Future Considerations
+
+Let's look to iTerm2, who's supported this feature for years, for some
+inspiration of future things we should be worried about. If their users have
+asked for these features, then it's inevitable that our users will too 😉
+
+* [iterm2#6709]: Broadcast Input to multiple windows
+  - This is pretty straightforward. Would require coordination with the Monarch
+    though, and I'm worried about the perf hit of tossing every keystroke across
+    the process boundary.
+  - I suppose this would be `{ "action": "toggleBroadcastInput", "scope":
+    "openWindows" }` (or something with a less ridiculous name.)
+* [iterm2#6451], [iterm2#5563]: "Broadcast commands"
+  - iTerm2 has an action that lets the user manually clear the terminal-side
+    buffer. (This is tracked on the Windows Terminal as [#1882]). It might make
+    sense for there to be a mode where some _actions_ are also broadcast to
+    panes, not just key strokes. But which actions would those be? Moving the
+    selection anchors? Copy doesn't really make sense. Paste _does_ though.
+    Maybe the open find dialog / next&prev search match actions?
+  - This probably would require it's own spec.
+* [iterm2#6007]: Different stripe color for different broadcast modes
+  - Have one color to indicate when broadcasting in `global` scope, another in
+    `tab` scope, a third in `pane` scope.
+  - This might mesh well with theming ([#3327]), for properties like
+    `pane.broadcastBorderColor.globalScope`,
+    `pane.broadcastBorderColor.paneScope`. Don't love those names, but you get
+    the idea.
+* **[iterm2#5639]: Broadcast groups**, [iterm2#3372]: Broadcast Input to
+  multiple but not all tabs
+  - This is probably the most interesting request. I think this one identifies a
+    major shortcoming of the above proposals. With proposal 2, there's only ever
+    one top-level broadcast group. With proposals 1 & 3, there's per-tab
+    broadcast groups. In neither proposal can you have multiple concurrent
+    side-by-side broadcast groups.
+  - Groups should probably work across tabs. This would suggest that Proposal 2
+    is closer to how groups would work. Instead of there being one top-level
+    set, there would be multiple. **I'm not sure how proposals 1&3 would
+    seemlessly transition into also supporting groups**.
+  - The major trick here is: how do we differentiate these different groups to
+    the user? If we used the broadcast icon with a number, maybe in the corner
+    of the tab? Like [📡: 1]? Can a pane be in multiple broadcast sets at the
+    same time?
+  - The natural arg idea would be `{ "action": "toggleBroadcastInput", "scope":
+    "tab", "group": 1 }` to say "add all panes in the tab to broadcast group 1",
+    or "remove all panes in the tab from broadcast group 1". If panes are in
+    another group, they'd be moved to the specified group. If all panes are in
+    that group, then remove them all.
+  - The UI for this would certainly get complex fast.
+  - This also matches the Terminator-style broadcasting to groups.
 
 ## Resources
 
@@ -282,6 +333,7 @@ are going to recieve input. Something a bit like:
 <a name="footnote-1"><a>[1]:
 
 
+[#1882]: https://github.com/microsoft/terminal/issues/1882
 [#2634]: https://github.com/microsoft/terminal/issues/2634
 [#4998]: https://github.com/microsoft/terminal/issues/4998
 [#9222]: https://github.com/microsoft/terminal/pull/9222
@@ -289,3 +341,11 @@ are going to recieve input. Something a bit like:
 [iTerm2 implementation]: https://iterm2.com/documentation-one-page.html#documentation-menu-items.html
 [@zljubisic]: https://github.com/microsoft/terminal/pull/9222#issuecomment-789143189
 [accent color]: https://docs.microsoft.com/en-us/windows/uwp/design/style/color#accent-color-palette
+
+
+[iterm2#6709]: https://gitlab.com/gnachman/iterm2/-/issues/6709
+[iterm2#6451]: https://gitlab.com/gnachman/iterm2/-/issues/6451
+[iterm2#6007]: https://gitlab.com/gnachman/iterm2/-/issues/6007
+[iterm2#5639]: https://gitlab.com/gnachman/iterm2/-/issues/5639
+[iterm2#5563]: https://gitlab.com/gnachman/iterm2/-/issues/5563
+[iterm2#3372]: https://gitlab.com/gnachman/iterm2/-/issues/3372
