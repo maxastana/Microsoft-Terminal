@@ -312,7 +312,7 @@ asked for these features, then it's inevitable that our users will too 😉
   - Groups should probably work across tabs. This would suggest that Proposal 2
     is closer to how groups would work. Instead of there being one top-level
     set, there would be multiple. **I'm not sure how proposals 1&3 would
-    seemlessly transition into also supporting groups**.
+    seamlessly transition into also supporting groups**.
   - The major trick here is: how do we differentiate these different groups to
     the user? If we used the broadcast icon with a number, maybe in the corner
     of the tab? Like [📡: 1]? Can a pane be in multiple broadcast sets at the
