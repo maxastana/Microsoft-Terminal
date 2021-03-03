@@ -87,6 +87,8 @@ Which would be accompanied by the following internal properties:
 * A per-tab property for `broadcastToAllPanes`
 * A per-tab set of panes to broadcast to
 
+The scopes would work as follows:
+
 * `"scope": "global"`: Toggle the global "broadcast to all tabs and panes"
   setting.
 * `"scope": "tab"`: Toggle the tab's "broadcast to all panes in this tab"
