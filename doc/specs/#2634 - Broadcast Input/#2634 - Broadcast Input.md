@@ -1,7 +1,7 @@
 ---
 author: Mike Griese @zadjii-msft
 created on: 2021-03-03
-last updated: 2021-03-03
+last updated: 2021-03-04
 issue id: #2634
 ---
 
@@ -76,20 +76,20 @@ B, without enabling the global "broadcast to everyone" mode.
 This seems to break down into the following actions:
 
 ```json
-{ "action": "toggleBroadcastInput", "scope": "global" },
+{ "action": "toggleBroadcastInput", "scope": "window" },
 { "action": "toggleBroadcastInput", "scope": "tab" },
 { "action": "toggleBroadcastInput", "scope": "pane" },
-{ "action": "toggleBroadcastInput", "scope": "none" },
+{ "action": "disableBroadcastInput" },
 ```
 
 Which would be accompanied by the following internal properties:
-* A global (`TerminalPage`-level) property for `broadcastToAllPanesAndTabs`
+* A window (`TerminalPage`-level) property for `broadcastToAllPanesAndTabs`
 * A per-tab property for `broadcastToAllPanes`
 * A per-tab set of panes to broadcast to
 
 The scopes would work as follows:
 
-* `"scope": "global"`: Toggle the global "broadcast to all tabs and panes"
+* `"scope": "window"`: Toggle the window's "broadcast to all tabs and panes"
   setting.
 * `"scope": "tab"`: Toggle the tab's "broadcast to all panes in this tab"
   setting.
@@ -101,8 +101,8 @@ The scopes would work as follows:
   this tab.
     - **TODO: FOR DISCUSSION**: Should this disable the tab's
       "broadcastToAllPanes" setting? Or should it leave that alone?
-* `"scope": "none"`: Set the global setting to false, the tab's setting to
-  false, and clear the set of panes being broadcasted to for this tab.
+* `"disableBroadcastInput"`: Set the global setting to false, the tab's setting
+  to false, and clear the set of panes being broadcasted to for this tab.
 
 #### Pros
 * This is exactly how iTerm2 does it, so there's prior art.
@@ -115,7 +115,15 @@ The scopes would work as follows:
   does not affect the other.
 
 #### Cons
-* I frankly think the `tab`/`pane` interaction can be a little weird.
+* I frankly think the `tab`/`pane` interaction can be a little weird. Like for
+  this scenario:
+  - enable broadcast input for tab 1
+  - switch to tab 2
+  - enable broadcast input for a pane in tab 2
+
+  There's valid confusion to be had between the following two behaviors:
+  1. input goes to all of tab 1 _and_ the pane in tab 2
+  2. input only goes to the pane in tab 2
 * You can't broadcast to a subset of panes in inactive tabs, in addition to
   the active tab. All panes you want to broadcast to must be in the active
   tab.
@@ -155,14 +163,14 @@ As far as actions, we're looking at something like:
 This seems to break down into the following actions:
 
 ```json
-{ "action": "toggleBroadcastInput", "scope": "none" },
-{ "action": "toggleBroadcastInput", "scope": "global" },
+{ "action": "disableBroadcastInput" },
+{ "action": "toggleBroadcastInput", "scope": "window" },
 { "action": "toggleBroadcastInput", "scope": "tab" },
 { "action": "toggleBroadcastInput", "scope": "pane" },
 ```
 
 Which would be accompanied by the following internal properties:
-* A global (`TerminalPage`-level)  set of panes to broadcast to.
+* A window (`TerminalPage`-level) set of panes to broadcast to.
 
 #### Pros:
 * Mentally, you're either adding panes to the set of panes to broadcast to, or
@@ -171,11 +179,20 @@ Which would be accompanied by the following internal properties:
   panes in all tabs.
 
 #### Cons:
-* You can't have a set of panes to broadcast to in the one tab, and a different
-  set in another tab.
 * is _slightly_ different from iTerm2.
 * Does creating a new split in a pane that's being broadcast to add that pane to
   the broadcast set?
+* You can't have a set of panes to broadcast to in the one tab, and a different
+  set in another tab. As an example:
+  1. in tab 1, you add panes A and B to the broadcast set. Typing in either one
+     goes to both A and B.
+  2. in tab 1, switch to pane C. Now input goes to A, B and C.
+  3. in tab 1, switch to pane D. Now input goes to A, B and D.
+  4. switch to tab 2, pane E. Now input goes to A, B and E.
+
+  You can't have like, a set with A & B (in 1), then E & F (in 2). So if someone
+  wants to type to both panes in 1, then both panes in 2, then both panes in 1,
+  they need to keep toggling which panes are in the broadcast set.
 
 #### What would this mean for PR #9222?
 
@@ -242,15 +259,19 @@ As far as indicators go, we'll throw something like:
 ![NetworkTower Segoe UI Icon](broadcast-segoe-icon.png)
 
 in the tab when a pane is being broadcasted to. If all tabs are being
-broadcasted to, then they'll all have that icon.
+broadcasted to, then they'll all have that icon. If a tab is inactive, and any
+pane in that tab is being broadcast to, then show the icon in the tab.
 
 It probably makes the most sense to have pane titlebars (#4998) also display
 that icon.
 
 In the original PR, it was suggested to use some variant of the [accent color]
-to on the borders of panes that are currently receiving broadcasted input. This
-would be a decent visual indicator that they're _not_ the active pane, but they
-are going to receive input. Something a bit like:
+to on the borders of panes that are currently receiving broadcasted input. We're
+already using the accent color on the borders of the active pane.
+`SystemAccentColorLight*`/`SystemAccentColorDark*` would provide a way of using
+a similar hue with different lightness/saturation. This would be a decent visual
+indicator that they're _not_ the active pane, but they are going to receive
+input. Something a bit like:
 
 ![A sample of using the border to indicate the broadcasted-to panes](broadcast-input-borders.gif)
 
@@ -286,7 +307,7 @@ asked for these features, then it's inevitable that our users will too 😉
     though, and I'm worried about the perf hit of tossing every keystroke across
     the process boundary.
   - I suppose this would be `{ "action": "toggleBroadcastInput", "scope":
-    "openWindows" }` (or something with a less ridiculous name.)
+    "global" }`
 * [iterm2#6451], [iterm2#5563]: "Broadcast commands"
   - iTerm2 has an action that lets the user manually clear the terminal-side
     buffer. (This is tracked on the Windows Terminal as [#1882]). It might make
