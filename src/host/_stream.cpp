@@ -390,7 +390,6 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
 
         // As an optimization, collect characters in buffer and print out all at once.
         XPosition = cursor.GetPosition().X;
-        size_t i = 0;
         localBuffer.erase();
         while (*pcb < BufferSize && XPosition < coordScreenBufferSize.X)
         {
@@ -407,7 +406,6 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
 
                         // cursor adjusted by 2 because the char is double width
                         XPosition += 2;
-                        i += 1;
                         pwchBuffer++;
                     }
                     else
@@ -419,7 +417,6 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
                 {
                     localBuffer.push_back(Char);
                     XPosition++;
-                    i++;
                     pwchBuffer++;
                 }
             }
@@ -458,7 +455,7 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
                         goto EndWhile;
                     }
 
-                    for (ULONG j = 0; j < TabSize; j++, i++)
+                    for (ULONG j = 0; j < TabSize; j++)
                     {
                         localBuffer.push_back(UNICODE_SPACE);
                     }
@@ -478,7 +475,6 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
                         localBuffer.push_back(L'^');
                         localBuffer.push_back(Char + L'@');
                         XPosition += 2;
-                        i += 2;
 
                         pwchBuffer++;
                     }
@@ -515,7 +511,6 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
                         }
 
                         XPosition++;
-                        i++;
                         pwchBuffer++;
                     }
                 }
@@ -524,23 +519,25 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
             *pcb += sizeof(WCHAR);
         }
     EndWhile:
-        if (i != 0)
+        if (!localBuffer.empty())
         {
             CursorPosition = cursor.GetPosition();
 
             // Make sure we don't write past the end of the buffer.
             // WCL-NOTE: This check uses a code unit count instead of a column count. That is incorrect.
-            if (i > gsl::narrow_cast<size_t>(coordScreenBufferSize.X) - CursorPosition.X)
-            {
-                i = gsl::narrow_cast<size_t>(coordScreenBufferSize.X) - CursorPosition.X;
-            }
+            // WCL-NOTE: This check prevented the above ^X case from being catastrophic
+            //if (i > gsl::narrow_cast<size_t>(coordScreenBufferSize.X) - CursorPosition.X)
+            //{
+            //i = gsl::narrow_cast<size_t>(coordScreenBufferSize.X) - CursorPosition.X;
+            //}
+            //TODO(DH) FIGURE OUT IF <I> WAS IMPORTANT HERE
 
             // line was wrapped if we're writing up to the end of the current row
             OutputCellIterator it(std::wstring_view{ localBuffer }, Attributes);
             const auto itEnd = screenInfo.Write(it);
 
             // Notify accessibility
-            screenInfo.NotifyAccessibilityEventing(CursorPosition.X, CursorPosition.Y, CursorPosition.X + gsl::narrow<SHORT>(i - 1), CursorPosition.Y);
+            screenInfo.NotifyAccessibilityEventing(CursorPosition.X, CursorPosition.Y, CursorPosition.X + gsl::narrow<SHORT>(localBuffer.size() - 1), CursorPosition.Y);
 
             // The number of "spaces" or "cells" we have consumed needs to be reported and stored for later
             // when/if we need to erase the command line.
@@ -583,7 +580,7 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
         {
             // WCL-NOTE: This case looks like it is never encountered, but it *is* if WC_PRINTABLE_CONTROL_CHARS is off.
             // WCL-NOTE: If the string is entirely nonprinting control characters, there will be
-            // WCL-NOTE: no output in the buffer (LocalBuffer; i == 0) but we will have processed
+            // WCL-NOTE: no output in the buffer (localBuffer.size() == 0) but we will have processed
             // WCL-NOTE: "every" character. We can just bail out and report the number of spaces consumed.
             FAIL_FAST_IF(!(WI_IsFlagSet(screenInfo.OutputMode, ENABLE_PROCESSED_OUTPUT)));
 
@@ -625,6 +622,7 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
                     return NTSTATUS_FROM_HRESULT(wil::ResultFromCaughtException());
                 }
 
+                size_t i{};
                 for (i = 0, Tmp2 = buffer.get(), Tmp = pwchBufferBackupLimit;
                      i < bufferSize;
                      i++, Tmp++)
