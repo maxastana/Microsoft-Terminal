@@ -326,7 +326,7 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
 [[nodiscard]] NTSTATUS WriteCharsLegacy(SCREEN_INFORMATION& screenInfo,
                                         _In_range_(<=, pwchBuffer) const wchar_t* const pwchBufferBackupLimit,
                                         _In_ const wchar_t* pwchBuffer,
-                                        _In_reads_bytes_(*pcb) const wchar_t* pwchRealUnicode,
+                                        _In_reads_bytes_(*pcb) const wchar_t* const pwchRealUnicode,
                                         _Inout_ size_t* const pcb,
                                         _Out_opt_ size_t* const pcSpaces,
                                         const SHORT sOriginalXPosition,
@@ -392,11 +392,7 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
         {
 #pragma prefast(suppress : 26019, "Buffer is taken in multiples of 2. Validation is ok.")
             const wchar_t Char = *lpString;
-            // WCL-NOTE: We believe RealUnicodeChar to be identical to Char, because we believe pwchRealUnicode
-            // WCL-NOTE: to be identical to lpString. They are incremented in lockstep, never separately, and lpString
-            // WCL-NOTE: is initialized from pwchRealUnicode.
-            const wchar_t RealUnicodeChar = *pwchRealUnicode;
-            if (IS_GLYPH_CHAR(RealUnicodeChar) || fUnprocessed)
+            if (IS_GLYPH_CHAR(Char) || fUnprocessed)
             {
                 // WCL-NOTE: This operates on a single code unit instead of a whole codepoint. It will mis-measure surrogate pairs.
                 if (IsGlyphFullWidth(Char))
@@ -427,7 +423,7 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
             else
             {
                 FAIL_FAST_IF(!(WI_IsFlagSet(screenInfo.OutputMode, ENABLE_PROCESSED_OUTPUT)));
-                switch (RealUnicodeChar)
+                switch (Char)
                 {
                 case UNICODE_BELL:
                     if (dwFlags & WC_PRINTABLE_CONTROL_CHARS)
@@ -474,7 +470,7 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
                 default:
 
                     // if char is ctrl char, write ^char.
-                    if ((dwFlags & WC_PRINTABLE_CONTROL_CHARS) && (IS_CONTROL_CHAR(RealUnicodeChar)))
+                    if ((dwFlags & WC_PRINTABLE_CONTROL_CHARS) && (IS_CONTROL_CHAR(Char)))
                     {
                     CtrlChar:
                         if (i < (LOCAL_BUFFER_SIZE - 1))
@@ -486,7 +482,7 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
                             XPosition++;
                             i++;
 
-                            *LocalBufPtr = (WCHAR)(RealUnicodeChar + (WCHAR)'@');
+                            *LocalBufPtr = (WCHAR)(Char + (WCHAR)'@');
                             LocalBufPtr++;
                             XPosition++;
                             i++;
@@ -510,11 +506,11 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
                             // convert to corresponding OEM Glyph Chars
                             WORD CharType;
 
-                            GetStringTypeW(CT_CTYPE1, &RealUnicodeChar, 1, &CharType);
+                            GetStringTypeW(CT_CTYPE1, &Char, 1, &CharType);
                             if (WI_IsFlagSet(CharType, C1_CNTRL))
                             {
                                 ConvertOutputToUnicode(gci.OutputCP,
-                                                       (LPSTR)&RealUnicodeChar,
+                                                       (LPSTR)&Char,
                                                        1,
                                                        LocalBufPtr,
                                                        1);
@@ -537,7 +533,6 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
                 }
             }
             lpString++;
-            pwchRealUnicode++;
             *pcb += sizeof(WCHAR);
         }
     EndWhile:
@@ -894,7 +889,6 @@ constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
 
         *pcb += sizeof(WCHAR);
         lpString++;
-        pwchRealUnicode++;
     }
 
     if (nullptr != pcSpaces)

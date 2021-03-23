@@ -70,7 +70,7 @@ Note:
 [[nodiscard]] NTSTATUS WriteCharsLegacy(SCREEN_INFORMATION& screenInfo,
                                         _In_range_(<=, pwchBuffer) const wchar_t* const pwchBufferBackupLimit,
                                         _In_ const wchar_t* pwchBuffer,
-                                        _In_reads_bytes_(*pcb) const wchar_t* pwchRealUnicode,
+                                        _In_reads_bytes_(*pcb) const wchar_t* const pwchRealUnicode,
                                         _Inout_ size_t* const pcb,
                                         _Out_opt_ size_t* const pcSpaces,
                                         const SHORT sOriginalXPosition,
