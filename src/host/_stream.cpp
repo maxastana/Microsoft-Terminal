@@ -302,6 +302,174 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
     return Status;
 }
 
+NTSTATUS WriteCharsLegacyDestructiveBackspace(size_t& TempNumSpaces,
+                                              const wchar_t* pwchBuffer,
+                                              const wchar_t* const& pwchBufferBackupLimit,
+                                              COORD& CursorPosition,
+                                              const SHORT& sOriginalXPosition,
+                                              COORD& coordScreenBufferSize,
+                                              TextBuffer& textBuffer,
+                                              const DWORD& dwFlags,
+                                              SCREEN_INFORMATION& screenInfo,
+                                              const TextAttribute& Attributes,
+                                              const PSHORT& psScrollY,
+                                              Cursor& cursor,
+                                              const bool& fWrapAtEOL)
+{
+    NTSTATUS Status{ STATUS_SUCCESS };
+    // move cursor backwards one space. overwrite current char with blank.
+    // we get here because we have to backspace from the beginning of the line
+    TempNumSpaces -= 1;
+    if (pwchBuffer == pwchBufferBackupLimit)
+    {
+        CursorPosition.X -= 1;
+    }
+    else
+    {
+        const wchar_t* Tmp;
+        wchar_t* Tmp2 = nullptr;
+        WCHAR LastChar;
+
+        const size_t bufferSize = pwchBuffer - pwchBufferBackupLimit;
+        std::unique_ptr<wchar_t[]> buffer;
+        try
+        {
+            buffer = std::make_unique<wchar_t[]>(bufferSize);
+            std::fill_n(buffer.get(), bufferSize, UNICODE_NULL);
+        }
+        catch (...)
+        {
+            return NTSTATUS_FROM_HRESULT(wil::ResultFromCaughtException());
+        }
+
+        size_t i{};
+        for (i = 0, Tmp2 = buffer.get(), Tmp = pwchBufferBackupLimit;
+             i < bufferSize;
+             i++, Tmp++)
+        {
+            // see 18120085, these two need to be separate if statements
+            if (*Tmp == UNICODE_BACKSPACE)
+            {
+                //it is important we do nothing in the else case for
+                //      this one instead of falling through to the below else.
+                if (Tmp2 > buffer.get())
+                {
+                    Tmp2--;
+                }
+            }
+            else
+            {
+                FAIL_FAST_IF(!(Tmp2 >= buffer.get()));
+                *Tmp2++ = *Tmp;
+            }
+        }
+        if (Tmp2 == buffer.get())
+        {
+            LastChar = UNICODE_SPACE;
+        }
+        else
+        {
+#pragma prefast(suppress : 26001, "This is fine. Tmp2 has to have advanced or it would equal pBuffer.")
+            LastChar = *(Tmp2 - 1);
+        }
+
+        if (LastChar == UNICODE_TAB)
+        {
+            CursorPosition.X -= (SHORT)(RetrieveNumberOfSpaces(sOriginalXPosition,
+                                                               pwchBufferBackupLimit,
+                                                               (ULONG)(pwchBuffer - pwchBufferBackupLimit - 1)));
+            if (CursorPosition.X < 0)
+            {
+                CursorPosition.X = (coordScreenBufferSize.X - 1) / TAB_SIZE;
+                CursorPosition.X *= TAB_SIZE;
+                CursorPosition.X += 1;
+                CursorPosition.Y -= 1;
+
+                // since you just backspaced yourself back up into the previous row, unset the wrap
+                // flag on the prev row if it was set
+                textBuffer.GetRowByOffset(CursorPosition.Y).SetWrapForced(false);
+            }
+        }
+        else if (IS_CONTROL_CHAR(LastChar))
+        {
+            CursorPosition.X -= 1;
+            TempNumSpaces -= 1;
+
+            // overwrite second character of ^x sequence.
+            if (dwFlags & WC_DESTRUCTIVE_BACKSPACE)
+            {
+                try
+                {
+                    screenInfo.Write(OutputCellIterator(UNICODE_SPACE, Attributes, 1), CursorPosition);
+                }
+                CATCH_LOG();
+            }
+
+            CursorPosition.X -= 1;
+        }
+        else if (IsGlyphFullWidth(LastChar))
+        {
+            CursorPosition.X -= 1;
+            TempNumSpaces -= 1;
+
+            Status = AdjustCursorPosition(screenInfo, CursorPosition, dwFlags & WC_KEEP_CURSOR_VISIBLE, psScrollY);
+            if (!NT_SUCCESS(Status))
+            {
+                return Status;
+            }
+
+            if (dwFlags & WC_DESTRUCTIVE_BACKSPACE)
+            {
+                try
+                {
+                    screenInfo.Write(OutputCellIterator(UNICODE_SPACE, Attributes, 1), CursorPosition);
+                    Status = STATUS_SUCCESS;
+                }
+                CATCH_LOG();
+            }
+            CursorPosition.X -= 1;
+        }
+        else
+        {
+            CursorPosition.X--;
+        }
+    }
+    if ((dwFlags & WC_LIMIT_BACKSPACE) && (CursorPosition.X < 0))
+    {
+        CursorPosition.X = 0;
+        OutputDebugStringA(("CONSRV: Ignoring backspace to previous line\n"));
+    }
+    Status = AdjustCursorPosition(screenInfo, CursorPosition, (dwFlags & WC_KEEP_CURSOR_VISIBLE) != 0, psScrollY);
+    if (dwFlags & WC_DESTRUCTIVE_BACKSPACE)
+    {
+        try
+        {
+            screenInfo.Write(OutputCellIterator(UNICODE_SPACE, Attributes, 1), cursor.GetPosition());
+        }
+        CATCH_LOG();
+    }
+    if (cursor.GetPosition().X == 0 && fWrapAtEOL && pwchBuffer > pwchBufferBackupLimit)
+    {
+        if (CheckBisectProcessW(screenInfo,
+                                pwchBufferBackupLimit,
+                                pwchBuffer + 1 - pwchBufferBackupLimit,
+                                gsl::narrow_cast<size_t>(coordScreenBufferSize.X) - sOriginalXPosition,
+                                sOriginalXPosition,
+                                dwFlags & WC_PRINTABLE_CONTROL_CHARS))
+        {
+            CursorPosition.X = coordScreenBufferSize.X - 1;
+            CursorPosition.Y = (SHORT)(cursor.GetPosition().Y - 1);
+
+            // since you just backspaced yourself back up into the previous row, unset the wrap flag
+            // on the prev row if it was set
+            textBuffer.GetRowByOffset(CursorPosition.Y).SetWrapForced(false);
+
+            Status = AdjustCursorPosition(screenInfo, CursorPosition, dwFlags & WC_KEEP_CURSOR_VISIBLE, psScrollY);
+        }
+    }
+    return STATUS_SUCCESS;
+}
+
 // Routine Description:
 // - This routine writes a string to the screen, processing any embedded
 //   unicode characters.  The string is also copied to the input buffer, if
@@ -597,152 +765,7 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
         {
         case UNICODE_BACKSPACE:
         {
-            // move cursor backwards one space. overwrite current char with blank.
-            // we get here because we have to backspace from the beginning of the line
-            TempNumSpaces -= 1;
-            if (pwchBuffer == pwchBufferBackupLimit)
-            {
-                CursorPosition.X -= 1;
-            }
-            else
-            {
-                const wchar_t* Tmp;
-                wchar_t* Tmp2 = nullptr;
-                WCHAR LastChar;
-
-                const size_t bufferSize = pwchBuffer - pwchBufferBackupLimit;
-                std::unique_ptr<wchar_t[]> buffer;
-                try
-                {
-                    buffer = std::make_unique<wchar_t[]>(bufferSize);
-                    std::fill_n(buffer.get(), bufferSize, UNICODE_NULL);
-                }
-                catch (...)
-                {
-                    return NTSTATUS_FROM_HRESULT(wil::ResultFromCaughtException());
-                }
-
-                size_t i{};
-                for (i = 0, Tmp2 = buffer.get(), Tmp = pwchBufferBackupLimit;
-                     i < bufferSize;
-                     i++, Tmp++)
-                {
-                    // see 18120085, these two need to be separate if statements
-                    if (*Tmp == UNICODE_BACKSPACE)
-                    {
-                        //it is important we do nothing in the else case for
-                        //      this one instead of falling through to the below else.
-                        if (Tmp2 > buffer.get())
-                        {
-                            Tmp2--;
-                        }
-                    }
-                    else
-                    {
-                        FAIL_FAST_IF(!(Tmp2 >= buffer.get()));
-                        *Tmp2++ = *Tmp;
-                    }
-                }
-                if (Tmp2 == buffer.get())
-                {
-                    LastChar = UNICODE_SPACE;
-                }
-                else
-                {
-#pragma prefast(suppress : 26001, "This is fine. Tmp2 has to have advanced or it would equal pBuffer.")
-                    LastChar = *(Tmp2 - 1);
-                }
-
-                if (LastChar == UNICODE_TAB)
-                {
-                    CursorPosition.X -= (SHORT)(RetrieveNumberOfSpaces(sOriginalXPosition,
-                                                                       pwchBufferBackupLimit,
-                                                                       (ULONG)(pwchBuffer - pwchBufferBackupLimit - 1)));
-                    if (CursorPosition.X < 0)
-                    {
-                        CursorPosition.X = (coordScreenBufferSize.X - 1) / TAB_SIZE;
-                        CursorPosition.X *= TAB_SIZE;
-                        CursorPosition.X += 1;
-                        CursorPosition.Y -= 1;
-
-                        // since you just backspaced yourself back up into the previous row, unset the wrap
-                        // flag on the prev row if it was set
-                        textBuffer.GetRowByOffset(CursorPosition.Y).SetWrapForced(false);
-                    }
-                }
-                else if (IS_CONTROL_CHAR(LastChar))
-                {
-                    CursorPosition.X -= 1;
-                    TempNumSpaces -= 1;
-
-                    // overwrite second character of ^x sequence.
-                    if (dwFlags & WC_DESTRUCTIVE_BACKSPACE)
-                    {
-                        try
-                        {
-                            screenInfo.Write(OutputCellIterator(UNICODE_SPACE, Attributes, 1), CursorPosition);
-                            Status = STATUS_SUCCESS;
-                        }
-                        CATCH_LOG();
-                    }
-
-                    CursorPosition.X -= 1;
-                }
-                else if (IsGlyphFullWidth(LastChar))
-                {
-                    CursorPosition.X -= 1;
-                    TempNumSpaces -= 1;
-
-                    Status = AdjustCursorPosition(screenInfo, CursorPosition, dwFlags & WC_KEEP_CURSOR_VISIBLE, psScrollY);
-                    if (dwFlags & WC_DESTRUCTIVE_BACKSPACE)
-                    {
-                        try
-                        {
-                            screenInfo.Write(OutputCellIterator(UNICODE_SPACE, Attributes, 1), CursorPosition);
-                            Status = STATUS_SUCCESS;
-                        }
-                        CATCH_LOG();
-                    }
-                    CursorPosition.X -= 1;
-                }
-                else
-                {
-                    CursorPosition.X--;
-                }
-            }
-            if ((dwFlags & WC_LIMIT_BACKSPACE) && (CursorPosition.X < 0))
-            {
-                CursorPosition.X = 0;
-                OutputDebugStringA(("CONSRV: Ignoring backspace to previous line\n"));
-            }
-            Status = AdjustCursorPosition(screenInfo, CursorPosition, (dwFlags & WC_KEEP_CURSOR_VISIBLE) != 0, psScrollY);
-            if (dwFlags & WC_DESTRUCTIVE_BACKSPACE)
-            {
-                try
-                {
-                    screenInfo.Write(OutputCellIterator(UNICODE_SPACE, Attributes, 1), cursor.GetPosition());
-                }
-                CATCH_LOG();
-            }
-            if (cursor.GetPosition().X == 0 && fWrapAtEOL && pwchBuffer > pwchBufferBackupLimit)
-            {
-                if (CheckBisectProcessW(screenInfo,
-                                        pwchBufferBackupLimit,
-                                        pwchBuffer + 1 - pwchBufferBackupLimit,
-                                        gsl::narrow_cast<size_t>(coordScreenBufferSize.X) - sOriginalXPosition,
-                                        sOriginalXPosition,
-                                        dwFlags & WC_PRINTABLE_CONTROL_CHARS))
-                {
-                    CursorPosition.X = coordScreenBufferSize.X - 1;
-                    CursorPosition.Y = (SHORT)(cursor.GetPosition().Y - 1);
-
-                    // since you just backspaced yourself back up into the previous row, unset the wrap flag
-                    // on the prev row if it was set
-                    textBuffer.GetRowByOffset(CursorPosition.Y).SetWrapForced(false);
-
-                    Status = AdjustCursorPosition(screenInfo, CursorPosition, dwFlags & WC_KEEP_CURSOR_VISIBLE, psScrollY);
-                }
-            }
+            WriteCharsLegacyDestructiveBackspace(TempNumSpaces, pwchBuffer, pwchBufferBackupLimit, CursorPosition, sOriginalXPosition, coordScreenBufferSize, textBuffer, dwFlags, screenInfo, Attributes, psScrollY, cursor, fWrapAtEOL);
             break;
         }
         case UNICODE_TAB:

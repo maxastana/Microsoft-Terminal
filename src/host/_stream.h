@@ -67,6 +67,7 @@ Note:
     This routine does not process tabs and backspace properly.  That code
     will be implemented as part of the line editing services.
 --*/
+void WriteCharsLegacyDestructiveBackspace(size_t& TempNumSpaces, const wchar_t* pwchBuffer, const wchar_t* const& pwchBufferBackupLimit, COORD& CursorPosition, const SHORT& sOriginalXPosition, COORD& coordScreenBufferSize, TextBuffer& textBuffer, const DWORD& dwFlags, SCREEN_INFORMATION& screenInfo, const TextAttribute& Attributes, NTSTATUS& Status, const PSHORT& psScrollY, Cursor& cursor, const bool& fWrapAtEOL);
 [[nodiscard]] NTSTATUS WriteCharsLegacy(SCREEN_INFORMATION& screenInfo,
                                         _In_range_(<=, pwchBuffer) const wchar_t* const pwchBufferBackupLimit,
                                         _In_ const wchar_t* pwchBuffer,
