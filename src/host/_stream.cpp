@@ -469,6 +469,11 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
                     if ((dwFlags & WC_PRINTABLE_CONTROL_CHARS) && (IS_CONTROL_CHAR(Char)))
                     {
                     CtrlChar:
+                        if (XPosition + 2 >= coordScreenBufferSize.X)
+                        {
+                            // The control character won't fit on this line!
+                            goto EndWhile;
+                        }
                         localBuffer.push_back(L'^');
                         localBuffer.push_back(Char + L'@');
                         XPosition += 2;
@@ -520,6 +525,10 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
         {
             CursorPosition = cursor.GetPosition();
 
+            // Originally, we used the number of code units inserted into the local buffer (max 100)
+            // to make sure we weren't going to blow out the buffer. That is, of course, the wrong thing
+            // to measure. We care about how many columns are consumed when measuring buffer space.
+            // TODO(DH) CONTROL CHAR INSERTION REQUIRED THIS
             // Make sure we don't write past the end of the buffer.
             // WCL-NOTE: This check uses a code unit count instead of a column count. That is incorrect.
             // WCL-NOTE: This check prevented the above ^X case from being catastrophic
@@ -527,7 +536,6 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
             //{
             //i = gsl::narrow_cast<size_t>(coordScreenBufferSize.X) - CursorPosition.X;
             //}
-            //TODO(DH) FIGURE OUT IF <I> WAS IMPORTANT HERE
 
             // line was wrapped if we're writing up to the end of the current row
             OutputCellIterator it(std::wstring_view{ localBuffer }, Attributes);
@@ -813,10 +821,26 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
         default:
         {
             const wchar_t Char = *lpString;
-            if (Char >= UNICODE_SPACE &&
-                IsGlyphFullWidth(Char) &&
-                XPosition >= (coordScreenBufferSize.X - 1) &&
-                fWrapAtEOL)
+            if ((dwFlags & WC_PRINTABLE_CONTROL_CHARS) && (IS_CONTROL_CHAR(Char)))
+            {
+#if 0
+                wchar_t controlChars[]{ L'^', static_cast<wchar_t>(Char + L'@') };
+                try
+                {
+                    const OutputCellIterator it(L'^', Attributes, 1);
+                    screenInfo.Write(it, cursor.GetPosition());
+                }
+                CATCH_LOG();
+#endif
+
+                CursorPosition.X = 1; // we wrote one char on the next line
+                CursorPosition.Y = cursor.GetPosition().Y + 1;
+                Status = AdjustCursorPosition(screenInfo, CursorPosition, (dwFlags & WC_KEEP_CURSOR_VISIBLE) != 0, psScrollY);
+            }
+            else if (Char >= UNICODE_SPACE &&
+                     IsGlyphFullWidth(Char) &&
+                     XPosition >= (coordScreenBufferSize.X - 1) &&
+                     fWrapAtEOL)
             {
                 const COORD TargetPoint = cursor.GetPosition();
                 ROW& Row = textBuffer.GetRowByOffset(TargetPoint.Y);
