@@ -455,10 +455,7 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
                         goto EndWhile;
                     }
 
-                    for (ULONG j = 0; j < TabSize; j++)
-                    {
-                        localBuffer.push_back(UNICODE_SPACE);
-                    }
+                    localBuffer.append(TabSize, UNICODE_SPACE);
 
                     pwchBuffer++;
                     break;
@@ -541,11 +538,12 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
 
             // The number of "spaces" or "cells" we have consumed needs to be reported and stored for later
             // when/if we need to erase the command line.
-            TempNumSpaces += itEnd.GetCellDistance(it);
+            const auto cellDistance = itEnd.GetCellDistance(it);
+            TempNumSpaces += cellDistance;
             // WCL-NOTE: We are using the "estimated" X position delta instead of the actual delta from
             // WCL-NOTE: the iterator. It is not clear why. If they differ, the cursor ends up in the
             // WCL-NOTE: wrong place (typically inside another character).
-            CursorPosition.X = XPosition;
+            CursorPosition.X += gsl::narrow_cast<SHORT>(cellDistance);
 
             // enforce a delayed newline if we're about to pass the end and the WC_DELAY_EOL_WRAP flag is set.
             if (WI_IsFlagSet(dwFlags, WC_DELAY_EOL_WRAP) && CursorPosition.X >= coordScreenBufferSize.X && fWrapAtEOL)
