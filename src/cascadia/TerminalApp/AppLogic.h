@@ -82,6 +82,7 @@ namespace winrt::TerminalApp::implementation
         void TitlebarClicked();
         bool OnDirectKeyEvent(const uint32_t vkey, const uint8_t scanCode, const bool down);
 
+        void WindowsSessionEnding();
         void WindowCloseButtonClicked();
 
         size_t GetLastActiveControlTaskbarState();

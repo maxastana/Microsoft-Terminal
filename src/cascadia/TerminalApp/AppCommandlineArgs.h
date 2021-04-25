@@ -36,6 +36,7 @@ public:
     void ValidateStartupCommands();
     std::vector<winrt::Microsoft::Terminal::Settings::Model::ActionAndArgs>& GetStartupActions();
     bool IsHandoffListener() const noexcept;
+    const std::string& GetRestoreSessionID();
     const std::string& GetExitMessage();
     bool ShouldExitEarly() const noexcept;
 
@@ -115,6 +116,7 @@ private:
     bool _shouldExitEarly{ false };
 
     std::string _windowTarget{};
+    std::string _restore{};
     // Are you adding more args or attributes here? If they are not reset in _resetStateToDefault, make sure to reset them in FullResetState
 
     winrt::Microsoft::Terminal::Settings::Model::NewTerminalArgs _getNewTerminalArgs(NewTerminalSubcommand& subcommand);

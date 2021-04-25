@@ -9,6 +9,9 @@
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 
 #include <LibraryResources.h>
+#include <shlobj_core.h>
+
+#include "TerminalPersistence.Json.h"
 
 using namespace winrt::Windows::ApplicationModel;
 using namespace winrt::Windows::ApplicationModel::DataTransfer;
@@ -1120,6 +1123,43 @@ namespace winrt::TerminalApp::implementation
         return false;
     }
 
+    void AppLogic::WindowsSessionEnding()
+    try
+    {
+        if (!_root)
+        {
+            return;
+        }
+
+        auto statePath = []() -> std::filesystem::path {
+            wil::unique_cotaskmem_string localAppDataFolder;
+            THROW_IF_FAILED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_FORCE_APP_DATA_REDIRECTION, nullptr, &localAppDataFolder));
+            return std::filesystem::path { localAppDataFolder.get() } / "state.json";
+        }();
+
+        // TODO: Persistence - move into own method
+        {
+            using ::Microsoft::Terminal::Settings::Model::JsonUtils::ConversionTrait;
+
+            auto persistenceRoot = _root->Persist();
+
+            Json::StreamWriterBuilder jsonBuilder{};
+            jsonBuilder["commentStyle"] = "None";
+            jsonBuilder["indentation"] = "";
+            auto jsonModel = ConversionTrait<decltype(persistenceRoot)>{}.ToJson(persistenceRoot);
+            auto json = Json::writeString(jsonBuilder, jsonModel);
+
+            std::ofstream fout{statePath.string(), std::ios::binary};
+            fout << json;
+        }
+
+        _root->RemoveAllTabs();
+    }
+    catch (...)
+    {
+        LOG_CAUGHT_EXCEPTION();
+    }
+
     // Method Description:
     // - Used to tell the app that the 'X' button has been clicked and
     //   the user wants to close the app. We kick off the close warning
@@ -1130,6 +1170,8 @@ namespace winrt::TerminalApp::implementation
     // - <none>
     void AppLogic::WindowCloseButtonClicked()
     {
+        // TODO Remove state.json
+
         if (_root)
         {
             _root->CloseWindow();
@@ -1197,6 +1239,8 @@ namespace winrt::TerminalApp::implementation
             {
                 _root->SetInboundListener();
             }
+
+            _root->SetRestoreSessionId(_appArgs.GetRestoreSessionID());
         }
 
         return result;

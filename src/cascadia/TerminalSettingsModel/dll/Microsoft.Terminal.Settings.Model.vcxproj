@@ -40,7 +40,6 @@
   </ItemGroup>
   <!-- ========================= Misc Files ======================== -->
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="$(ProjectName).def" />
   </ItemGroup>
   <!-- ========================= Project References ======================== -->
@@ -59,7 +58,6 @@
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalConnection\TerminalConnection.vcxproj">
       <Private>false</Private>
     </ProjectReference>
-
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalControl\dll\TerminalControl.vcxproj">
       <!-- Private:false and ReferenceOutputAssembly:false, in combination with
       the manual reference to TerminalControl.winmd below make sure that this
@@ -68,7 +66,6 @@
       <Private>true</Private>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-
     <!-- Reference Microsoft.Terminal.Settings.ModelLib here, so we can use it's winmd as
     our winmd. This didn't work correctly in VS2017, you'd need to
     manually reference the lib -->
@@ -76,7 +73,6 @@
       <Private>true</Private>
     </ProjectReference>
   </ItemGroup>
-
   <ItemGroup>
     <!-- Manually add a reference to TerminalControl here. We need this so
     MDMERGE will know where the TermControl types are defined. However, we need
@@ -88,7 +84,6 @@
       <Private>false</Private>
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
     </Reference>
-
     <Reference Include="Microsoft.Terminal.Core">
       <HintPath>$(OpenConsoleCommonOutDir)TerminalCore\Microsoft.Terminal.Core.winmd</HintPath>
       <IsWinMDFile>true</IsWinMDFile>
@@ -96,7 +91,6 @@
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
     </Reference>
   </ItemGroup>
-
   <Import Project="$(OpenConsoleDir)packages\Microsoft.UI.Xaml.2.5.0-prerelease.201202003\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('$(OpenConsoleDir)packages\Microsoft.UI.Xaml.2.5.0-prerelease.201202003\build\native\Microsoft.UI.Xaml.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -104,7 +98,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(OpenConsoleDir)\packages\Microsoft.UI.Xaml.2.5.0-prerelease.201202003\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(OpenConsoleDir)\packages\Microsoft.UI.Xaml.2.5.0-prerelease.201202003\build\native\Microsoft.UI.Xaml.targets'))" />
   </Target>
-
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(OpenConsoleDir)\dep\jsoncpp\json;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>

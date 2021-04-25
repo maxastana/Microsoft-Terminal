@@ -413,6 +413,16 @@ long IslandWindow::_calculateTotalSize(const bool isWidth, const long clientSize
         _windowCloseButtonClickedHandler();
         return 0;
     }
+    case WM_QUERYENDSESSION:
+    {
+        RegisterApplicationRestart(L"--restore", 0);
+        return TRUE;
+    }
+    case WM_ENDSESSION:
+    {
+        _windowsSessionEndingHandler();
+        return 0;
+    }
     case WM_MOUSEWHEEL:
         try
         {
@@ -932,4 +942,5 @@ winrt::fire_and_forget IslandWindow::SummonWindow()
 }
 
 DEFINE_EVENT(IslandWindow, DragRegionClicked, _DragRegionClickedHandlers, winrt::delegate<>);
+DEFINE_EVENT(IslandWindow, WindowsSessionEnding, _windowsSessionEndingHandler, winrt::delegate<>);
 DEFINE_EVENT(IslandWindow, WindowCloseButtonClicked, _windowCloseButtonClickedHandler, winrt::delegate<>);

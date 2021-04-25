@@ -230,6 +230,8 @@ void AppHost::Initialize()
         _logic.SetTitleBarContent({ this, &AppHost::_UpdateTitleBarContent });
     }
 
+    _window->WindowsSessionEnding([this]() { _logic.WindowsSessionEnding(); });
+
     // Register the 'X' button of the window for a warning experience of multiple
     // tabs opened, this is consistent with Alt+F4 closing
     _window->WindowCloseButtonClicked([this]() { _logic.WindowCloseButtonClicked(); });

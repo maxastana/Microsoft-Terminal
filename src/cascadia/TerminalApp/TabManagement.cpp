@@ -908,7 +908,7 @@ namespace winrt::TerminalApp::implementation
         return _tabs.Size() > 1;
     }
 
-    void TerminalPage::_RemoveAllTabs()
+    void TerminalPage::RemoveAllTabs()
     {
         // Since _RemoveTabs is asynchronous, create a snapshot of the  tabs we want to remove
         std::vector<winrt::TerminalApp::TabBase> tabsToRemove;

@@ -5,6 +5,7 @@
 
 #include "TerminalPage.g.h"
 #include "TerminalTab.h"
+#include "TerminalPersistence.h"
 #include "AppKeyBindings.h"
 #include "AppCommandlineArgs.h"
 #include "RenameWindowRequestedArgs.g.h"
@@ -70,6 +71,7 @@ namespace winrt::TerminalApp::implementation
         winrt::hstring ThirdPartyNoticesLink();
 
         winrt::fire_and_forget CloseWindow();
+        void RemoveAllTabs();
 
         void ToggleFocusMode();
         void ToggleFullscreen();
@@ -77,8 +79,9 @@ namespace winrt::TerminalApp::implementation
         bool FocusMode() const;
         bool Fullscreen() const;
         bool AlwaysOnTop() const;
-
-        void SetStartupActions(std::vector<Microsoft::Terminal::Settings::Model::ActionAndArgs>& actions);
+        
+        void SetRestoreSessionId(std::string id);
+        void SetStartupActions(std::vector<Microsoft::Terminal::Settings::Model::ActionAndArgs> actions);
         void SetInboundListener();
         static std::vector<Microsoft::Terminal::Settings::Model::ActionAndArgs> ConvertExecuteCommandlineToActions(const Microsoft::Terminal::Settings::Model::ExecuteCommandlineArgs& args);
 
@@ -107,6 +110,8 @@ namespace winrt::TerminalApp::implementation
         void WindowId(const uint64_t& value);
         winrt::hstring WindowIdForDisplay() const noexcept;
         winrt::hstring WindowNameForDisplay() const noexcept;
+
+        ::Microsoft::Terminal::Persistence::Model::Root Persist() const;
 
         WINRT_CALLBACK(PropertyChanged, Windows::UI::Xaml::Data::PropertyChangedEventHandler);
 
@@ -170,6 +175,7 @@ namespace winrt::TerminalApp::implementation
         winrt::Windows::UI::Xaml::Controls::Grid::LayoutUpdated_revoker _layoutUpdatedRevoker;
         StartupState _startupState{ StartupState::NotInitialized };
 
+        std::string _restoreSessionId;
         Windows::Foundation::Collections::IVector<Microsoft::Terminal::Settings::Model::ActionAndArgs> _startupActions;
         bool _shouldStartInboundListener{ false };
 
@@ -223,7 +229,6 @@ namespace winrt::TerminalApp::implementation
         void _DismissTabContextMenus();
         void _FocusCurrentTab(const bool focusAlways);
         bool _HasMultipleTabs() const;
-        void _RemoveAllTabs();
         void _ResizeTabContent(const winrt::Windows::Foundation::Size& newSize);
 
         void _SelectNextTab(const bool bMoveRight, const Windows::Foundation::IReference<Microsoft::Terminal::Settings::Model::TabSwitcherMode>& customTabSwitcherMode);

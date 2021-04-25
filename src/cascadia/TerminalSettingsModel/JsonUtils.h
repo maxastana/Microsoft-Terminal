@@ -14,9 +14,18 @@ Author(s):
 
 #pragma once
 
-#include <json.h>
+#include <functional>
+#include <optional>
+#include <string>
+#include <vector>
 
+#include <gsl/gsl_util>
+#include <json.h>
+#include <til/u8u16convert.h>
+
+#if defined(GUID_DEFINED) || defined(TIL_COLOR_H)
 #include "../types/inc/utils.hpp"
+#endif
 
 namespace winrt
 {
@@ -326,6 +335,7 @@ namespace Microsoft::Terminal::Settings::Model::JsonUtils
         }
     };
 
+#ifdef GUID_DEFINED
     template<>
     struct ConversionTrait<GUID>
     {
@@ -355,7 +365,9 @@ namespace Microsoft::Terminal::Settings::Model::JsonUtils
             return "guid";
         }
     };
+#endif
 
+#ifdef WINRT_BASE_H
     // GUID and winrt::guid are mutually convertible,
     // but IReference<winrt::guid> throws some of this off
     template<>
@@ -381,7 +393,9 @@ namespace Microsoft::Terminal::Settings::Model::JsonUtils
             return ConversionTrait<GUID>{}.TypeDescription();
         }
     };
+#endif
 
+#ifdef TIL_COLOR_H
     template<>
     struct ConversionTrait<til::color>
     {
@@ -411,6 +425,7 @@ namespace Microsoft::Terminal::Settings::Model::JsonUtils
             return "color (#rrggbb, #rgb)";
         }
     };
+#endif
 
 #ifdef WINRT_Windows_UI_H
     template<>
@@ -505,6 +520,57 @@ namespace Microsoft::Terminal::Settings::Model::JsonUtils
     template<typename T>
     struct ConversionTrait<std::optional<T>> : public OptionalConverter<T, ConversionTrait<T>, std::optional<T>>
     {
+    };
+
+    template<typename T>
+    struct ConversionTrait<std::vector<T>>
+    {
+        std::vector<T> FromJson(const Json::Value& json)
+        {
+            if (!json.isArray())
+            {
+                return {};
+            }
+
+            ConversionTrait<T> trait{};
+            std::vector<T> val;
+
+            val.reserve(json.size());
+
+            for (const auto& field : json)
+            {
+                val.emplace_back(trait.FromJson(field));
+            }
+
+            return val;
+        }
+
+        bool CanConvert(const Json::Value& json)
+        {
+            ConversionTrait<T> trait{};
+            return json.isArray() && std::all_of(json.begin(), json.end(), [trait](const Json::Value& field) -> bool { return trait.CanConvert(field); });
+        }
+
+        Json::Value ToJson(const std::vector<T>& val)
+        {
+            ConversionTrait<T> trait{};
+            Json::Value json{ Json::arrayValue };
+            Json::ArrayIndex idx = 0;
+
+            json.resize(gsl::narrow<Json::ArrayIndex>(val.size()));
+
+            for (const auto& v : val)
+            {
+                json[idx++] = trait.ToJson(v);
+            }
+
+            return json;
+        }
+
+        std::string TypeDescription() const
+        {
+            return fmt::format("vector<{}>", ConversionTrait<T>{}.TypeDescription());
+        }
     };
 
 #ifdef WINRT_Windows_Foundation_H

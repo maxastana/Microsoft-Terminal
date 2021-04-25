@@ -3,6 +3,9 @@
 
 #pragma once
 
+#ifndef TIL_COLOR_H
+#define TIL_COLOR_H
+
 namespace til // Terminal Implementation Library. Also: "Today I Learned"
 {
     // color is a universal integral 8bpp RGBA (0-255) color type implicitly convertible to/from
@@ -227,3 +230,5 @@ namespace WEX::TestExecution
     };
 };
 #endif
+
+#endif // TIL_COLOR_H

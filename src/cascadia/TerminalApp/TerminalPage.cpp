@@ -1134,7 +1134,7 @@ namespace winrt::TerminalApp::implementation
             }
         }
 
-        _RemoveAllTabs();
+        RemoveAllTabs();
     }
 
     // Method Description:
@@ -1957,6 +1957,11 @@ namespace winrt::TerminalApp::implementation
         CommandPalette().SetCommands(commandsCollection);
     }
 
+    void TerminalPage::SetRestoreSessionId(std::string id)
+    {
+        _restoreSessionId = id;
+    }
+
     // Method Description:
     // - Sets the initial actions to process on startup. We'll make a copy of
     //   this list, and process these actions when we're loaded.
@@ -1965,13 +1970,12 @@ namespace winrt::TerminalApp::implementation
     // - actions: a list of Actions to process on startup.
     // Return Value:
     // - <none>
-    void TerminalPage::SetStartupActions(std::vector<ActionAndArgs>& actions)
+    void TerminalPage::SetStartupActions(std::vector<ActionAndArgs> actions)
     {
         // The fastest way to copy all the actions out of the std::vector and
         // put them into a winrt::IVector is by making a copy, then moving the
         // copy into the winrt vector ctor.
-        auto listCopy = actions;
-        _startupActions = winrt::single_threaded_vector<ActionAndArgs>(std::move(listCopy));
+        _startupActions = winrt::single_threaded_vector<ActionAndArgs>(std::move(actions));
     }
 
     // Routine Description:
@@ -2656,6 +2660,35 @@ namespace winrt::TerminalApp::implementation
         return _WindowName.empty() ?
                    winrt::hstring{ fmt::format(L"<{}>", RS_(L"UnnamedWindowName")) } :
                    _WindowName;
+    }
+
+    ::Microsoft::Terminal::Persistence::Model::Root TerminalPage::Persist() const
+    {
+        namespace Model = ::Microsoft::Terminal::Persistence::Model;
+
+        Model::Root persistenceRoot{};
+
+        for (const auto& tabBase : _tabs)
+        {
+            const auto tab = _GetTerminalTabImpl(tabBase);
+            if (!tab)
+            {
+                continue;
+            }
+
+            auto profile = tab->GetFocusedProfile();
+            if (!profile)
+            {
+                continue;
+            }
+
+            Model::Tab persistenceTab{};
+            persistenceTab.profile = ::Microsoft::Console::Utils::GuidToString(*profile);
+
+            persistenceRoot.tabs.emplace_back(std::move(persistenceTab));
+        }
+
+        return persistenceRoot;
     }
 
     // Method Description:

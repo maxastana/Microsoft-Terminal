@@ -63,6 +63,7 @@ namespace TerminalApp
         Boolean GetInitialAlwaysOnTop();
         Single CalcSnappedDimension(Boolean widthOrHeight, Single dimension);
         void TitlebarClicked();
+        void WindowsSessionEnding();
         void WindowCloseButtonClicked();
 
         UInt64 GetLastActiveControlTaskbarState();

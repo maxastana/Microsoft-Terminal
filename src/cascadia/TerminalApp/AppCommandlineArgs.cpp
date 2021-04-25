@@ -189,6 +189,8 @@ void AppCommandlineArgs::_buildParser()
                     _windowTarget,
                     RS_A(L"CmdWindowTargetArgDesc"));
 
+    _app.add_option("--restore", _restore, RS_A(L"internal command"));
+
     // Subcommands
     _buildNewTabParser();
     _buildSplitPaneParser();
@@ -708,6 +710,11 @@ std::vector<ActionAndArgs>& AppCommandlineArgs::GetStartupActions()
 bool AppCommandlineArgs::IsHandoffListener() const noexcept
 {
     return _isHandoffListener;
+}
+
+const std::string& AppCommandlineArgs::GetRestoreSessionID()
+{
+    return _restore;
 }
 
 // Method Description:
