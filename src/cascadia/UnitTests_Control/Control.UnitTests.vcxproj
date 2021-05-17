@@ -33,27 +33,10 @@
 
   <!-- ========================= Project References ======================== -->
   <ItemGroup>
-
-    <ProjectReference Include="$(OpenConsoleDir)src\buffer\out\lib\bufferout.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\renderer\base\lib\base.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\renderer\dx\lib\dx.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\renderer\uia\lib\uia.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\terminal\parser\lib\parser.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\terminal\input\lib\terminalinput.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalCore\lib\TerminalCore-lib.vcxproj" />
-
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalControl\TerminalControlLib.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)\src\types\lib\types.vcxproj" />
-
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.Terminal.TerminalConnection">
-      <HintPath>$(OpenConsoleCommonOutDir)TerminalConnection\Microsoft.Terminal.TerminalConnection.winmd</HintPath>
-      <IsWinMDFile>true</IsWinMDFile>
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </Reference>
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalControl\TerminalControlLib.vcxproj">
+      <Project>{CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <!-- ========================= Globals ======================== -->
 

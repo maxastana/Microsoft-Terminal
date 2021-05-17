@@ -55,6 +55,7 @@
     our Microsoft.Terminal.Control.winmd. This didn't work correctly in VS2017, you'd need to
     manually reference the lib -->
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalControl\TerminalControlLib.vcxproj">
+      <Project>{CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED}</Project>
       <Private>true</Private>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
     </ProjectReference>

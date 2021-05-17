@@ -49,10 +49,14 @@
 
   <!-- ========================= Project References ======================== -->
   <ItemGroup>
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalApp\TerminalAppLib.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalSettingsModel\Microsoft.Terminal.Settings.ModelLib.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)\src\types\lib\types.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\propslib\propslib.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalApp\TerminalAppLib.vcxproj">
+      <Project>{CA5CAD1A-9A12-429C-B551-8562EC954746}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsModel\Microsoft.Terminal.Settings.ModelLib.vcxproj">
+      <Project>{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <!-- ========================= Globals ======================== -->

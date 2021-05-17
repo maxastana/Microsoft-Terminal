@@ -88,8 +88,12 @@
     <ProjectReference Include="..\..\types\lib\types.vcxproj">
       <Project>{18d09a24-8240-42d6-8cb6-236eee820263}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\ut_lib\host.unittest.vcxproj">
+    <ProjectReference Include="..\lib\hostlib.vcxproj">
       <Project>{06ec74cb-9a12-429c-b551-8562ec954746}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\ut_lib\host.unittest.vcxproj">
+      <Project>{06ec74cb-9a12-429c-b551-8562ec954747}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

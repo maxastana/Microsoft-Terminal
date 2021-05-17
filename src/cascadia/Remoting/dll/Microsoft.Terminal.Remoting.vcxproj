@@ -37,11 +37,6 @@
   </ItemGroup>
   <!-- ========================= Project References ======================== -->
   <ItemGroup>
-    <!--
-      the packaging project won't recurse through our dependencies, you have to
-      make sure that if you add a cppwinrt dependency to any of these projects,
-      you also update all the consumers
-    -->
     <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj">
       <Project>{18D09A24-8240-42D6-8CB6-236EEE820263}</Project>
     </ProjectReference>
@@ -49,6 +44,7 @@
     our winmd. This didn't work correctly in VS2017, you'd need to
     manually reference the lib -->
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\Remoting\Microsoft.Terminal.RemotingLib.vcxproj">
+      <Project>{43CE4CE5-0010-4B99-9569-672670D26E26}</Project>
       <Private>true</Private>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
     </ProjectReference>

@@ -42,11 +42,21 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\tools\nihilist\Nihilist.vcxproj">
+      <Project>{fc802440-ad6a-4919-8f2c-7701f2b38d79}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\..\types\lib\types.vcxproj">
       <Project>{18d09a24-8240-42d6-8cb6-236eee820263}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\..\winconpty\lib\winconptylib.vcxproj">
       <Project>{58a03bb2-df5a-4b66-91a0-7ef3ba01269a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\exe\Host.EXE.vcxproj">
+      <Project>{9cbd7dfa-1754-4a9d-93d7-857a9d17cb1b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

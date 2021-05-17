@@ -131,20 +131,40 @@
   </ItemGroup>
   <!-- ========================= Project References ======================== -->
   <ItemGroup>
-    <ProjectReference Include="..\..\types\lib\types.vcxproj" />
-    <ProjectReference Include="..\..\buffer\out\lib\bufferout.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\renderer\base\lib\base.vcxproj" />
-    <ProjectReference Include="..\..\renderer\dx\lib\dx.vcxproj" />
-    <ProjectReference Include="..\..\renderer\uia\lib\uia.vcxproj" />
-    <ProjectReference Include="..\..\terminal\parser\lib\parser.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\terminal\input\lib\terminalinput.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalCore\lib\TerminalCore-lib.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)src\buffer\out\lib\bufferout.vcxproj">
+      <Project>{0CF235BD-2DA0-407E-90EE-C467E8BBC714}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalConnection\TerminalConnection.vcxproj">
+      <Project>{CA5CAD1A-C46D-4588-B1C0-40F31AE9100B}</Project>
       <Private>false</Private>
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
     </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalCore\lib\TerminalCore-lib.vcxproj">
+      <Project>{CA5CAD1A-ABCD-429C-B551-8562EC954746}</Project>
+    </ProjectReference>
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\WinRTUtils\WinRTUtils.vcxproj">
       <Project>{CA5CAD1A-039A-4929-BA2A-8BEB2E4106FE}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\renderer\base\lib\base.vcxproj">
+      <Project>{AF0A096A-8B3A-4949-81EF-7DF8F0FEE91F}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\renderer\dx\lib\dx.vcxproj">
+      <Project>{48D21369-3D7B-4431-9967-24E81292CF62}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\renderer\uia\lib\uia.vcxproj">
+      <Project>{48D21369-3D7B-4431-9967-24E81292CF63}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\terminal\input\lib\terminalinput.vcxproj">
+      <Project>{1CF55140-EF6A-4736-A403-957E4F7430BB}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj">
+      <Project>{18D09A24-8240-42D6-8CB6-236EEE820263}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

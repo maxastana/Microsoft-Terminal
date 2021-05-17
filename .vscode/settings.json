@@ -101,5 +101,12 @@
         "**/obj/**": true,
         "**/packages/**": true,
         "**/generated files/**": true
-    }
+    },
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex"
+    ]
 }

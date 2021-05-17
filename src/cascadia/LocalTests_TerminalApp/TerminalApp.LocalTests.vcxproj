@@ -53,16 +53,26 @@
 
   <!-- ========================= Project References ======================== -->
   <ItemGroup>
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalApp\TerminalAppLib.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalApp\TerminalAppLib.vcxproj">
+      <Project>{CA5CAD1A-9A12-429C-B551-8562EC954746}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="$(OpenConsoleDir)\src\types\lib\types.vcxproj" />
 
     <!-- If you don't reference these projects here, the
     _ConsoleGenerateAdditionalWinmdManifests step won't gather the winmd's -->
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsEditor\Microsoft.Terminal.Settings.Editor.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalControl\dll\TerminalControl.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalConnection\TerminalConnection.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalApp\dll\TerminalApp.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalSettingsModel\dll\Microsoft.Terminal.Settings.Model.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalApp\dll\TerminalApp.vcxproj">
+      <Project>{CA5CAD1A-44BD-4AC7-AC72-F16E576FDD12}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalSettingsModel\dll\Microsoft.Terminal.Settings.Model.vcxproj">
+      <Project>{CA5CAD1A-082C-4476-9F33-94B339494076}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalSettingsModel\Microsoft.Terminal.Settings.ModelLib.vcxproj">
+      <Project>{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <!-- ========================= Globals ======================== -->
@@ -94,7 +104,7 @@
     <!-- From Microsoft.UI.Xaml.targets -->
     <Native-Platform Condition="'$(Platform)' == 'Win32'">x86</Native-Platform>
     <Native-Platform Condition="'$(Platform)' != 'Win32'">$(Platform)</Native-Platform>
-    <_MUXBinRoot>&quot;$(OpenConsoleDir)packages\Microsoft.UI.Xaml.2.5.0-prerelease.201202003\runtimes\win10-$(Native-Platform)\native\&quot;</_MUXBinRoot>
+    <_MUXBinRoot>"$(OpenConsoleDir)packages\Microsoft.UI.Xaml.2.5.0-prerelease.201202003\runtimes\win10-$(Native-Platform)\native\"</_MUXBinRoot>
   </PropertyGroup>
 
 <!-- We actually can just straight up reference MUX here, it's fine -->

@@ -41,7 +41,14 @@
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalConnection\TerminalConnection.vcxproj">
       <Project>{CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED}</Project>
     </ProjectReference>
-    <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\TerminalControl\dll\TerminalControl.vcxproj">
+      <Project>{CA5CAD1A-F542-4635-A069-7CAEFB930070}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj">
+      <Project>{18D09A24-8240-42D6-8CB6-236EEE820263}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <!--

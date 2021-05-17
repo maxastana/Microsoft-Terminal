@@ -6,16 +6,8 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Terminal", "Terminal", "{59840756-302F-44DF-AA47-441A9D673202}"
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "CascadiaPackage", "src\cascadia\CascadiaPackage\CascadiaPackage.wapproj", "{CA5CAD1A-224A-4171-B13A-F16E576FDD12}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F2ED628A-DB22-446F-A081-4CC845B51A2B} = {F2ED628A-DB22-446F-A081-4CC845B51A2B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Host.EXE", "src\host\exe\Host.EXE.vcxproj", "{9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF} = {71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF}
-		{0CF235BD-2DA0-407E-90EE-C467E8BBC714} = {0CF235BD-2DA0-407E-90EE-C467E8BBC714}
-		{5D23E8E1-3C64-4CC1-A8F7-6861677F7239} = {5D23E8E1-3C64-4CC1-A8F7-6861677F7239}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PropertiesLibrary", "src\propslib\propslib.vcxproj", "{345FD5A4-B32B-4F29-BD1C-B033BD2C35CC}"
 EndProject
@@ -45,54 +37,24 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextServicesFramework", "src\tsf\tsf.vcxproj", "{2FD12FBB-1DDB-46D8-B818-1023C624CACA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalParser", "src\terminal\parser\lib\parser.vcxproj", "{3AE13314-1939-4DFA-9C14-38CA0834050C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{18D09A24-8240-42D6-8CB6-236EEE820263} = {18D09A24-8240-42D6-8CB6-236EEE820263}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalAdapter", "src\terminal\adapter\lib\adapter.vcxproj", "{DCF55140-EF6A-4736-A403-957E4F7430BB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{18D09A24-8240-42D6-8CB6-236EEE820263} = {18D09A24-8240-42D6-8CB6-236EEE820263}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalInput", "src\terminal\input\lib\terminalinput.vcxproj", "{1CF55140-EF6A-4736-A403-957E4F7430BB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{18D09A24-8240-42D6-8CB6-236EEE820263} = {18D09A24-8240-42D6-8CB6-236EEE820263}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RendererBase", "src\renderer\base\lib\base.vcxproj", "{AF0A096A-8B3A-4949-81EF-7DF8F0FEE91F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RendererGdi", "src\renderer\gdi\lib\gdi.vcxproj", "{1C959542-BAC2-4E55-9A6D-13251914CBB9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Host", "src\host\lib\hostlib.vcxproj", "{06EC74CB-9A12-429C-B551-8562EC954746}"
-	ProjectSection(ProjectDependencies) = postProject
-		{18D09A24-8240-42D6-8CB6-236EEE820263} = {18D09A24-8240-42D6-8CB6-236EEE820263}
-		{71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF} = {71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF}
-		{0CF235BD-2DA0-407E-90EE-C467E8BBC714} = {0CF235BD-2DA0-407E-90EE-C467E8BBC714}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Host.unittest", "src\host\ut_lib\host.unittest.vcxproj", "{06EC74CB-9A12-429C-B551-8562EC954747}"
-	ProjectSection(ProjectDependencies) = postProject
-		{18D09A24-8240-42D6-8CB6-236EEE820263} = {18D09A24-8240-42D6-8CB6-236EEE820263}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Host.Tests.Unit", "src\host\ut_host\Host.UnitTests.vcxproj", "{531C23E7-4B76-4C08-8AAD-04164CB628C9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0CF235BD-2DA0-407E-90EE-C467E8BBC714} = {0CF235BD-2DA0-407E-90EE-C467E8BBC714}
-		{06EC74CB-9A12-429C-B551-8562EC954747} = {06EC74CB-9A12-429C-B551-8562EC954747}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextBuffer.Unit.Tests", "src\buffer\out\ut_textbuffer\TextBuffer.Unit.Tests.vcxproj", "{531C23E7-4B76-4C08-8BBD-04164CB628C9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0CF235BD-2DA0-407E-90EE-C467E8BBC714} = {0CF235BD-2DA0-407E-90EE-C467E8BBC714}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Host.Tests.Feature", "src\host\ft_host\Host.FeatureTests.vcxproj", "{8CDB8850-7484-4EC7-B45B-181F85B2EE54}"
-	ProjectSection(ProjectDependencies) = postProject
-		{18D09A24-8240-42D6-8CB6-236EEE820263} = {18D09A24-8240-42D6-8CB6-236EEE820263}
-		{FC802440-AD6A-4919-8F2C-7701F2B38D79} = {FC802440-AD6A-4919-8F2C-7701F2B38D79}
-		{58A03BB2-DF5A-4B66-91A0-7EF3BA01269A} = {58A03BB2-DF5A-4B66-91A0-7EF3BA01269A}
-		{9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B} = {9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalParser.UnitTests", "src\terminal\parser\ut_parser\Parser.UnitTests.vcxproj", "{12144E07-FE63-4D33-9231-748B8D8C3792}"
 EndProject
@@ -107,9 +69,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Build Common", "_Build Common", "{04170EEF-983A-4195-BFEF-2321E5E38A1E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "src\server\lib\server.vcxproj", "{18D09A24-8240-42D6-8CB6-236EEE820262}"
-	ProjectSection(ProjectDependencies) = postProject
-		{71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF} = {71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Tests.UIA", "src\host\ft_uia\Host.Tests.UIA.csproj", "{C17E1BF3-9D34-4779-9458-A8EF98CC5662}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -129,29 +88,18 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scratch", "src\tools\scratch\Scratch.vcxproj", "{ED82003F-FC5D-4E94-8B36-F480018ED064}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InteractivityWin32", "src\interactivity\win32\lib\win32.LIB.vcxproj", "{06EC74CB-9A12-429C-B551-8532EC964726}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1C959542-BAC2-4E55-9A6D-13251914CBB9} = {1C959542-BAC2-4E55-9A6D-13251914CBB9}
-		{990F2657-8580-4828-943F-5DD657D11842} = {990F2657-8580-4828-943F-5DD657D11842}
-		{AF0A096A-8B3A-4949-81EF-7DF8F0FEE91F} = {AF0A096A-8B3A-4949-81EF-7DF8F0FEE91F}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "buffersize", "src\tools\buffersize\buffersize.vcxproj", "{ED82003F-FC5D-4E94-8B47-F480018ED064}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InteractivityBase", "src\interactivity\base\lib\InteractivityBase.vcxproj", "{06EC74CB-9A12-429C-B551-8562EC964846}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interactivity.Win32.Tests.Unit", "src\interactivity\win32\ut_interactivity_win32\Interactivity.Win32.UnitTests.vcxproj", "{D3B92829-26CB-411A-BDA2-7F5DA3D25DD4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{990F2657-8580-4828-943F-5DD657D11842} = {990F2657-8580-4828-943F-5DD657D11842}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CloseTest", "src\tools\closetest\CloseTest.vcxproj", "{C7A6A5D9-60BE-4AEB-A5F6-AFE352F86CBB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RendererVt", "src\renderer\vt\lib\vt.vcxproj", "{990F2657-8580-4828-943F-5DD657D11842}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VtPipeTerm", "src\tools\vtpipeterm\VtPipeTerm.vcxproj", "{814DBDDE-894E-4327-A6E1-740504850098}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B} = {9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConEchoKey", "src\tools\echokey\ConEchoKey.vcxproj", "{814CBEEE-894E-4327-A6E1-740504850098}"
 EndProject
@@ -164,52 +112,20 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RendererDx", "src\renderer\dx\lib\dx.vcxproj", "{48D21369-3D7B-4431-9967-24E81292CF62}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalConnection", "src\cascadia\TerminalConnection\TerminalConnection.vcxproj", "{CA5CAD1A-C46D-4588-B1C0-40F31AE9100B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF} = {71CC9D78-BA29-4D93-946F-BEF5D9A3A6EF}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalCore", "src\cascadia\TerminalCore\lib\TerminalCore-lib.vcxproj", "{CA5CAD1A-ABCD-429C-B551-8562EC954746}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Terminal.Control.Lib", "src\cascadia\TerminalControl\TerminalControlLib.vcxproj", "{CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-C46D-4588-B1C0-40F31AE9100B} = {CA5CAD1A-C46D-4588-B1C0-40F31AE9100B}
-		{CA5CAD1A-ABCD-429C-B551-8562EC954746} = {CA5CAD1A-ABCD-429C-B551-8562EC954746}
-		{1CF55140-EF6A-4736-A403-957E4F7430BB} = {1CF55140-EF6A-4736-A403-957E4F7430BB}
-		{48D21369-3D7B-4431-9967-24E81292CF62} = {48D21369-3D7B-4431-9967-24E81292CF62}
-		{48D21369-3D7B-4431-9967-24E81292CF63} = {48D21369-3D7B-4431-9967-24E81292CF63}
-		{AF0A096A-8B3A-4949-81EF-7DF8F0FEE91F} = {AF0A096A-8B3A-4949-81EF-7DF8F0FEE91F}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Terminal.Control", "src\cascadia\TerminalControl\dll\TerminalControl.vcxproj", "{CA5CAD1A-F542-4635-A069-7CAEFB930070}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED} = {CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsTerminal", "src\cascadia\WindowsTerminal\WindowsTerminal.vcxproj", "{CA5CAD1A-1754-4A9D-93D7-857A9D17CB1B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-F542-4635-A069-7CAEFB930070} = {CA5CAD1A-F542-4635-A069-7CAEFB930070}
-		{CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32} = {CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32}
-		{CA5CAD1A-44BD-4AC7-AC72-F16E576FDD12} = {CA5CAD1A-44BD-4AC7-AC72-F16E576FDD12}
-		{CA5CAD1A-ABCD-429C-B551-8562EC954746} = {CA5CAD1A-ABCD-429C-B551-8562EC954746}
-		{27B5AAEB-A548-44CF-9777-F8BAA32AF7AE} = {27B5AAEB-A548-44CF-9777-F8BAA32AF7AE}
-		{9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B} = {9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalApp", "src\cascadia\TerminalApp\dll\TerminalApp.vcxproj", "{CA5CAD1A-44BD-4AC7-AC72-F16E576FDD12}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-9A12-429C-B551-8562EC954746} = {CA5CAD1A-9A12-429C-B551-8562EC954746}
-		{CA5CAD1A-082C-4476-9F33-94B339494076} = {CA5CAD1A-082C-4476-9F33-94B339494076}
-		{CA5CAD1A-F542-4635-A069-7CAEFB930070} = {CA5CAD1A-F542-4635-A069-7CAEFB930070}
-		{CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32} = {CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32}
-		{CA5CAD1A-C46D-4588-B1C0-40F31AE9100B} = {CA5CAD1A-C46D-4588-B1C0-40F31AE9100B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsTerminalShellExt", "src\cascadia\ShellExtension\WindowsTerminalShellExt.vcxproj", "{F2ED628A-DB22-446F-A081-4CC845B51A2B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests_TerminalCore", "src\cascadia\UnitTests_TerminalCore\UnitTests.vcxproj", "{2C2BEEF4-9333-4D05-B12A-1905CBF112F9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{06EC74CB-9A12-429C-B551-8562EC954747} = {06EC74CB-9A12-429C-B551-8562EC954747}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Internal", "src\internal\internal.vcxproj", "{EF3E32A7-5FF6-42B4-B6E2-96CD7D033F00}"
 EndProject
@@ -243,25 +159,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfTerminalControl", "src\cascadia\WpfTerminalControl\WpfTerminalControl.csproj", "{376FE273-6B84-4EB5-8B30-8DE9D21B022C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests_TerminalApp", "src\cascadia\ut_app\TerminalApp.UnitTests.vcxproj", "{CA5CAD1A-9333-4D05-B12A-1905CBF112F9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-9A12-429C-B551-8562EC954746} = {CA5CAD1A-9A12-429C-B551-8562EC954746}
-		{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907} = {CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerminalAppLib", "src\cascadia\TerminalApp\TerminalAppLib.vcxproj", "{CA5CAD1A-9A12-429C-B551-8562EC954746}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-082C-4476-9F33-94B339494076} = {CA5CAD1A-082C-4476-9F33-94B339494076}
-		{CA5CAD1A-F542-4635-A069-7CAEFB930070} = {CA5CAD1A-F542-4635-A069-7CAEFB930070}
-		{CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32} = {CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LocalTests_TerminalApp", "src\cascadia\LocalTests_TerminalApp\TerminalApp.LocalTests.vcxproj", "{CA5CAD1A-B11C-4DDB-A4FE-C3AFAE9B5506}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-9A12-429C-B551-8562EC954746} = {CA5CAD1A-9A12-429C-B551-8562EC954746}
-		{CA5CAD1A-082C-4476-9F33-94B339494076} = {CA5CAD1A-082C-4476-9F33-94B339494076}
-		{CA5CAD1A-44BD-4AC7-AC72-F16E576FDD12} = {CA5CAD1A-44BD-4AC7-AC72-F16E576FDD12}
-		{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907} = {CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RendererUia", "src\renderer\uia\lib\uia.vcxproj", "{48D21369-3D7B-4431-9967-24E81292CF63}"
 EndProject
@@ -274,11 +175,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "winconpty.DLL", "src\winconpty\dll\winconptydll.vcxproj", "{A22EC5F6-7851-4B88-AC52-47249D437A52}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestHostApp", "src\cascadia\LocalTests_TerminalApp\TestHostApp\TestHostApp.vcxproj", "{A021EDFF-45C8-4DC2-BEF7-36E1B3B8CFE8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-B11C-4DDB-A4FE-C3AFAE9B5506} = {CA5CAD1A-B11C-4DDB-A4FE-C3AFAE9B5506}
-		{CA5CAD1A-082C-4476-9F33-94B339494076} = {CA5CAD1A-082C-4476-9F33-94B339494076}
-		{CA5CAD1A-9B68-456A-B13E-C8218070DC42} = {CA5CAD1A-9B68-456A-B13E-C8218070DC42}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{BDB237B6-1D1D-400F-84CC-40A58FA59C8E}"
 EndProject
@@ -336,47 +232,22 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wt", "src\cascadia\wt\wt.vcxproj", "{506FD703-BAA7-4F6E-9361-64F550EC8FCA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Terminal.Settings.Editor", "src\cascadia\TerminalSettingsEditor\Microsoft.Terminal.Settings.Editor.vcxproj", "{CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-082C-4476-9F33-94B339494076} = {CA5CAD1A-082C-4476-9F33-94B339494076}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Terminal.Settings.Model.Lib", "src\cascadia\TerminalSettingsModel\Microsoft.Terminal.Settings.ModelLib.vcxproj", "{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-F542-4635-A069-7CAEFB930070} = {CA5CAD1A-F542-4635-A069-7CAEFB930070}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Terminal.Settings.Model", "src\cascadia\TerminalSettingsModel\dll\Microsoft.Terminal.Settings.Model.vcxproj", "{CA5CAD1A-082C-4476-9F33-94B339494076}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907} = {CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LocalTests_SettingsModel", "src\cascadia\LocalTests_SettingsModel\SettingsModel.LocalTests.vcxproj", "{CA5CAD1A-9B68-456A-B13E-C8218070DC42}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-082C-4476-9F33-94B339494076} = {CA5CAD1A-082C-4476-9F33-94B339494076}
-		{CA5CAD1A-F542-4635-A069-7CAEFB930070} = {CA5CAD1A-F542-4635-A069-7CAEFB930070}
-		{CA5CAD1A-C46D-4588-B1C0-40F31AE9100B} = {CA5CAD1A-C46D-4588-B1C0-40F31AE9100B}
-		{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907} = {CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonarchPeasantSample", "src\tools\MonarchPeasantSample\MonarchPeasantSample.vcxproj", "{21B7EA5E-1EF8-49B6-AC07-11714AF0E37D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{18D09A24-8240-42D6-8CB6-236EEE820263} = {18D09A24-8240-42D6-8CB6-236EEE820263}
-	EndProjectSection
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "MonarchPeasantPackage", "src\tools\MonarchPeasantPackage\MonarchPeasantPackage.wapproj", "{F75E29D0-D288-478B-8D83-2C190F321A3F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Terminal.Remoting.Lib", "src\cascadia\Remoting\Microsoft.Terminal.RemotingLib.vcxproj", "{43CE4CE5-0010-4B99-9569-672670D26E26}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Terminal.Remoting", "src\cascadia\Remoting\dll\Microsoft.Terminal.Remoting.vcxproj", "{27B5AAEB-A548-44CF-9777-F8BAA32AF7AE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{43CE4CE5-0010-4B99-9569-672670D26E26} = {43CE4CE5-0010-4B99-9569-672670D26E26}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests_Remoting", "src\cascadia\UnitTests_Remoting\Remoting.UnitTests.vcxproj", "{68A10CD3-AA64-465B-AF5F-ED4E9700543C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{43CE4CE5-0010-4B99-9569-672670D26E26} = {43CE4CE5-0010-4B99-9569-672670D26E26}
-		{27B5AAEB-A548-44CF-9777-F8BAA32AF7AE} = {27B5AAEB-A548-44CF-9777-F8BAA32AF7AE}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wpf", "wpf", "{4DAF0299-495E-4CD1-A982-9BAC16A45932}"
 EndProject
@@ -391,9 +262,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Host.FuzzWrapper", "src\host\ft_fuzzer\Host.FuzzWrapper.vcxproj", "{05D9052F-D78F-478F-968A-2DE38A6DB996}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests_Control", "src\cascadia\UnitTests_Control\Control.UnitTests.vcxproj", "{C323DAEE-B307-4C7B-ACE5-7293CBEFCB5B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED} = {CA5CAD1A-44BD-4AC7-AC72-6CA5B3AB89ED}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsTerminal.UIA.Tests", "src\cascadia\WindowsTerminal_UIATests\WindowsTerminal.UIA.Tests.csproj", "{F19DACD5-0C6E-40DC-B6E4-767A3200542C}"
 EndProject

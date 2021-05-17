@@ -41,12 +41,14 @@
 
   <!-- ========================= Project References ======================== -->
   <ItemGroup>
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\Remoting\Microsoft.Terminal.RemotingLib.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)\src\types\lib\types.vcxproj" />
-
-    <!-- If you don't reference these projects here, the
-    _ConsoleGenerateAdditionalWinmdManifests step won't gather the winmd's -->
-    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\Remoting\dll\Microsoft.Terminal.Remoting.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\Remoting\Microsoft.Terminal.RemotingLib.vcxproj">
+      <Project>{43CE4CE5-0010-4B99-9569-672670D26E26}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\Remoting\dll\Microsoft.Terminal.Remoting.vcxproj">
+      <Project>{27B5AAEB-A548-44CF-9777-F8BAA32AF7AE}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <!-- ========================= Globals ======================== -->

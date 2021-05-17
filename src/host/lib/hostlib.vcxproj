@@ -8,6 +8,20 @@
     <TargetName>ConhostV2Lib</TargetName>
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)src\buffer\out\lib\bufferout.vcxproj">
+      <Project>{0cf235bd-2da0-407e-90ee-c467e8bbc714}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)src\host\proxy\Host.Proxy.vcxproj">
+      <Project>{71cc9d78-ba29-4d93-946f-bef5d9a3a6ef}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)src\types\lib\types.vcxproj">
+      <Project>{18d09a24-8240-42d6-8cb6-236eee820263}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(SolutionDir)src\common.build.pre.props" />
   <!-- DONT ADD NEW FILES HERE, ADD THEM TO host-common.vcxitems -->
   <Import Project="$(SolutionDir)src\host\host-common.vcxitems" />

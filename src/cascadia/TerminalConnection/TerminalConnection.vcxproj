@@ -62,13 +62,18 @@
     -->
     <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj">
       <Project>{18D09A24-8240-42D6-8CB6-236EEE820263}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\WinRTUtils\WinRTUtils.vcxproj">
       <Project>{CA5CAD1A-039A-4929-BA2A-8BEB2E4106FE}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\..\winconpty\lib\winconptylib.vcxproj">
+    <ProjectReference Include="$(OpenConsoleDir)\src\winconpty\lib\winconptylib.vcxproj">
       <Project>{58a03bb2-df5a-4b66-91a0-7ef3ba01269a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)\src\host\proxy\Host.Proxy.vcxproj">
+      <Project>{71cc9d78-ba29-4d93-946f-bef5d9a3a6ef}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(OpenConsoleDir)src\cppwinrt.build.post.props" />

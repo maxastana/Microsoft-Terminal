@@ -22,7 +22,7 @@
 
   <Import Project="..\..\..\common.openconsole.props" Condition="'$(OpenConsoleDir)'==''" />
   <Import Project="$(OpenConsoleDir)src\cppwinrt.build.pre.props" />
-  
+
   <ItemDefinitionGroup>
     <ClCompile>
       <SDLCheck>true</SDLCheck>
@@ -75,15 +75,32 @@
   <ItemGroup>
     <!-- Even though we do have proper recursive dependencies, we want to keep some of these here
          so that the AppX Manifest contains their activatable classes. -->
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalControl\dll\TerminalControl.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalConnection\TerminalConnection.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsModel\dll\Microsoft.Terminal.Settings.Model.vcxproj" />
-
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalApp\dll\TerminalApp.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\Remoting\dll\Microsoft.Terminal.Remoting.vcxproj" />
-    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsEditor\Microsoft.Terminal.Settings.Editor.vcxproj" />
-
-    <ProjectReference Include="$(OpenConsoleDir)src\types\lib\types.vcxproj" />
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\Remoting\dll\Microsoft.Terminal.Remoting.vcxproj">
+      <Project>{27B5AAEB-A548-44CF-9777-F8BAA32AF7AE}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalApp\dll\TerminalApp.vcxproj">
+      <Project>{CA5CAD1A-44BD-4AC7-AC72-F16E576FDD12}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalControl\dll\TerminalControl.vcxproj">
+      <Project>{CA5CAD1A-F542-4635-A069-7CAEFB930070}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalCore\lib\TerminalCore-lib.vcxproj">
+      <Project>{CA5CAD1A-ABCD-429C-B551-8562EC954746}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalConnection\TerminalConnection.vcxproj">
+      <Project>{CA5CAD1A-C46D-4588-B1C0-40F31AE9100B}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsModel\dll\Microsoft.Terminal.Settings.Model.vcxproj">
+      <Project>{CA5CAD1A-082C-4476-9F33-94B339494076}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsEditor\Microsoft.Terminal.Settings.Editor.vcxproj">
+      <Project>{CA5CAD1A-0B5E-45C3-96A8-BB496BFE4E32}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)src\host\exe\Host.EXE.vcxproj">
+      <Project>{9CBD7DFA-1754-4A9D-93D7-857A9D17CB1B}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <!-- Manually add a reference to Core here. We need this so MDMERGE will know
@@ -174,4 +191,3 @@
   <Import Project="$(OpenConsoleDir)\build\rules\GenerateSxsManifestsFromWinmds.targets" />
   <Import Project="..\..\..\packages\Terminal.ThemeHelpers.0.2.200324001\build\native\Terminal.ThemeHelpers.targets" Condition="Exists('..\..\..\packages\Terminal.ThemeHelpers.0.2.200324001\build\native\Terminal.ThemeHelpers.targets')" />
 </Project>
-

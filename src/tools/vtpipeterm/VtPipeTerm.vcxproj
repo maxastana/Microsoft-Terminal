@@ -17,6 +17,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="VtConsole.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)src\host\exe\Host.EXE.vcxproj">
+      <Project>{9cbd7dfa-1754-4a9d-93d7-857a9d17cb1b}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

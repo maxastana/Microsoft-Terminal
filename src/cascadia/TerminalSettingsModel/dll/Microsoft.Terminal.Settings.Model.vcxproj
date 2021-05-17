@@ -77,6 +77,7 @@
     our winmd. This didn't work correctly in VS2017, you'd need to
     manually reference the lib -->
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsModel\Microsoft.Terminal.Settings.ModelLib.vcxproj">
+      <Project>{CA5CAD1A-D7EC-4107-B7C6-79CB77AE2907}</Project>
       <Private>true</Private>
     </ProjectReference>
   </ItemGroup>

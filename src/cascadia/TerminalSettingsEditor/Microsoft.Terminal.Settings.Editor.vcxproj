@@ -294,6 +294,7 @@
     </ProjectReference>
 
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsModel\dll\Microsoft.Terminal.Settings.Model.vcxproj">
+      <Project>{CA5CAD1A-082C-4476-9F33-94B339494076}</Project>
       <Private>false</Private>
     </ProjectReference>
   </ItemGroup>

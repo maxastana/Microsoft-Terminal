@@ -106,7 +106,14 @@
     <ProjectReference Include="$(OpenConsoleDir)src\cascadia\TerminalSettingsModel\dll\Microsoft.Terminal.Settings.Model.vcxproj">
       <Project>{CA5CAD1A-082C-4476-9F33-94B339494076}</Project>
     </ProjectReference>
-
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\LocalTests_SettingsModel\SettingsModel.LocalTests.vcxproj">
+      <Project>{ca5cad1a-9b68-456a-b13e-c8218070dc42}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="$(OpenConsoleDir)\src\cascadia\LocalTests_TerminalApp\TerminalApp.LocalTests.vcxproj">
+      <Project>{ca5cad1a-b11c-4ddb-a4fe-c3afae9b5506}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <PropertyGroup>
@@ -134,7 +141,7 @@
     <TestDll Include="$(OpenConsoleCommonOutDir)\LocalTests_SettingsModel\SettingsModel.LocalTests.dll" />
   </ItemGroup>
 
-  <Target Name="AfterBuild" Inputs="@(TestDll)" Outputs="@(TestDll->'$(TargetDir)'\%(Filename)%(Extension)')">
+  <Target Name="AfterBuild" Inputs="@(TestDll)" Outputs="@(TestDll-&gt;'$(TargetDir)'\%(Filename)%(Extension)')">
 
     <!-- Use this to auto-find all the dll's that TerminalConnection produces. We
       don't roll these up automatically, so we'll need to copy them manually

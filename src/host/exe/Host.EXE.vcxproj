@@ -37,6 +37,10 @@
     <ProjectReference Include="..\..\internal\internal.vcxproj">
       <Project>{ef3e32a7-5ff6-42b4-b6e2-96cd7d033f00}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\propsheet\propsheet.vcxproj">
+      <Project>{5d23e8e1-3c64-4cc1-a8f7-6861677f7239}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\..\propslib\propslib.vcxproj">
       <Project>{345fd5a4-b32b-4f29-bd1c-b033bd2c35cc}</Project>
     </ProjectReference>
@@ -69,6 +73,10 @@
     </ProjectReference>
     <ProjectReference Include="..\lib\hostlib.vcxproj">
       <Project>{06ec74cb-9a12-429c-b551-8562ec954746}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\proxy\Host.Proxy.vcxproj">
+      <Project>{71cc9d78-ba29-4d93-946f-bef5d9a3a6ef}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
