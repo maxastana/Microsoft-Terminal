@@ -45,7 +45,7 @@ const TextAttribute Terminal::GetDefaultBrushColors() noexcept
 std::pair<COLORREF, COLORREF> Terminal::GetAttributeColors(const TextAttribute& attr) const noexcept
 {
     _blinkingState.RecordBlinkingUsage(attr);
-    auto colors = attr.CalculateRgbColors({ _colorTable.data(), _colorTable.size() },
+    auto colors = attr.CalculateRgbColors(_colorTable,
                                           _defaultFg,
                                           _defaultBg,
                                           _screenReversed,

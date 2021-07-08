@@ -11,6 +11,8 @@ static_assert(sizeof(TextAttribute) == 14);
 static_assert(alignof(TextAttribute) == 2);
 // Ensure that we can memcpy() and memmove() the struct for performance.
 static_assert(std::is_trivially_copyable_v<TextAttribute>);
+// Assert that the use of memcmp() for comparisons is safe.
+static_assert(std::has_unique_object_representations_v<TextColor>);
 
 BYTE TextAttribute::s_legacyDefaultForeground = 7;
 BYTE TextAttribute::s_legacyDefaultBackground = 0;
@@ -98,7 +100,7 @@ bool TextAttribute::IsLegacy() const noexcept
 // - blinkingIsFaint: true if blinking should be interpreted as faint.
 // Return Value:
 // - the foreground and background colors that should be displayed.
-std::pair<COLORREF, COLORREF> TextAttribute::CalculateRgbColors(const gsl::span<const COLORREF> colorTable,
+std::pair<COLORREF, COLORREF> TextAttribute::CalculateRgbColors(const std::array<COLORREF, 256>& colorTable,
                                                                 const COLORREF defaultFgColor,
                                                                 const COLORREF defaultBgColor,
                                                                 const bool reverseScreenMode,

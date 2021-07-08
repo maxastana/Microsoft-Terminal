@@ -39,11 +39,22 @@ Revision History:
 
 enum class ColorType : BYTE
 {
-    IsIndex256 = 0x0,
-    IsIndex16 = 0x1,
-    IsDefault = 0x2,
-    IsRgb = 0x3
+    None = 0b0000,
+    IsDefault = 0b0001,
+    IsIndex16 = 0b0010,
+    IsIndex256 = 0b0100,
+    IsRgb = 0b1000,
 };
+
+constexpr ColorType operator|(ColorType lhs, ColorType rhs) noexcept
+{
+    return static_cast<ColorType>(static_cast<BYTE>(lhs) | static_cast<BYTE>(rhs));
+}
+
+constexpr ColorType operator&(ColorType lhs, ColorType rhs) noexcept
+{
+    return static_cast<ColorType>(static_cast<BYTE>(lhs) & static_cast<BYTE>(rhs));
+}
 
 struct TextColor
 {
@@ -72,21 +83,74 @@ public:
     {
     }
 
-    friend constexpr bool operator==(const TextColor& a, const TextColor& b) noexcept;
-    friend constexpr bool operator!=(const TextColor& a, const TextColor& b) noexcept;
+    bool operator==(const TextColor& other) const noexcept
+    {
+        return memcmp(this, &other, sizeof(TextColor)) == 0;
+    }
 
-    bool CanBeBrightened() const noexcept;
-    bool IsLegacy() const noexcept;
-    bool IsIndex16() const noexcept;
-    bool IsIndex256() const noexcept;
-    bool IsDefault() const noexcept;
-    bool IsRgb() const noexcept;
+    bool operator!=(const TextColor& other) const noexcept
+    {
+        return memcmp(this, &other, sizeof(TextColor)) != 0;
+    }
 
-    void SetColor(const COLORREF rgbColor) noexcept;
-    void SetIndex(const BYTE index, const bool isIndex256) noexcept;
-    void SetDefault() noexcept;
+    constexpr bool CanBeBrightened() const noexcept
+    {
+        return WI_IsAnyFlagSet(_meta, ColorType::IsDefault | ColorType::IsIndex16);
+    }
 
-    COLORREF GetColor(gsl::span<const COLORREF> colorTable,
+    constexpr bool IsLegacy() const noexcept
+    {
+        // This is basically:
+        //   return IsIndex16() || (IsIndex256() && _index < 16);
+        // but without any branches.
+        return (_index < 16) & WI_IsAnyFlagSet(_meta, ColorType::IsIndex16 | ColorType::IsIndex256);
+    }
+
+    constexpr bool IsIndex16() const noexcept
+    {
+        return _meta == ColorType::IsIndex16;
+    }
+
+    constexpr bool IsIndex256() const noexcept
+    {
+        return _meta == ColorType::IsIndex256;
+    }
+
+    constexpr bool IsDefault() const noexcept
+    {
+        return _meta == ColorType::IsDefault;
+    }
+
+    constexpr bool IsRgb() const noexcept
+    {
+        return _meta == ColorType::IsRgb;
+    }
+
+    inline void SetColor(const COLORREF rgbColor) noexcept
+    {
+        _meta = ColorType::IsRgb;
+        _red = GetRValue(rgbColor);
+        _green = GetGValue(rgbColor);
+        _blue = GetBValue(rgbColor);
+    }
+
+    inline void SetIndex(const BYTE index, const bool isIndex256) noexcept
+    {
+        _meta = isIndex256 ? ColorType::IsIndex256 : ColorType::IsIndex16;
+        _index = index;
+        _green = 0;
+        _blue = 0;
+    }
+
+    inline void SetDefault() noexcept
+    {
+        _meta = ColorType::IsDefault;
+        _index = 0;
+        _green = 0;
+        _blue = 0;
+    }
+
+    COLORREF GetColor(const std::array<COLORREF, 256>& colorTable,
                       const COLORREF defaultColor,
                       const bool brighten = false) const noexcept;
 
@@ -97,16 +161,19 @@ public:
         return _index;
     }
 
-    COLORREF GetRGB() const noexcept;
+    constexpr COLORREF GetRGB() const noexcept
+    {
+        return RGB(_red, _green, _blue);
+    }
 
 private:
+    ColorType _meta;
     union
     {
         BYTE _red, _index;
     };
     BYTE _green;
     BYTE _blue;
-    ColorType _meta;
 
 #ifdef UNIT_TESTING
     friend class TextBufferTests;
@@ -114,19 +181,6 @@ private:
     friend class WEX::TestExecution::VerifyOutputTraits;
 #endif
 };
-
-bool constexpr operator==(const TextColor& a, const TextColor& b) noexcept
-{
-    return a._meta == b._meta &&
-           a._red == b._red &&
-           a._green == b._green &&
-           a._blue == b._blue;
-}
-
-bool constexpr operator!=(const TextColor& a, const TextColor& b) noexcept
-{
-    return !(a == b);
-}
 
 #ifdef UNIT_TESTING
 
@@ -157,5 +211,3 @@ namespace WEX
     }
 }
 #endif
-
-static_assert(sizeof(TextColor) <= 4 * sizeof(BYTE), "We should only need 4B for an entire TextColor. Any more than that is just waste");

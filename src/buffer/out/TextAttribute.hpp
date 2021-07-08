@@ -64,7 +64,7 @@ public:
     static TextAttribute StripErroneousVT16VersionsOfLegacyDefaults(const TextAttribute& attribute) noexcept;
     WORD GetLegacyAttributes() const noexcept;
 
-    std::pair<COLORREF, COLORREF> CalculateRgbColors(const gsl::span<const COLORREF> colorTable,
+    std::pair<COLORREF, COLORREF> CalculateRgbColors(const std::array<COLORREF, 256>& colorTable,
                                                      const COLORREF defaultFgColor,
                                                      const COLORREF defaultBgColor,
                                                      const bool reverseScreenMode = false,
@@ -82,12 +82,15 @@ public:
 
     void Invert() noexcept;
 
-    friend constexpr bool operator==(const TextAttribute& a, const TextAttribute& b) noexcept;
-    friend constexpr bool operator!=(const TextAttribute& a, const TextAttribute& b) noexcept;
-    friend constexpr bool operator==(const TextAttribute& attr, const WORD& legacyAttr) noexcept;
-    friend constexpr bool operator!=(const TextAttribute& attr, const WORD& legacyAttr) noexcept;
-    friend constexpr bool operator==(const WORD& legacyAttr, const TextAttribute& attr) noexcept;
-    friend constexpr bool operator!=(const WORD& legacyAttr, const TextAttribute& attr) noexcept;
+    inline bool operator==(const TextAttribute& other) const noexcept
+    {
+        return memcmp(this, &other, sizeof(TextAttribute)) == 0;
+    }
+
+    inline bool operator!=(const TextAttribute& other) const noexcept
+    {
+        return memcmp(this, &other, sizeof(TextAttribute)) != 0;
+    }
 
     bool IsLegacy() const noexcept;
     bool IsBold() const noexcept;
@@ -194,20 +197,6 @@ enum class TextAttributeBehavior
     Current, // use text attribute of cell being written to
     StoredOnly, // only use the contained text attribute and skip the insertion of anything else
 };
-
-constexpr bool operator==(const TextAttribute& a, const TextAttribute& b) noexcept
-{
-    return a._wAttrLegacy == b._wAttrLegacy &&
-           a._foreground == b._foreground &&
-           a._background == b._background &&
-           a._extendedAttrs == b._extendedAttrs &&
-           a._hyperlinkId == b._hyperlinkId;
-}
-
-constexpr bool operator!=(const TextAttribute& a, const TextAttribute& b) noexcept
-{
-    return !(a == b);
-}
 
 #ifdef UNIT_TESTING
 

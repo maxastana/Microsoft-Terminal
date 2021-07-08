@@ -50,75 +50,10 @@ constexpr std::array<BYTE, 256> Index256ToIndex16 = {
 
 // clang-format on
 
-bool TextColor::CanBeBrightened() const noexcept
-{
-    return IsIndex16() || IsDefault();
-}
-
-bool TextColor::IsLegacy() const noexcept
-{
-    return IsIndex16() || (IsIndex256() && _index < 16);
-}
-
-bool TextColor::IsIndex16() const noexcept
-{
-    return _meta == ColorType::IsIndex16;
-}
-
-bool TextColor::IsIndex256() const noexcept
-{
-    return _meta == ColorType::IsIndex256;
-}
-
-bool TextColor::IsDefault() const noexcept
-{
-    return _meta == ColorType::IsDefault;
-}
-
-bool TextColor::IsRgb() const noexcept
-{
-    return _meta == ColorType::IsRgb;
-}
-
-// Method Description:
-// - Sets the color value of this attribute, and sets this color to be an RGB
-//      attribute.
-// Arguments:
-// - rgbColor: the COLORREF containing the color information for this TextColor
-// Return Value:
-// - <none>
-void TextColor::SetColor(const COLORREF rgbColor) noexcept
-{
-    _meta = ColorType::IsRgb;
-    _red = GetRValue(rgbColor);
-    _green = GetGValue(rgbColor);
-    _blue = GetBValue(rgbColor);
-}
-
-// Method Description:
-// - Sets this TextColor to be a legacy-style index into the color table.
-// Arguments:
-// - index: the index of the colortable we should use for this TextColor.
-// - isIndex256: is this a 256 color index (true) or a 16 color index (false).
-// Return Value:
-// - <none>
-void TextColor::SetIndex(const BYTE index, const bool isIndex256) noexcept
-{
-    _meta = isIndex256 ? ColorType::IsIndex256 : ColorType::IsIndex16;
-    _index = index;
-}
-
-// Method Description:
-// - Sets this TextColor to be a default text color, who's appearance is
-//      controlled by the terminal's implementation of what a default color is.
-// Arguments:
-// - <none>
-// Return Value:
-// - <none>
-void TextColor::SetDefault() noexcept
-{
-    _meta = ColorType::IsDefault;
-}
+// We should only need 4B for TextColor. Any more than that is just waste.
+static_assert(sizeof(TextColor) == 4);
+// Assert that the use of memcmp() for comparisons is safe.
+static_assert(std::has_unique_object_representations_v<TextColor>);
 
 // Method Description:
 // - Retrieve the real color value for this TextColor.
@@ -138,7 +73,7 @@ void TextColor::SetDefault() noexcept
 // - brighten: if true, we'll brighten a dark color table index.
 // Return Value:
 // - a COLORREF containing the real value of this TextColor.
-COLORREF TextColor::GetColor(gsl::span<const COLORREF> colorTable,
+COLORREF TextColor::GetColor(const std::array<COLORREF, 256>& colorTable,
                              const COLORREF defaultColor,
                              bool brighten) const noexcept
 {
@@ -146,7 +81,6 @@ COLORREF TextColor::GetColor(gsl::span<const COLORREF> colorTable,
     {
         if (brighten)
         {
-            FAIL_FAST_IF(colorTable.size() < 16);
             // See MSFT:20266024 for context on this fix.
             //      Additionally todo MSFT:20271956 to fix this better for 19H2+
             // If we're a default color, check to see if the defaultColor exists
@@ -156,6 +90,18 @@ COLORREF TextColor::GetColor(gsl::span<const COLORREF> colorTable,
             //      (Settings::_DefaultForeground==INVALID_COLOR, and the index
             //      from _wFillAttribute is being used instead.)
             // If we find a match, return instead the bright version of this color
+#ifdef _M_AMD64
+            const auto needle = _mm_set1_epi32(defaultColor);
+            const auto haystack1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(colorTable.data() + 0));
+            const auto haystack2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(colorTable.data() + 4));
+            const auto result1 = _mm_cmpeq_epi32(haystack1, needle);
+            const auto result2 = _mm_cmpeq_epi32(haystack2, needle);
+            const auto shuffle16to8 = _mm_setr_epi8(0, 2, 4, 6, 8, 10, 12, 14, -1, -1, -1, -1, -1, -1, -1, -1);
+            const auto result = _mm_shuffle_epi8(_mm_packs_epi16(result1, result2), shuffle16to8);
+            const auto combined = _mm_movemask_epi8(result);
+            unsigned long index;
+            return _BitScanForward(&index, combined) ? til::at(colorTable, index + 8) : defaultColor;
+#else
             for (size_t i = 0; i < 8; i++)
             {
                 if (til::at(colorTable, i) == defaultColor)
@@ -163,6 +109,7 @@ COLORREF TextColor::GetColor(gsl::span<const COLORREF> colorTable,
                     return til::at(colorTable, i + 8);
                 }
             }
+#endif
         }
 
         return defaultColor;
@@ -171,13 +118,9 @@ COLORREF TextColor::GetColor(gsl::span<const COLORREF> colorTable,
     {
         return GetRGB();
     }
-    else if (IsIndex16() && brighten)
-    {
-        return til::at(colorTable, _index | 8);
-    }
     else
     {
-        return til::at(colorTable, _index);
+        return til::at(colorTable, IsIndex16() & brighten ? _index : _index | 8);
     }
 }
 
@@ -189,37 +132,20 @@ COLORREF TextColor::GetColor(gsl::span<const COLORREF> colorTable,
 // - an index into the 16-color table
 BYTE TextColor::GetLegacyIndex(const BYTE defaultIndex) const noexcept
 {
-    if (IsDefault())
+    switch (_meta)
     {
+    case ColorType::IsDefault:
         return defaultIndex;
-    }
-    else if (IsIndex16())
-    {
-        return GetIndex();
-    }
-    else if (IsIndex256())
-    {
-        return Index256ToIndex16.at(GetIndex());
-    }
-    else
-    {
+    case ColorType::IsIndex16:
+        return _index;
+    case ColorType::IsIndex256:
+        return Index256ToIndex16[_index];
+    default:
         // We compress the RGB down to an 8-bit value and use that to
         // lookup a representative 16-color index from a hard-coded table.
-        const BYTE compressedRgb = (_red & 0b11100000) +
-                                   ((_green >> 3) & 0b00011100) +
-                                   ((_blue >> 6) & 0b00000011);
-        return CompressedRgbToIndex16.at(compressedRgb);
+        const BYTE compressedRgb = (_red & 0b11100000) |
+                                   ((_green >> 3) & 0b00011100) |
+                                   (_blue >> 6);
+        return CompressedRgbToIndex16[compressedRgb];
     }
-}
-
-// Method Description:
-// - Return a COLORREF containing our stored value. Will return garbage if this
-//attribute is not a RGB attribute.
-// Arguments:
-// - <none>
-// Return Value:
-// - a COLORREF containing our stored value
-COLORREF TextColor::GetRGB() const noexcept
-{
-    return RGB(_red, _green, _blue);
 }
