@@ -12,12 +12,10 @@ using namespace Microsoft::Console::Render;
 RenderThread::RenderThread() :
     _pRenderer(nullptr),
     _hThread(nullptr),
-    _hEvent(nullptr),
-    _hPaintCompletedEvent(nullptr),
     _fKeepRunning(true),
-    _hPaintEnabledEvent(nullptr),
-    _fNextFrameRequested(false),
-    _fWaiting(false)
+    _hPaintCompletedEvent(true),
+    _hPaintEnabledEvent(false),
+    _fNextFrameRequested(false)
 {
 }
 
@@ -25,30 +23,11 @@ RenderThread::~RenderThread()
 {
     if (_hThread)
     {
-        _fKeepRunning = false; // stop loop after final run
+        _fKeepRunning.store(false, std::memory_order_relaxed); // stop loop after final run
         EnablePainting(); // if we want to get the last frame out, we need to make sure it's enabled
-        SignalObjectAndWait(_hEvent, _hThread, INFINITE, FALSE); // signal final paint and wait for thread to finish.
+        WaitForSingleObject(_hThread, INFINITE); // wait for thread to finish.
 
         CloseHandle(_hThread);
-        _hThread = nullptr;
-    }
-
-    if (_hEvent)
-    {
-        CloseHandle(_hEvent);
-        _hEvent = nullptr;
-    }
-
-    if (_hPaintEnabledEvent)
-    {
-        CloseHandle(_hPaintEnabledEvent);
-        _hPaintEnabledEvent = nullptr;
-    }
-
-    if (_hPaintCompletedEvent)
-    {
-        CloseHandle(_hPaintCompletedEvent);
-        _hPaintCompletedEvent = nullptr;
     }
 }
 
@@ -65,89 +44,25 @@ RenderThread::~RenderThread()
 {
     _pRenderer = pRendererParent;
 
-    HRESULT hr = S_OK;
-    // Create event before thread as thread will start immediately.
-    if (SUCCEEDED(hr))
-    {
-        HANDLE hEvent = CreateEventW(nullptr, // non-inheritable security attributes
-                                     FALSE, // auto reset event
-                                     FALSE, // initially unsignaled
-                                     nullptr // no name
-        );
+    _hThread = CreateThread(
+        nullptr, // non-inheritable security attributes
+        0, // use default stack size
+        s_ThreadProc,
+        this,
+        0, // create immediately
+        nullptr // we don't need the thread ID
+    );
+    RETURN_LAST_ERROR_IF_NULL(_hThread);
 
-        if (hEvent == nullptr)
-        {
-            hr = HRESULT_FROM_WIN32(GetLastError());
-        }
-        else
-        {
-            _hEvent = hEvent;
-        }
+    // SetThreadDescription only works on 1607 and higher. If we cannot find it,
+    // then it's no big deal. Just skip setting the description.
+    auto func = GetProcAddressByFunctionDeclaration(GetModuleHandleW(L"kernel32.dll"), SetThreadDescription);
+    if (func)
+    {
+        LOG_IF_FAILED(func(_hThread, L"Rendering Output Thread"));
     }
 
-    if (SUCCEEDED(hr))
-    {
-        HANDLE hPaintEnabledEvent = CreateEventW(nullptr,
-                                                 TRUE, // manual reset event
-                                                 FALSE, // initially signaled
-                                                 nullptr);
-
-        if (hPaintEnabledEvent == nullptr)
-        {
-            hr = HRESULT_FROM_WIN32(GetLastError());
-        }
-        else
-        {
-            _hPaintEnabledEvent = hPaintEnabledEvent;
-        }
-    }
-
-    if (SUCCEEDED(hr))
-    {
-        HANDLE hPaintCompletedEvent = CreateEventW(nullptr,
-                                                   TRUE, // manual reset event
-                                                   TRUE, // initially signaled
-                                                   nullptr);
-
-        if (hPaintCompletedEvent == nullptr)
-        {
-            hr = HRESULT_FROM_WIN32(GetLastError());
-        }
-        else
-        {
-            _hPaintCompletedEvent = hPaintCompletedEvent;
-        }
-    }
-
-    if (SUCCEEDED(hr))
-    {
-        HANDLE hThread = CreateThread(nullptr, // non-inheritable security attributes
-                                      0, // use default stack size
-                                      s_ThreadProc,
-                                      this,
-                                      0, // create immediately
-                                      nullptr // we don't need the thread ID
-        );
-
-        if (hThread == nullptr)
-        {
-            hr = HRESULT_FROM_WIN32(GetLastError());
-        }
-        else
-        {
-            _hThread = hThread;
-
-            // SetThreadDescription only works on 1607 and higher. If we cannot find it,
-            // then it's no big deal. Just skip setting the description.
-            auto func = GetProcAddressByFunctionDeclaration(GetModuleHandleW(L"kernel32.dll"), SetThreadDescription);
-            if (func)
-            {
-                LOG_IF_FAILED(func(hThread, L"Rendering Output Thread"));
-            }
-        }
-    }
-
-    return hr;
+    return S_OK;
 }
 
 DWORD WINAPI RenderThread::s_ThreadProc(_In_ LPVOID lpParameter)
@@ -164,61 +79,21 @@ DWORD WINAPI RenderThread::s_ThreadProc(_In_ LPVOID lpParameter)
     }
 }
 
-DWORD WINAPI RenderThread::_ThreadProc()
+DWORD RenderThread::_ThreadProc()
 {
-    while (_fKeepRunning)
+    while (_fKeepRunning.load(std::memory_order_relaxed))
     {
-        WaitForSingleObject(_hPaintEnabledEvent, INFINITE);
+        //Sleep(8); // frame rate limit to ~60 FPS in practice
 
-        if (!_fNextFrameRequested.exchange(false, std::memory_order_acq_rel))
-        {
-            // <--
-            // If `NotifyPaint` is called at this point, then it will not
-            // set the event because `_fWaiting` is not `true` yet so we have
-            // to check again below.
+        _hPaintEnabledEvent.pass();
+        _fNextFrameRequested.acquire();
 
-            _fWaiting.store(true, std::memory_order_release);
-
-            // check again now (see comment above)
-            if (!_fNextFrameRequested.exchange(false, std::memory_order_acq_rel))
-            {
-                // Wait until a next frame is requested.
-                WaitForSingleObject(_hEvent, INFINITE);
-            }
-
-            // <--
-            // If `NotifyPaint` is called at this point, then it _will_ set
-            // the event because `_fWaiting` is `true`, but we're not waiting
-            // anymore!
-            // This can probably happen quite often: imagine a scenario where
-            // we are waiting, and the terminal calls `NotifyPaint` twice
-            // very quickly.
-            // In that case, both calls might end up calling `SetEvent`. The
-            // first one will resume this thread and the second one will
-            // `SetEvent` the event. So the next time we wait, the event will
-            // already be set and we won't actually wait.
-            // Because it can happen often, and because rendering is an
-            // expensive operation, we should reset the event to not render
-            // again if nothing changed.
-
-            _fWaiting.store(false, std::memory_order_release);
-
-            // see comment above
-            ResetEvent(_hEvent);
-        }
-
-        ResetEvent(_hPaintCompletedEvent);
+        _hPaintCompletedEvent.store(false, std::memory_order_relaxed);
 
         _pRenderer->WaitUntilCanRender();
         LOG_IF_FAILED(_pRenderer->PaintFrame());
 
-        SetEvent(_hPaintCompletedEvent);
-
-        // extra check before we sleep since it's a "long" activity, relatively speaking.
-        if (_fKeepRunning)
-        {
-            Sleep(s_FrameLimitMilliseconds);
-        }
+        _hPaintCompletedEvent.store(true, std::memory_order_relaxed);
     }
 
     return S_OK;
@@ -226,24 +101,17 @@ DWORD WINAPI RenderThread::_ThreadProc()
 
 void RenderThread::NotifyPaint()
 {
-    if (_fWaiting.load(std::memory_order_acquire))
-    {
-        SetEvent(_hEvent);
-    }
-    else
-    {
-        _fNextFrameRequested.store(true, std::memory_order_release);
-    }
+    _fNextFrameRequested.release();
 }
 
 void RenderThread::EnablePainting()
 {
-    SetEvent(_hPaintEnabledEvent);
+    _hPaintEnabledEvent.open();
 }
 
 void RenderThread::DisablePainting()
 {
-    ResetEvent(_hPaintEnabledEvent);
+    _hPaintEnabledEvent.close();
 }
 
 void RenderThread::WaitForPaintCompletionAndDisable(const DWORD dwTimeoutMs)
@@ -299,6 +167,10 @@ void RenderThread::WaitForPaintCompletionAndDisable(const DWORD dwTimeoutMs)
     //       DirectX on OneCoreUAP times out while switching console
     //       applications.
 
-    ResetEvent(_hPaintEnabledEvent);
-    WaitForSingleObject(_hPaintCompletedEvent, dwTimeoutMs);
+    _hPaintEnabledEvent.close();
+
+    while (!_hPaintCompletedEvent.load(std::memory_order_relaxed))
+    {
+        til::atomic_wait(_hPaintCompletedEvent, false, dwTimeoutMs);
+    }
 }

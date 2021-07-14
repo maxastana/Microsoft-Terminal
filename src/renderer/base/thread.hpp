@@ -17,6 +17,8 @@ Author(s):
 #include "../inc/IRenderer.hpp"
 #include "../inc/IRenderThread.hpp"
 
+#include <til/gate.h>
+
 namespace Microsoft::Console::Render
 {
     class RenderThread final : public IRenderThread
@@ -35,20 +37,14 @@ namespace Microsoft::Console::Render
 
     private:
         static DWORD WINAPI s_ThreadProc(_In_ LPVOID lpParameter);
-        DWORD WINAPI _ThreadProc();
-
-        static DWORD const s_FrameLimitMilliseconds = 8;
+        DWORD _ThreadProc();
 
         HANDLE _hThread;
-        HANDLE _hEvent;
-
-        HANDLE _hPaintEnabledEvent;
-        HANDLE _hPaintCompletedEvent;
-
         IRenderer* _pRenderer; // Non-ownership pointer
 
-        bool _fKeepRunning;
-        std::atomic<bool> _fNextFrameRequested;
-        std::atomic<bool> _fWaiting;
+        std::atomic<bool> _fKeepRunning;
+        std::atomic<bool> _hPaintCompletedEvent;
+        til::gate_relaxed _hPaintEnabledEvent;
+        til::gate_relaxed _fNextFrameRequested;
     };
 }
