@@ -22,7 +22,7 @@ Abstract:
 // It provides X with the following arguments:
 //   (type, function name, JSON key, ...variadic construction arguments)
 #define MTSM_APPLICATION_STATE_FIELDS(X) \
-    X(std::unordered_set<winrt::guid>, GeneratedProfiles, "generatedProfiles")
+    X(robin_hood::unordered_set<winrt::guid>, GeneratedProfiles, "generatedProfiles")
 
 namespace winrt::Microsoft::Terminal::Settings::Model::implementation
 {

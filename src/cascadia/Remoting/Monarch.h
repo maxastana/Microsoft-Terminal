@@ -62,7 +62,7 @@ namespace winrt::Microsoft::Terminal::Remoting::implementation
 
         winrt::com_ptr<IVirtualDesktopManager> _desktopManager{ nullptr };
 
-        std::unordered_map<uint64_t, winrt::Microsoft::Terminal::Remoting::IPeasant> _peasants;
+        robin_hood::unordered_map<uint64_t, winrt::Microsoft::Terminal::Remoting::IPeasant> _peasants;
 
         std::vector<Remoting::WindowActivatedArgs> _mruPeasants;
 

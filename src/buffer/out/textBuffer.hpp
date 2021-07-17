@@ -213,8 +213,8 @@ private:
     // storage location for glyphs that can't fit into the buffer normally
     UnicodeStorage _unicodeStorage;
 
-    std::unordered_map<uint16_t, std::wstring> _hyperlinkMap;
-    std::unordered_map<std::wstring, uint16_t> _hyperlinkCustomIdMap;
+    robin_hood::unordered_map<uint16_t, std::wstring> _hyperlinkMap;
+    robin_hood::unordered_map<std::wstring, uint16_t> _hyperlinkCustomIdMap;
     uint16_t _currentHyperlinkId;
 
     void _RefreshRowIDs(std::optional<SHORT> newRowWidth);
@@ -247,7 +247,7 @@ private:
 
     void _PruneHyperlinks();
 
-    std::unordered_map<size_t, std::wstring> _idsAndPatterns;
+    robin_hood::unordered_map<size_t, std::wstring> _idsAndPatterns;
     size_t _currentPatternId;
 
 #ifdef UNIT_TESTING

@@ -43,8 +43,8 @@ struct case_insensitive_equality
     }
 };
 
-std::unordered_map<std::wstring,
-                   std::unordered_map<std::wstring,
+robin_hood::unordered_map<std::wstring,
+                   robin_hood::unordered_map<std::wstring,
                                       std::wstring,
                                       case_insensitive_hash,
                                       case_insensitive_equality>,

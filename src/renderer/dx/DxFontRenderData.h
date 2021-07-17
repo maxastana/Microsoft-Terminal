@@ -86,8 +86,8 @@ namespace Microsoft::Console::Render
         void _BuildFontRenderData(const FontInfoDesired& desired, FontInfo& actual, const int dpi);
         Microsoft::WRL::ComPtr<IDWriteTextFormat> _BuildTextFormat(const DxFontInfo fontInfo, const std::wstring_view localeName);
 
-        std::unordered_map<FontAttributeMapKey, ::Microsoft::WRL::ComPtr<IDWriteTextFormat>> _textFormatMap;
-        std::unordered_map<FontAttributeMapKey, ::Microsoft::WRL::ComPtr<IDWriteFontFace1>> _fontFaceMap;
+        robin_hood::unordered_map<FontAttributeMapKey, ::Microsoft::WRL::ComPtr<IDWriteTextFormat>> _textFormatMap;
+        robin_hood::unordered_map<FontAttributeMapKey, ::Microsoft::WRL::ComPtr<IDWriteFontFace1>> _fontFaceMap;
 
         ::Microsoft::WRL::ComPtr<IBoxDrawingEffect> _boxDrawingEffect;
         ::Microsoft::WRL::ComPtr<IDWriteFontFallback> _systemFontFallback;

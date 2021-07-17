@@ -40,7 +40,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         TYPED_EVENT(Closed, Control::SearchBoxControl, Windows::UI::Xaml::RoutedEventArgs);
 
     private:
-        std::unordered_set<winrt::Windows::Foundation::IInspectable> _focusableElements;
+        robin_hood::unordered_set<winrt::Windows::Foundation::IInspectable> _focusableElements;
 
         bool _GoForward();
         bool _CaseSensitive();

@@ -342,7 +342,7 @@ winrt::Microsoft::Terminal::Settings::Model::CascadiaSettings CascadiaSettings::
 // - <none>
 void CascadiaSettings::_LoadDynamicProfiles()
 {
-    std::unordered_set<std::wstring> ignoredNamespaces;
+    robin_hood::unordered_set<std::wstring> ignoredNamespaces;
     const auto disabledProfileSources = CascadiaSettings::_GetDisabledProfileSourcesJsonObject(_userSettings);
     if (disabledProfileSources.isArray())
     {
@@ -387,7 +387,7 @@ void CascadiaSettings::_LoadDynamicProfiles()
 void CascadiaSettings::_LoadFragmentExtensions()
 {
     // First, accumulate the namespaces the user wants to ignore
-    std::unordered_set<std::wstring> ignoredNamespaces;
+    robin_hood::unordered_set<std::wstring> ignoredNamespaces;
     const auto disabledProfileSources = CascadiaSettings::_GetDisabledProfileSourcesJsonObject(_userSettings);
     if (disabledProfileSources.isArray())
     {
@@ -459,7 +459,7 @@ void CascadiaSettings::_LoadFragmentExtensions()
 // Arguments:
 // - The directory to find json files in
 // - The set of ignored namespaces
-void CascadiaSettings::_ApplyJsonStubsHelper(const std::wstring_view directory, const std::unordered_set<std::wstring>& ignoredNamespaces)
+void CascadiaSettings::_ApplyJsonStubsHelper(const std::wstring_view directory, const robin_hood::unordered_set<std::wstring>& ignoredNamespaces)
 {
     // The json files should be within subdirectories where the subdirectory name is the app name
     for (const auto& fragmentExtFolder : std::filesystem::directory_iterator(directory))
@@ -483,9 +483,9 @@ void CascadiaSettings::_ApplyJsonStubsHelper(const std::wstring_view directory, 
 // - directory: the directory to search
 // Return Value:
 // - A set containing all the found file data
-std::unordered_set<std::string> CascadiaSettings::_AccumulateJsonFilesInDirectory(const std::wstring_view directory)
+robin_hood::unordered_set<std::string> CascadiaSettings::_AccumulateJsonFilesInDirectory(const std::wstring_view directory)
 {
-    std::unordered_set<std::string> jsonFiles;
+    robin_hood::unordered_set<std::string> jsonFiles;
 
     for (const auto& fragmentExt : std::filesystem::directory_iterator(directory))
     {
@@ -507,7 +507,7 @@ std::unordered_set<std::string> CascadiaSettings::_AccumulateJsonFilesInDirector
 // Arguments:
 // - files: the set of json files (each item in the set is the file data)
 // - source: the location the files came from
-void CascadiaSettings::_ParseAndLayerFragmentFiles(const std::unordered_set<std::string> files, const winrt::hstring source)
+void CascadiaSettings::_ParseAndLayerFragmentFiles(const robin_hood::unordered_set<std::string> files, const winrt::hstring source)
 {
     for (const auto& file : files)
     {

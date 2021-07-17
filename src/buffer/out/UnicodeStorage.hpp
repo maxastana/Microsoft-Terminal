@@ -18,7 +18,7 @@ Author(s):
 #include <unordered_map>
 #include <climits>
 
-// std::unordered_map needs help to know how to hash a COORD
+// robin_hood::unordered_map needs help to know how to hash a COORD
 namespace std
 {
     template<>
@@ -55,10 +55,10 @@ public:
 
     void Erase(const key_type key) noexcept;
 
-    void Remap(const std::unordered_map<SHORT, SHORT>& rowMap, const std::optional<SHORT> width);
+    void Remap(const robin_hood::unordered_map<SHORT, SHORT>& rowMap, const std::optional<SHORT> width);
 
 private:
-    std::unordered_map<key_type, mapped_type> _map;
+    robin_hood::unordered_map<key_type, mapped_type> _map;
 
 #ifdef UNIT_TESTING
     friend class UnicodeStorageTests;

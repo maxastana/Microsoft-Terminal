@@ -107,7 +107,7 @@ void CascadiaSettings::_CopyProfileInheritanceTree(winrt::com_ptr<CascadiaSettin
     }
 
     auto dummyRootClone{ winrt::make_self<Profile>() };
-    std::unordered_map<void*, winrt::com_ptr<Profile>> visited{};
+    robin_hood::unordered_map<void*, winrt::com_ptr<Profile>> visited{};
 
     if (_userDefaultProfileSettings)
     {

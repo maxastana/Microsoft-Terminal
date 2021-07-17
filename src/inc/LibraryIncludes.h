@@ -94,6 +94,8 @@
 #include <dynamic_bitset.hpp>
 #pragma warning(pop)
 
+#include <robin_hood.h>
+
 // {fmt}, a C++20-compatible formatting library
 #include <fmt/format.h>
 #include <fmt/compile.h>

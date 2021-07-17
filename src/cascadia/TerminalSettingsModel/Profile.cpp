@@ -152,7 +152,7 @@ winrt::com_ptr<Profile> Profile::CopySettings(winrt::com_ptr<Profile> source)
 // - visited - a map of which Profiles have been visited, and, if so, a reference to the Profile's clone
 // Return Value:
 // - a clone in both inheritance structure and Profile values of sourceGraph
-winrt::com_ptr<Profile> Profile::CloneInheritanceGraph(winrt::com_ptr<Profile> sourceGraph, winrt::com_ptr<Profile> cloneGraph, std::unordered_map<void*, winrt::com_ptr<Profile>>& visited)
+winrt::com_ptr<Profile> Profile::CloneInheritanceGraph(winrt::com_ptr<Profile> sourceGraph, winrt::com_ptr<Profile> cloneGraph, robin_hood::unordered_map<void*, winrt::com_ptr<Profile>>& visited)
 {
     // If this is an unexplored Profile
     //   and we have parents...

@@ -39,7 +39,7 @@ namespace winrt::MonarchPeasantSample::implementation
         uint64_t _thisPeasantID{ 0 };
         uint64_t _mostRecentPeasant{ 0 };
         WindowingBehavior _windowingBehavior{ WindowingBehavior::UseNew };
-        std::unordered_map<uint64_t, winrt::MonarchPeasantSample::IPeasant> _peasants;
+        robin_hood::unordered_map<uint64_t, winrt::MonarchPeasantSample::IPeasant> _peasants;
 
         winrt::MonarchPeasantSample::IPeasant _getPeasant(uint64_t peasantID);
         void _setMostRecentPeasant(const uint64_t peasantID);

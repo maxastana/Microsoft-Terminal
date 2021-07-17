@@ -8,6 +8,145 @@
 
 #include "ActionMap.g.cpp"
 
+namespace til
+{
+    template<typename D, typename T, typename Iterator>
+    struct iterator : winrt::implements<iterator<D, T, Iterator>, winrt::Windows::Foundation::Collections::IIterator<T>>
+    {
+        iterator(D* owner, Iterator&& current, Iterator&& end) noexcept :
+            m_current{ std::move(current) },
+            m_end{ std::move(end) }
+        {
+            m_owner.copy_from(owner);
+        }
+
+        T Current() const
+        {
+            if (m_current == m_end)
+            {
+                throw winrt::hresult_out_of_bounds();
+            }
+
+            return winrt::make<winrt::impl::key_value_pair<T>>(m_current->first, m_current->second);
+        }
+
+        bool HasCurrent() const
+        {
+            return m_current != m_end;
+        }
+
+        bool MoveNext()
+        {
+            if (m_current != m_end)
+            {
+                ++m_current;
+            }
+
+            return m_current != m_end;
+        }
+
+        uint32_t GetMany(winrt::array_view<T> values)
+        {
+            auto output = values.begin();
+            const auto end = values.end();
+
+            while (output != end && m_current != m_end)
+            {
+                *output = winrt::make<winrt::impl::key_value_pair<T>>(m_current->first, m_current->second);
+                ++output;
+                ++m_current;
+            }
+
+            return static_cast<uint32_t>(output - values.begin());
+        }
+
+    private:
+        winrt::com_ptr<D> m_owner;
+        Iterator m_current;
+        const Iterator m_end;
+    };
+
+    template<typename K, typename V, typename Container>
+    struct map_impl : winrt::implements<map_impl<K, V, Container>, winrt::Windows::Foundation::Collections::IMap<K, V>, winrt::Windows::Foundation::Collections::IMapView<K, V>, winrt::Windows::Foundation::Collections::IIterable<winrt::Windows::Foundation::Collections::IKeyValuePair<K, V>>>
+    {
+        explicit map_impl(Container&& values) :
+            m_values(std::forward<Container>(values))
+        {
+        }
+
+        // IIterable
+
+        winrt::Windows::Foundation::Collections::IIterator<winrt::Windows::Foundation::Collections::IKeyValuePair<K, V>> First()
+        {
+            using D = typename map_impl<K, V, Container>;
+            using T = winrt::Windows::Foundation::Collections::IKeyValuePair<K, V>;
+            using Iterator = decltype(m_values.begin());
+            return winrt::make<til::iterator<D, T, Iterator>>(this, m_values.begin(), m_values.end());
+        }
+
+        // IMapView
+
+        V Lookup(const K& key) const
+        {
+            const auto pair = m_values.find(key);
+            if (pair == m_values.end())
+            {
+                throw winrt::hresult_out_of_bounds();
+            }
+
+            return pair->second;
+        }
+
+        uint32_t Size() const noexcept
+        {
+            return static_cast<uint32_t>(m_values.size());
+        }
+
+        bool HasKey(const K& key) const noexcept
+        {
+            return m_values.contains(key);
+        }
+
+        void Split(winrt::Windows::Foundation::Collections::IMapView<K, V>& first, winrt::Windows::Foundation::Collections::IMapView<K, V>& second) const noexcept
+        {
+            first = nullptr;
+            second = nullptr;
+        }
+
+        // IMap
+
+        winrt::Windows::Foundation::Collections::IMapView<K, V> GetView() const
+        {
+            return *this;
+        }
+
+        bool Insert(const K& key, const V& value)
+        {
+            return !m_values.insert_or_assign(key, value).second;
+        }
+
+        void Remove(const K& key)
+        {
+            m_values.erase(key);
+        }
+
+        void Clear() noexcept
+        {
+            m_values.clear();
+        }
+
+    private:
+        Container m_values;
+        //robin_hood::unordered_map<int, int> m_values;
+    };
+
+    template<typename K, typename V, typename Container>
+    auto single_threaded_map(Container&& values)
+    {
+        return winrt::make<map_impl<K, V, Container>>(std::forward<Container>(values));
+    }
+}
+
 using namespace winrt::Microsoft::Terminal::Settings::Model;
 using namespace winrt::Microsoft::Terminal::Control;
 
@@ -48,7 +187,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
     }
 
     ActionMap::ActionMap() :
-        _NestedCommands{ single_threaded_map<hstring, Model::Command>() },
+        _NestedCommands{ til::single_threaded_map<hstring, Model::Command>(robin_hood::unordered_map<hstring, Model::Command>{}) },
         _IterableCommands{ single_threaded_vector<Model::Command>() }
     {
     }
@@ -97,7 +236,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
         return std::nullopt;
     }
 
-    static void RegisterShortcutAction(ShortcutAction shortcutAction, std::unordered_map<hstring, Model::ActionAndArgs>& list, std::unordered_set<InternalActionID>& visited)
+    static void RegisterShortcutAction(ShortcutAction shortcutAction, robin_hood::unordered_map<hstring, Model::ActionAndArgs>& list, std::unordered_set<InternalActionID>& visited)
     {
         const auto actionAndArgs{ make_self<ActionAndArgs>(shortcutAction) };
         if (actionAndArgs->Action() != ShortcutAction::Invalid)
@@ -121,7 +260,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
         if (!_AvailableActionsCache)
         {
             // populate _AvailableActionsCache
-            std::unordered_map<hstring, Model::ActionAndArgs> availableActions;
+            robin_hood::unordered_map<hstring, Model::ActionAndArgs> availableActions;
             std::unordered_set<InternalActionID> visitedActionIDs;
             _PopulateAvailableActionsWithStandardCommands(availableActions, visitedActionIDs);
 
@@ -130,12 +269,12 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
             ALL_SHORTCUT_ACTIONS
 #undef ON_ALL_ACTIONS
 
-            _AvailableActionsCache = single_threaded_map<hstring, Model::ActionAndArgs>(std::move(availableActions));
+            _AvailableActionsCache = til::single_threaded_map<hstring, Model::ActionAndArgs>(std::move(availableActions));
         }
         return _AvailableActionsCache.GetView();
     }
 
-    void ActionMap::_PopulateAvailableActionsWithStandardCommands(std::unordered_map<hstring, Model::ActionAndArgs>& availableActions, std::unordered_set<InternalActionID>& visitedActionIDs) const
+    void ActionMap::_PopulateAvailableActionsWithStandardCommands(robin_hood::unordered_map<hstring, Model::ActionAndArgs>& availableActions, std::unordered_set<InternalActionID>& visitedActionIDs) const
     {
         // Update AvailableActions and visitedActionIDs with our current layer
         for (const auto& [actionID, cmd] : _ActionMap)
@@ -175,11 +314,11 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
         if (!_NameMapCache)
         {
             // populate _NameMapCache
-            std::unordered_map<hstring, Model::Command> nameMap{};
+            robin_hood::unordered_map<hstring, Model::Command> nameMap{};
             _PopulateNameMapWithSpecialCommands(nameMap);
             _PopulateNameMapWithStandardCommands(nameMap);
 
-            _NameMapCache = single_threaded_map<hstring, Model::Command>(std::move(nameMap));
+            _NameMapCache = til::single_threaded_map<hstring, Model::Command>(std::move(nameMap));
         }
         return _NameMapCache.GetView();
     }
@@ -190,7 +329,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
     // - Performs a top-down approach by going to the root first, then recursively adding the nested commands layer-by-layer.
     // Arguments:
     // - nameMap: the nameMap we're populating. This maps the name (hstring) of a command to the command itself.
-    void ActionMap::_PopulateNameMapWithSpecialCommands(std::unordered_map<hstring, Model::Command>& nameMap) const
+    void ActionMap::_PopulateNameMapWithSpecialCommands(robin_hood::unordered_map<hstring, Model::Command>& nameMap) const
     {
         // Update NameMap with our parents.
         // Starting with this means we're doing a top-down approach.
@@ -229,7 +368,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
     // Arguments:
     // - nameMap: the nameMap we're populating. This maps the name (hstring) of a command to the command itself.
     //             There should only ever by one of each command (identified by the actionID) in the nameMap.
-    void ActionMap::_PopulateNameMapWithStandardCommands(std::unordered_map<hstring, Model::Command>& nameMap) const
+    void ActionMap::_PopulateNameMapWithStandardCommands(robin_hood::unordered_map<hstring, Model::Command>& nameMap) const
     {
         std::unordered_set<InternalActionID> visitedActionIDs;
         for (const auto& cmd : _GetCumulativeActions())
@@ -264,10 +403,10 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
         cumulativeActions.reserve(_MaskingActions.size() + _ActionMap.size());
 
         // masking actions have priority. Actions here are constructed from consolidating an inherited action with changes we've found when populating this layer.
-        std::transform(_MaskingActions.begin(), _MaskingActions.end(), std::back_inserter(cumulativeActions), [](std::pair<InternalActionID, Model::Command> actionPair) {
+        std::transform(_MaskingActions.begin(), _MaskingActions.end(), std::back_inserter(cumulativeActions), [](const auto& actionPair) {
             return actionPair.second;
         });
-        std::transform(_ActionMap.begin(), _ActionMap.end(), std::back_inserter(cumulativeActions), [](std::pair<InternalActionID, Model::Command> actionPair) {
+        std::transform(_ActionMap.begin(), _ActionMap.end(), std::back_inserter(cumulativeActions), [](const auto& actionPair) {
             return actionPair.second;
         });
 
@@ -287,7 +426,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
     {
         if (!_GlobalHotkeysCache)
         {
-            std::unordered_map<Control::KeyChord, Model::Command, KeyChordHash, KeyChordEquality> globalHotkeys;
+            robin_hood::unordered_map<Control::KeyChord, Model::Command, KeyChordHash, KeyChordEquality> globalHotkeys;
             for (const auto& [keys, cmd] : KeyBindings())
             {
                 // Only populate GlobalHotkeys with actions whose
@@ -297,7 +436,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
                     globalHotkeys.emplace(keys, cmd);
                 }
             }
-            _GlobalHotkeysCache = single_threaded_map<Control::KeyChord, Model::Command>(std::move(globalHotkeys));
+            _GlobalHotkeysCache = til::single_threaded_map<Control::KeyChord, Model::Command>(std::move(globalHotkeys));
         }
         return _GlobalHotkeysCache.GetView();
     }
@@ -307,11 +446,11 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
         if (!_KeyBindingMapCache)
         {
             // populate _KeyBindingMapCache
-            std::unordered_map<KeyChord, Model::Command, KeyChordHash, KeyChordEquality> keyBindingsMap;
+            robin_hood::unordered_map<KeyChord, Model::Command, KeyChordHash, KeyChordEquality> keyBindingsMap;
             std::unordered_set<KeyChord, KeyChordHash, KeyChordEquality> unboundKeys;
             _PopulateKeyBindingMapWithStandardCommands(keyBindingsMap, unboundKeys);
 
-            _KeyBindingMapCache = single_threaded_map<KeyChord, Model::Command>(std::move(keyBindingsMap));
+            _KeyBindingMapCache = til::single_threaded_map<KeyChord, Model::Command>(std::move(keyBindingsMap));
         }
         return _KeyBindingMapCache.GetView();
     }
@@ -323,7 +462,7 @@ namespace winrt::Microsoft::Terminal::Settings::Model::implementation
     // Arguments:
     // - keyBindingsMap: the keyBindingsMap we're populating. This maps the key chord of a command to the command itself.
     // - unboundKeys: a set of keys that are explicitly unbound
-    void ActionMap::_PopulateKeyBindingMapWithStandardCommands(std::unordered_map<KeyChord, Model::Command, KeyChordHash, KeyChordEquality>& keyBindingsMap, std::unordered_set<Control::KeyChord, KeyChordHash, KeyChordEquality>& unboundKeys) const
+    void ActionMap::_PopulateKeyBindingMapWithStandardCommands(robin_hood::unordered_map<KeyChord, Model::Command, KeyChordHash, KeyChordEquality>& keyBindingsMap, std::unordered_set<Control::KeyChord, KeyChordHash, KeyChordEquality>& unboundKeys) const
     {
         // Update KeyBindingsMap with our current layer
         for (const auto& [keys, actionID] : _KeyMap)

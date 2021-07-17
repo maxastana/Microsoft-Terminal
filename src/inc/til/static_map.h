@@ -9,7 +9,7 @@
 // use constexpr std::sort during construction.
 //
 // Until we can use C++20, this is no cheaper than using
-// a static std::unordered_map that is initialized at
+// a static robin_hood::unordered_map that is initialized at
 // startup or on first use.
 // To build something that can be constexpr as of C++17,
 // use til::presorted_static_map and make certain that

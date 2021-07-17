@@ -208,6 +208,54 @@ namespace Microsoft::Terminal::Settings::Model::JsonUtils
     };
 #endif
 
+#ifdef ROBIN_HOOD_H_INCLUDED
+    template<bool IsFlat, size_t MaxLoadFactor100, typename Key, typename Hash, typename KeyEqual>
+    struct ConversionTrait<robin_hood::detail::Table<IsFlat, MaxLoadFactor100, Key, void, Hash, KeyEqual>>
+    {
+    private:
+        using map_type = robin_hood::detail::Table<IsFlat, MaxLoadFactor100, Key, void, Hash, KeyEqual>;
+
+    public:
+        map_type FromJson(const Json::Value& json) const
+        {
+            map_type val;
+            val.reserve(json.size());
+
+            ConversionTrait<Key> trait;
+            for (const auto& element : json)
+            {
+                val.emplace(trait.FromJson(element));
+            }
+
+            return val;
+        }
+
+        bool CanConvert(const Json::Value& json) const
+        {
+            ConversionTrait<Key> trait;
+            return json.isArray() && std::all_of(json.begin(), json.end(), [trait](const auto& json) -> bool { return trait.CanConvert(json); });
+        }
+
+        Json::Value ToJson(const map_type& val)
+        {
+            Json::Value json{ Json::arrayValue };
+
+            ConversionTrait<Key> trait;
+            for (const auto& key : val)
+            {
+                json.append(trait.ToJson(key));
+            }
+
+            return json;
+        }
+
+        std::string TypeDescription() const
+        {
+            return fmt::format("{}[]", ConversionTrait<GUID>{}.TypeDescription());
+        }
+    };
+#endif
+
     template<>
     struct ConversionTrait<bool>
     {

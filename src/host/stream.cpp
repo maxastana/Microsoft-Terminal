@@ -160,7 +160,7 @@ using Microsoft::Console::Interactivity::ServiceLocator;
                     try
                     {
                         // Convert real Windows NT modifier bit into bizarre Console bits
-                        std::unordered_set<ModifierKeyState> consoleModKeyState = FromVkKeyScan(zeroControlKeyState);
+                        robin_hood::unordered_set<ModifierKeyState> consoleModKeyState = FromVkKeyScan(zeroControlKeyState);
 
                         if (zeroVKey == keyEvent->GetVirtualKeyCode() &&
                             keyEvent->DoActiveModifierKeysMatch(consoleModKeyState))

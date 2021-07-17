@@ -964,7 +964,7 @@ UnicodeStorage& TextBuffer::GetUnicodeStorage() noexcept
 // - newRowWidth - Optional new value for the row width.
 void TextBuffer::_RefreshRowIDs(std::optional<SHORT> newRowWidth)
 {
-    std::unordered_map<SHORT, SHORT> rowMap;
+    robin_hood::unordered_map<SHORT, SHORT> rowMap;
     SHORT i = 0;
     for (auto& it : _storage)
     {
@@ -1309,7 +1309,7 @@ void TextBuffer::_PruneHyperlinks()
         // Move to unordered set so we can use hashed lookup of IDs instead of linear search.
         // Only make it an unordered set now because set always heap allocates but vector
         // doesn't when the set is empty (saving an allocation in the common case of no links.)
-        std::unordered_set<uint16_t> firstRowRefs{ hyperlinks.cbegin(), hyperlinks.cend() };
+        robin_hood::unordered_set<uint16_t> firstRowRefs{ hyperlinks.cbegin(), hyperlinks.cend() };
 
         const auto total = TotalRowCount();
         // Loop through all the rows in the buffer except the first row -
@@ -1944,7 +1944,7 @@ std::string TextBuffer::GenRTF(const TextAndColor& rows, const int fontHeightPoi
         // map to keep track of colors:
         // keys are colors represented by COLORREF
         // values are indices of the corresponding colors in the color table
-        std::unordered_map<COLORREF, int> colorMap;
+        robin_hood::unordered_map<COLORREF, int> colorMap;
         int nextColorIndex = 1; // leave 0 for the default color and start from 1.
 
         // RTF color table
@@ -2473,7 +2473,7 @@ void TextBuffer::CopyHyperlinkMaps(const TextBuffer& other)
 const size_t TextBuffer::AddPatternRecognizer(const std::wstring_view regexString)
 {
     ++_currentPatternId;
-    _idsAndPatterns.emplace(std::make_pair(_currentPatternId, regexString));
+    _idsAndPatterns.emplace(_currentPatternId, regexString);
     return _currentPatternId;
 }
 

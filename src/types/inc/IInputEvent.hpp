@@ -113,8 +113,8 @@ enum class ModifierKeyState
     ENUM_COUNT // must be the last element in the enum class
 };
 
-std::unordered_set<ModifierKeyState> FromVkKeyScan(const short vkKeyScanFlags);
-std::unordered_set<ModifierKeyState> FromConsoleControlKeyFlags(const DWORD flags);
+robin_hood::unordered_set<ModifierKeyState> FromVkKeyScan(const short vkKeyScanFlags);
+robin_hood::unordered_set<ModifierKeyState> FromConsoleControlKeyFlags(const DWORD flags);
 DWORD ToConsoleControlKeyFlag(const ModifierKeyState modifierKey) noexcept;
 
 class KeyEvent : public IInputEvent
@@ -297,7 +297,7 @@ public:
     void SetActiveModifierKeys(const DWORD activeModifierKeys) noexcept;
     void DeactivateModifierKey(const ModifierKeyState modifierKey) noexcept;
     void ActivateModifierKey(const ModifierKeyState modifierKey) noexcept;
-    bool DoActiveModifierKeysMatch(const std::unordered_set<ModifierKeyState>& consoleModifiers) const noexcept;
+    bool DoActiveModifierKeysMatch(const robin_hood::unordered_set<ModifierKeyState>& consoleModifiers) const noexcept;
     bool IsCommandLineEditingKey() const noexcept;
     bool IsPopupKey() const noexcept;
 

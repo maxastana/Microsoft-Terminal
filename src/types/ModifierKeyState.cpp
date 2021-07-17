@@ -22,9 +22,9 @@ constexpr bool RuntimeIsFlagSet(const DWORD flags, const DWORD flag) noexcept
     return !!(flags & flag);
 }
 
-std::unordered_set<ModifierKeyState> FromVkKeyScan(const short vkKeyScanFlags)
+robin_hood::unordered_set<ModifierKeyState> FromVkKeyScan(const short vkKeyScanFlags)
 {
-    std::unordered_set<ModifierKeyState> keyState;
+    robin_hood::unordered_set<ModifierKeyState> keyState;
 
     switch (vkKeyScanFlags)
     {
@@ -103,9 +103,9 @@ static_assert(size(ModifierKeyStateTranslationTable) == static_cast<int>(Modifie
 // - flags - legacy bitset to expand
 // Return Value:
 // - set of ModifierKeyState values that represent flags
-std::unordered_set<ModifierKeyState> FromConsoleControlKeyFlags(const DWORD flags)
+robin_hood::unordered_set<ModifierKeyState> FromConsoleControlKeyFlags(const DWORD flags)
 {
-    std::unordered_set<ModifierKeyState> keyStates;
+    robin_hood::unordered_set<ModifierKeyState> keyStates;
 
     for (const ModifierKeyStateMapping& mapping : ModifierKeyStateTranslationTable)
     {
