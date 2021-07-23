@@ -13,14 +13,51 @@
 
 using namespace winrt::Windows::ApplicationModel;
 using namespace winrt::Windows::ApplicationModel::DataTransfer;
+using namespace winrt::Windows::System;
+using namespace winrt::Windows::UI::Core;
+using namespace winrt::Windows::UI::Text::Core;
 using namespace winrt::Windows::UI::Xaml;
 using namespace winrt::Windows::UI::Xaml::Controls;
-using namespace winrt::Windows::UI::Core;
-using namespace winrt::Windows::System;
 using namespace winrt::Microsoft::Terminal;
 using namespace winrt::Microsoft::Terminal::Control;
 using namespace winrt::Microsoft::Terminal::Settings::Model;
 using namespace ::TerminalApp;
+
+class LanguageProfileNotifier : public winrt::implements<LanguageProfileNotifier, ITfActiveLanguageProfileNotifySink>
+{
+public:
+    explicit LanguageProfileNotifier(std::function<void()> callback) :
+        _callback{ std::move(callback) }
+    {
+        _manager = wil::CoCreateInstance<ITfThreadMgr>(CLSID_TF_ThreadMgr);
+        _source = _manager.query<ITfSource>();
+        if (FAILED(_source->AdviseSink(IID_ITfActiveLanguageProfileNotifySink, static_cast<ITfActiveLanguageProfileNotifySink*>(this), &_cookie)))
+        {
+            _cookie = TF_INVALID_COOKIE;
+            THROW_LAST_ERROR();
+        }
+    }
+
+    ~LanguageProfileNotifier()
+    {
+        if (_cookie != TF_INVALID_COOKIE)
+        {
+            _source->UnadviseSink(_cookie);
+        }
+    }
+
+    HRESULT OnActivated(const IID&, const GUID&, BOOL)
+    {
+        _callback();
+        return S_OK;
+    }
+
+private:
+    std::function<void()> _callback;
+    wil::com_ptr<ITfThreadMgr> _manager;
+    wil::com_ptr<ITfSource> _source;
+    DWORD _cookie = TF_INVALID_COOKIE;
+};
 
 namespace winrt
 {
@@ -191,24 +228,42 @@ namespace winrt::TerminalApp::implementation
     AppLogic::AppLogic() :
         _reloadState{ std::chrono::milliseconds(100), []() { ApplicationState::SharedInstance().Reload(); } }
     {
-        // For your own sanity, it's better to do setup outside the ctor.
-        // If you do any setup in the ctor that ends up throwing an exception,
-        // then it might look like App just failed to activate, which will
-        // cause you to chase down the rabbit hole of "why is App not
-        // registered?" when it definitely is.
+        try
+        {
+            // For your own sanity, it's better to do setup outside the ctor.
+            // If you do any setup in the ctor that ends up throwing an exception,
+            // then it might look like App just failed to activate, which will
+            // cause you to chase down the rabbit hole of "why is App not
+            // registered?" when it definitely is.
 
-        // The TerminalPage has to be constructed during our construction, to
-        // make sure that there's a terminal page for callers of
-        // SetTitleBarContent
-        _isElevated = _isUserAdmin();
-        _root = winrt::make_self<TerminalPage>();
+            // The TerminalPage has to be constructed during our construction, to
+            // make sure that there's a terminal page for callers of
+            // SetTitleBarContent
+            _isElevated = _isUserAdmin();
+            _root = winrt::make_self<TerminalPage>();
 
-        _reloadSettings = std::make_shared<ThrottledFuncTrailing<>>(_root->Dispatcher(), std::chrono::milliseconds(100), [weakSelf = get_weak()]() {
-            if (auto self{ weakSelf.get() })
-            {
-                self->_ReloadSettings();
-            }
-        });
+            _reloadSettings = std::make_shared<ThrottledFuncTrailing<>>(_root->Dispatcher(), std::chrono::milliseconds(100), [weakSelf = get_weak()]() {
+                if (auto self{ weakSelf.get() })
+                {
+                    self->_ReloadSettings();
+                }
+            });
+
+            static auto f = winrt::make<LanguageProfileNotifier>([]() {
+                printf("");
+            });
+            /*auto resourceContext = winrt::Windows::ApplicationModel::Resources::Core::ResourceContext::GetForViewIndependentUse();
+            auto qualifierValues = resourceContext.QualifierValues();
+            _qualifierValuesChangedRevoker = qualifierValues.MapChanged(winrt::auto_revoke, [this](const auto& sender, const auto& change) {
+                _reloadSettings->Run();
+                _InputLanguageChangedHandlers(sender, change);
+            });*/
+        }
+        catch (...)
+        {
+            LOG_CAUGHT_EXCEPTION();
+            throw;
+        }
     }
 
     // Method Description:

@@ -13,11 +13,12 @@
 
 #include <ScopedResourceLoader.h>
 
+using namespace winrt::Windows::Foundation::Numerics;
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Composition;
+using namespace winrt::Windows::UI::Text::Core;
 using namespace winrt::Windows::UI::Xaml;
 using namespace winrt::Windows::UI::Xaml::Hosting;
-using namespace winrt::Windows::Foundation::Numerics;
 using namespace winrt::Microsoft::Terminal;
 using namespace winrt::Microsoft::Terminal::Settings::Model;
 using namespace ::Microsoft::Console;

@@ -26,6 +26,7 @@
 #include <wil/cppwinrt.h>
 
 #include <winrt/Windows.ApplicationModel.h>
+#include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -36,6 +37,7 @@
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.UI.Input.h>
 #include <winrt/Windows.UI.Text.h>
+#include <winrt/Windows.UI.Text.Core.h>
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.UI.Xaml.Automation.Peers.h>
 #include <winrt/Windows.UI.Xaml.Controls.h>
@@ -66,6 +68,7 @@ TRACELOGGING_DECLARE_PROVIDER(g_hTerminalAppProvider);
 #include <telemetry/ProjectTelemetry.h>
 #include <TraceLoggingActivity.h>
 
+#include <msctf.h>
 #include <shellapi.h>
 #include <shobjidl_core.h>
 

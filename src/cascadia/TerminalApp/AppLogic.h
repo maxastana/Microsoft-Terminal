@@ -99,6 +99,7 @@ namespace winrt::TerminalApp::implementation
         // -------------------------------- WinRT Events ---------------------------------
         TYPED_EVENT(RequestedThemeChanged, winrt::Windows::Foundation::IInspectable, winrt::Windows::UI::Xaml::ElementTheme);
         TYPED_EVENT(SettingsChanged, winrt::Windows::Foundation::IInspectable, winrt::Windows::Foundation::IInspectable);
+        TYPED_EVENT(InputLanguageChanged, winrt::Windows::Foundation::IInspectable, winrt::Windows::Foundation::IInspectable);
 
     private:
         bool _isUwp{ false };
@@ -110,8 +111,8 @@ namespace winrt::TerminalApp::implementation
         // ALSO: If you add any UIElements as roots here, make sure they're
         // updated in _ApplyTheme. The root currently is _root.
         winrt::com_ptr<TerminalPage> _root{ nullptr };
-
         Microsoft::Terminal::Settings::Model::CascadiaSettings _settings{ nullptr };
+        winrt::Windows::Foundation::Collections::IObservableMap<winrt::hstring,winrt::hstring>::MapChanged_revoker _qualifierValuesChangedRevoker;
 
         wil::unique_folder_change_reader_nothrow _reader;
         std::shared_ptr<ThrottledFuncTrailing<>> _reloadSettings;

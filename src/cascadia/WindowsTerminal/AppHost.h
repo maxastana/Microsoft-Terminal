@@ -24,6 +24,7 @@ private:
     winrt::TerminalApp::App _app;
     winrt::TerminalApp::AppLogic _logic;
     winrt::Microsoft::Terminal::Remoting::WindowManager _windowManager{ nullptr };
+    winrt::Windows::UI::Text::Core::CoreTextServicesManager::InputLanguageChanged_revoker _inputLanguageChangedRevoker;
 
     std::vector<winrt::Microsoft::Terminal::Settings::Model::GlobalSummonArgs> _hotkeys;
     winrt::com_ptr<IVirtualDesktopManager> _desktopManager{ nullptr };
