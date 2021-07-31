@@ -251,6 +251,9 @@ public:
 
     using UpdateSelectionParams = std::optional<std::pair<SelectionDirection, SelectionExpansion>>;
     static UpdateSelectionParams ConvertKeyEventToUpdateSelectionParams(const ControlKeyStates mods, const WORD vkey);
+        bool MovingStart() const noexcept;
+    til::point SelectionStartForRendering() const;
+    til::point SelectionEndForRendering() const;
 
     const TextBuffer::TextAndColor RetrieveSelectedTextFromBuffer(bool trimTrailingWhitespace);
 #pragma endregion

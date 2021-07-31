@@ -128,6 +128,9 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         bool HasSelection() const;
         bool CopyOnSelect() const;
         Windows::Foundation::Collections::IVector<winrt::hstring> SelectedText(bool trimTrailingWhitespace) const;
+        Core::Point SelectionAnchor() const;
+        Core::Point SelectionEnd() const;
+        bool MovingStart() const;
         void SetSelectionAnchor(til::point const& position);
         void SetEndSelectionPoint(til::point const& position);
 
@@ -169,6 +172,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         TYPED_EVENT(RaiseNotice,               IInspectable, Control::NoticeEventArgs);
         TYPED_EVENT(TransparencyChanged,       IInspectable, Control::TransparencyChangedEventArgs);
         TYPED_EVENT(ReceivedOutput,            IInspectable, IInspectable);
+        TYPED_EVENT(UpdateSelectionMarkers,    IInspectable, Control::UpdateSelectionMarkersEventArgs);
         // clang-format on
 
     private:
