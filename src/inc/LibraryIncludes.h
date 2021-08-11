@@ -73,7 +73,8 @@
 
 // Chromium Numerics (safe math)
 #pragma warning(push)
-#pragma warning(disable:4100) // unreferenced parameter
+#pragma warning(disable : 4100) // '...': unreferenced formal parameter
+#pragma warning(disable : 26812) // The enum type '...' is unscoped. Prefer 'enum class' over 'enum' (Enum.3).
 #include <base/numerics/safe_math.h>
 #pragma warning(pop)
 
@@ -84,15 +85,14 @@
 #define ENABLE_INTSAFE_SIGNED_FUNCTIONS
 #include <intsafe.h>
 
-// LibPopCnt - Fast C/C++ bit population count library (on bits in an array)
-#include <libpopcnt.h>
-
 // Dynamic Bitset (optional dependency on LibPopCnt for perf at bit counting)
 // Variable-size compressed-storage header-only bit flag storage library.
 #pragma warning(push)
-#pragma warning(disable:4702) // unreachable code
+#pragma warning(disable : 4702) // unreachable code
 #include <dynamic_bitset.hpp>
 #pragma warning(pop)
+
+#include <robin_hood.h>
 
 // {fmt}, a C++20-compatible formatting library
 #include <fmt/format.h>

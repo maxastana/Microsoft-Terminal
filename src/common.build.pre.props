@@ -111,7 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)\src\inc;$(SolutionDir)\dep;$(SolutionDir)\dep\Console;$(SolutionDir)\dep\Win32K;$(SolutionDir)\dep\gsl\include;$(SolutionDir)\dep\wil\include;$(SolutionDir)\oss\chromium;$(SolutionDir)\oss\fmt\include;$(SolutionDir)\oss\dynamic_bitset;$(SolutionDir)\oss\libpopcnt;$(SolutionDir)\oss\interval_tree;$(SolutionDir)\oss\boost\boost_1_73_0;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\src\inc;$(SolutionDir)\dep;$(SolutionDir)\dep\Console;$(SolutionDir)\dep\gsl\include;$(SolutionDir)\dep\wil\include;$(SolutionDir)\dep\Win32K;$(SolutionDir)\oss\boost\boost_1_73_0;$(SolutionDir)\oss\chromium;$(SolutionDir)\oss\dynamic_bitset;$(SolutionDir)\oss\fmt\include;$(SolutionDir)\oss\interval_tree;$(SolutionDir)\oss\libpopcnt;$(SolutionDir)\oss\robin-hood-hashing;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -173,6 +173,11 @@
   <!-- For Win32 (x86) ONLY ... we use all defaults for AMD64. No def for those. -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
+      <!--
+        KB4103718 dropped support for x86 CPUs without SSE2 on Windows 7 in 2018.
+        But this only affects Pentium III and older, which I'm sure can't even run VS 2019.
+      -->
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>

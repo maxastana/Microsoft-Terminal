@@ -19,6 +19,7 @@
 #include "ControlCore.g.h"
 #include "../../renderer/base/Renderer.hpp"
 #include "../../renderer/dx/DxRenderer.hpp"
+#include "../../renderer/atlas/AtlasEngine.h"
 #include "../../renderer/uia/UiaRenderer.hpp"
 #include "../../cascadia/TerminalCore/Terminal.hpp"
 #include "../buffer/out/search.h"

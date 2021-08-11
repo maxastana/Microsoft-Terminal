@@ -3,6 +3,7 @@ austdi
 Ballmer
 bhoj
 Bhojwani
+Bilodeau
 carlos
 dhowett
 Diviness
@@ -25,8 +26,8 @@ jerrysh
 Kaiyu
 kimwalisch
 KMehrain
-KODELIFE
 Kodelife
+KODELIFE
 Kourosh
 kowalczyk
 leonmsft
@@ -70,8 +71,8 @@ Wirt
 Wojciech
 zadjii
 Zamor
-Zamora
 zamora
+Zamora
 Zoey
 zorio
 Zverovich

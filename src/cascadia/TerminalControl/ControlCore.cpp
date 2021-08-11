@@ -35,25 +35,6 @@ constexpr const auto UpdatePatternLocationsInterval = std::chrono::milliseconds(
 
 namespace winrt::Microsoft::Terminal::Control::implementation
 {
-    // Helper static function to ensure that all ambiguous-width glyphs are reported as narrow.
-    // See microsoft/terminal#2066 for more info.
-    static bool _IsGlyphWideForceNarrowFallback(const std::wstring_view /* glyph */)
-    {
-        return false; // glyph is not wide.
-    }
-
-    static bool _EnsureStaticInitialization()
-    {
-        // use C++11 magic statics to make sure we only do this once.
-        static bool initialized = []() {
-            // *** THIS IS A SINGLETON ***
-            SetGlyphWidthFallback(_IsGlyphWideForceNarrowFallback);
-
-            return true;
-        }();
-        return initialized;
-    }
-
     ControlCore::ControlCore(IControlSettings settings,
                              TerminalConnection::ITerminalConnection connection) :
         _connection{ connection },
@@ -61,8 +42,6 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         _desiredFont{ DEFAULT_FONT_FACE, 0, DEFAULT_FONT_WEIGHT, { 0, DEFAULT_FONT_SIZE }, CP_UTF8 },
         _actualFont{ DEFAULT_FONT_FACE, 0, DEFAULT_FONT_WEIGHT, { 0, DEFAULT_FONT_SIZE }, CP_UTF8, false }
     {
-        _EnsureStaticInitialization();
-
         _terminal = std::make_unique<::Microsoft::Terminal::Core::Terminal>();
 
         // Subscribe to the connection's disconnected event and call our connection closed handlers.

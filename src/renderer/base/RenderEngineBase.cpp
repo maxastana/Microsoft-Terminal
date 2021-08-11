@@ -7,38 +7,25 @@
 using namespace Microsoft::Console;
 using namespace Microsoft::Console::Render;
 
-RenderEngineBase::RenderEngineBase() :
-    _titleChanged(false),
-    _lastFrameTitle(L"")
+HRESULT RenderEngineBase::InvalidateTitle() noexcept
 {
-}
-
-HRESULT RenderEngineBase::InvalidateTitle(const std::wstring_view proposedTitle) noexcept
-{
-    if (proposedTitle != _lastFrameTitle)
-    {
-        _titleChanged = true;
-    }
-
+    _titleChanged = true;
     return S_OK;
 }
 
 HRESULT RenderEngineBase::UpdateTitle(const std::wstring_view newTitle) noexcept
 {
-    HRESULT hr = S_FALSE;
-    if (newTitle != _lastFrameTitle)
+    if (!_titleChanged)
     {
-        RETURN_IF_FAILED(_DoUpdateTitle(newTitle));
-        _lastFrameTitle = newTitle;
-        _titleChanged = false;
-        hr = S_OK;
+        return S_FALSE;
     }
-    return hr;
+
+    RETURN_IF_FAILED(_DoUpdateTitle(newTitle));
+    _titleChanged = false;
+    return S_OK;
 }
 
-HRESULT RenderEngineBase::UpdateSoftFont(const gsl::span<const uint16_t> /*bitPattern*/,
-                                         const SIZE /*cellSize*/,
-                                         const size_t /*centeringHint*/) noexcept
+HRESULT RenderEngineBase::UpdateSoftFont(const gsl::span<const uint16_t> /*bitPattern*/, const SIZE /*cellSize*/, const size_t /*centeringHint*/) noexcept
 {
     return S_FALSE;
 }
@@ -53,9 +40,7 @@ HRESULT RenderEngineBase::ResetLineTransform() noexcept
     return S_FALSE;
 }
 
-HRESULT RenderEngineBase::PrepareLineTransform(const LineRendition /*lineRendition*/,
-                                               const size_t /*targetRow*/,
-                                               const size_t /*viewportLeft*/) noexcept
+HRESULT RenderEngineBase::PrepareLineTransform(const LineRendition /*lineRendition*/, const size_t /*targetRow*/, const size_t /*viewportLeft*/) noexcept
 {
     return S_FALSE;
 }
@@ -74,5 +59,13 @@ HRESULT RenderEngineBase::PrepareLineTransform(const LineRendition /*lineRenditi
 // - Blocks until the engine is able to render without blocking.
 void RenderEngineBase::WaitUntilCanRender() noexcept
 {
-    // do nothing by default
+    Sleep(8);
+}
+
+// Routine Description:
+// - Uses the currently selected font to determine how wide the given character will be when rendered.
+[[nodiscard]] HRESULT RenderEngineBase::IsGlyphWideByFont(const std::wstring_view& /*glyph*/, _Out_ bool* const pResult) noexcept
+{
+    *pResult = false;
+    return S_FALSE;
 }

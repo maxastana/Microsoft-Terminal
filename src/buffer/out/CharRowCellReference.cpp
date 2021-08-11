@@ -5,6 +5,13 @@
 #include "UnicodeStorage.hpp"
 #include "CharRow.hpp"
 
+CharRowCellReference::CharRowCellReference(CharRow& parent, const size_t index) :
+    _parent{ parent },
+    _index{ index }
+{
+    Expects(index < parent.size());
+}
+
 // Routine Description:
 // - assignment operator. will store extended glyph data in a separate storage location
 // Arguments:
@@ -41,7 +48,7 @@ CharRowCellReference::operator std::wstring_view() const
 // - ref to the CharRowCell
 CharRowCell& CharRowCellReference::_cellData()
 {
-    return _parent._data.at(_index);
+    return til::at(_parent._data, _index);
 }
 
 // Routine Description:
@@ -50,7 +57,7 @@ CharRowCell& CharRowCellReference::_cellData()
 // - ref to the CharRowCell
 const CharRowCell& CharRowCellReference::_cellData() const
 {
-    return _parent._data.at(_index);
+    return til::at(_parent._data, _index);
 }
 
 // Routine Description:

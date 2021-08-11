@@ -62,7 +62,7 @@ class CodepointWidthDetectorTests
         }
     }
 
-    static bool FallbackMethod(const std::wstring_view glyph)
+    static bool FallbackMethod(const std::wstring_view& glyph)
     {
         if (glyph.size() < 1)
         {

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B321ECD6-18E2-4F07-BFB0-B63750CE0CBD}</ProjectGuid>
+    <ProjectName>OpenConsoleShellExt</ProjectName>
+    <RootNamespace>OpenConsole.ShellExtension</RootNamespace>
+    <!-- cppwinrt.build.pre.props depends on these settings: -->
+    <!-- build a dll, not exe (Application) -->
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <SubSystem>Console</SubSystem>
+    <!-- suppress a bunch of Windows Universal properties from cppwinrt.props -->
+    <OpenConsoleUniversalApp>false</OpenConsoleUniversalApp>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)src\cppwinrt.build.pre.props" />
+  <ItemGroup>
+    <ClInclude Include="OpenTerminalHere.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="OpenTerminalHere.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="$(ProjectName).def" />
+  </ItemGroup>
+  <!-- ========================= Project References ======================== -->
+  <Import Project="$(SolutionDir)src\cppwinrt.build.post.props" />
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Override GetPackagingOutputs to roll up our DLL.
+       This is a heavily stripped version of the one in Microsoft.*.AppxPackage.targets.
+  -->
+  <PropertyGroup>
+    <_ContinueOnError Condition="'$(BuildingProject)' == 'true'">true</_ContinueOnError>
+    <_ContinueOnError Condition="'$(BuildingProject)' != 'true'">false</_ContinueOnError>
+  </PropertyGroup>
+  <Target Name="GetPackagingOutputs" Returns="@(PackagingOutputs)">
+    <CallTarget Targets="BuiltProjectOutputGroup">
+      <Output TaskParameter="TargetOutputs" ItemName="_BuiltProjectOutputGroupOutput" />
+    </CallTarget>
+    <ItemGroup>
+      <_PackagingOutputsUnexpanded Include="%(_BuiltProjectOutputGroupOutput.FinalOutputPath)">
+        <TargetPath>%(_BuiltProjectOutputGroupOutput.TargetPath)</TargetPath>
+        <OutputGroup>BuiltProjectOutputGroup</OutputGroup>
+        <ProjectName>$(ProjectName)</ProjectName>
+      </_PackagingOutputsUnexpanded>
+    </ItemGroup>
+    <CallTarget Targets="DebugSymbolsProjectOutputGroup">
+      <Output TaskParameter="TargetOutputs" ItemName="_DebugSymbolsProjectOutputGroupOutput" />
+    </CallTarget>
+    <ItemGroup>
+      <_PackagingOutputsUnexpanded Include="%(_DebugSymbolsProjectOutputGroupOutput.FinalOutputPath)">
+        <OutputGroup>DebugSymbolsProjectOutputGroup</OutputGroup>
+        <ProjectName>$(ProjectName)</ProjectName>
+      </_PackagingOutputsUnexpanded>
+    </ItemGroup>
+    <ItemGroup>
+      <PackagingOutputs Include="@(_PackagingOutputsUnexpanded)">
+        <TargetPath>%(Filename)%(Extension)</TargetPath>
+      </PackagingOutputs>
+    </ItemGroup>
+  </Target>
+</Project>

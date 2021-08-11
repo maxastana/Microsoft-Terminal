@@ -25,11 +25,7 @@ class CharRowCellReference final
 public:
     using const_iterator = const wchar_t*;
 
-    CharRowCellReference(CharRow& parent, const size_t index) noexcept :
-        _parent{ parent },
-        _index{ index }
-    {
-    }
+    CharRowCellReference(CharRow& parent, const size_t index);
 
     ~CharRowCellReference() = default;
     CharRowCellReference(const CharRowCellReference&) noexcept = default;

@@ -261,6 +261,13 @@ CATCH_RETURN();
     return S_OK;
 }
 
+// RenderEngineBase defines a WaitUntilCanRender() that sleeps for 8ms to throttle rendering.
+// But UiaEngine is never the only the engine running. Overriding this function prevents
+// us from sleeping 16ms per frame, when the other engine also sleeps for 8ms.
+void UiaEngine::WaitUntilCanRender() noexcept
+{
+}
+
 // Routine Description:
 // - Used to perform longer running presentation steps outside the lock so the
 //      other threads can continue.
@@ -449,18 +456,6 @@ CATCH_RETURN();
 // Return Value:
 // - S_OK
 [[nodiscard]] HRESULT UiaEngine::GetFontSize(_Out_ COORD* const /*pFontSize*/) noexcept
-{
-    return S_FALSE;
-}
-
-// Routine Description:
-// - Currently unused by this renderer.
-// Arguments:
-// - glyph - The glyph run to process for column width.
-// - pResult - True if it should take two columns. False if it should take one.
-// Return Value:
-// - S_OK or relevant DirectWrite error.
-[[nodiscard]] HRESULT UiaEngine::IsGlyphWideByFont(const std::wstring_view /*glyph*/, _Out_ bool* const /*pResult*/) noexcept
 {
     return S_FALSE;
 }

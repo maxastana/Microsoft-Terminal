@@ -28,7 +28,7 @@ using Microsoft::Console::VirtualTerminal::StateMachine;
 // Used by WriteCharsLegacy.
 #define IS_GLYPH_CHAR(wch) (((wch) >= L' ') && ((wch) != 0x007F))
 
-constexpr unsigned int LOCAL_BUFFER_SIZE = 100;
+constexpr unsigned int LOCAL_BUFFER_SIZE = 1024;
 
 // Routine Description:
 // - This routine updates the cursor position.  Its input is the non-special

@@ -771,8 +771,9 @@ PWSTR TranslateConsoleTitle(_In_ PCWSTR pwszConsoleTitle, const BOOL fUnexpand, 
 
         // Set up the renderer to be used to calculate the width of a glyph,
         //      should we be unable to figure out its width another way.
-        auto pfn = std::bind(&Renderer::IsGlyphWideByFont, static_cast<Renderer*>(g.pRender), std::placeholders::_1);
-        SetGlyphWidthFallback(pfn);
+        SetGlyphWidthFallback([renderer = g.pRender](const std::wstring_view& glyph) -> bool {
+            return renderer->IsGlyphWideByFont(glyph);
+        });
     }
     catch (...)
     {

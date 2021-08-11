@@ -61,7 +61,7 @@ RenderThread::~RenderThread()
 // Return Value:
 // - S_OK if we succeeded, else an HRESULT corresponding to a failure to create
 //      an Event or Thread.
-[[nodiscard]] HRESULT RenderThread::Initialize(IRenderer* const pRendererParent) noexcept
+[[nodiscard]] HRESULT RenderThread::Initialize(_In_ IRenderer* const pRendererParent) noexcept
 {
     _pRenderer = pRendererParent;
 
@@ -213,12 +213,6 @@ DWORD WINAPI RenderThread::_ThreadProc()
         LOG_IF_FAILED(_pRenderer->PaintFrame());
 
         SetEvent(_hPaintCompletedEvent);
-
-        // extra check before we sleep since it's a "long" activity, relatively speaking.
-        if (_fKeepRunning)
-        {
-            Sleep(s_FrameLimitMilliseconds);
-        }
     }
 
     return S_OK;

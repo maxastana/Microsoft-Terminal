@@ -84,10 +84,6 @@ public:
 
     friend constexpr bool operator==(const TextAttribute& a, const TextAttribute& b) noexcept;
     friend constexpr bool operator!=(const TextAttribute& a, const TextAttribute& b) noexcept;
-    friend constexpr bool operator==(const TextAttribute& attr, const WORD& legacyAttr) noexcept;
-    friend constexpr bool operator!=(const TextAttribute& attr, const WORD& legacyAttr) noexcept;
-    friend constexpr bool operator==(const WORD& legacyAttr, const TextAttribute& attr) noexcept;
-    friend constexpr bool operator!=(const WORD& legacyAttr, const TextAttribute& attr) noexcept;
 
     bool IsLegacy() const noexcept;
     bool IsBold() const noexcept;

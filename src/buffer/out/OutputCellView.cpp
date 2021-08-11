@@ -31,7 +31,17 @@ OutputCellView::OutputCellView(const std::wstring_view view,
 // TODO: GH 2681 - remove this suppression by reconciling the probably bad design of the iterators that leads to this being required.
 [[gsl::suppress(26445)]] const std::wstring_view& OutputCellView::Chars() const noexcept
 {
-    return _view;
+    static constexpr std::wstring_view emptyBufferCell{ L"\0", 1 };
+    static constexpr std::wstring_view spaceBufferCell{ L" ", 1 };
+
+    // The buffer uses virtual memory and rows might not be initialized yet.
+    // To us they'll appear as if they contain \0, but we don't want to pass that to the renderer.
+    if (_view != emptyBufferCell)
+    {
+        return _view;
+    }
+
+    return spaceBufferCell;
 }
 
 // Routine Description:
