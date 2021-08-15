@@ -1743,7 +1743,7 @@ void StateMachine::ProcessCharacter(const wchar_t wch)
     }
     else if (_state < VTStates::TotalStates)
     {
-        static constexpr alignas(64) void (StateMachine::*funcs[])(wchar_t) = {
+        alignas(64) static constexpr void (StateMachine::*funcs[])(wchar_t) = {
             &StateMachine::_EventGround, // VTStates::Ground
             &StateMachine::_EventEscape, // VTStates::Escape
             &StateMachine::_EventEscapeIntermediate, // VTStates::EscapeIntermediate

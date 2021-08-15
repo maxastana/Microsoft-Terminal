@@ -9,6 +9,15 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(SolutionDir)src\common.build.pre.props" />
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset>ClangCL</PlatformToolset>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>-O3 -Wno-microsoft-include -Wno-c++11-narrowing %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\adaptDispatch.cpp" />
     <ClCompile Include="..\DispatchCommon.cpp" />

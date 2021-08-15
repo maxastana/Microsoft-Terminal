@@ -31,13 +31,13 @@ TextBufferCellIterator::TextBufferCellIterator(const TextBuffer& buffer, COORD p
 // - pos - Starting position to retrieve text data from (within screen buffer bounds)
 // - limits - Viewport limits to restrict the iterator within the buffer bounds (smaller than the buffer itself)
 TextBufferCellIterator::TextBufferCellIterator(const TextBuffer& buffer, COORD pos, const Viewport limits) :
-    _buffer(buffer),
-    _pos(pos),
+    _view({}, {}, {}, TextAttributeBehavior::Stored),
     _pRow(s_GetRow(buffer, pos)),
+    _attrIter(s_GetRow(buffer, pos)->GetAttrRow().cbegin()),
+    _buffer(buffer),
     _bounds(limits),
     _exceeded(false),
-    _view({}, {}, {}, TextAttributeBehavior::Stored),
-    _attrIter(s_GetRow(buffer, pos)->GetAttrRow().cbegin())
+    _pos(pos)
 {
     // Throw if the bounds rectangle is not limited to the inside of the given buffer.
     THROW_HR_IF(E_INVALIDARG, !buffer.GetSize().IsInBounds(limits));

@@ -30,21 +30,12 @@ Revision History:
 class TextAttribute final
 {
 public:
-    constexpr TextAttribute() noexcept :
-        _wAttrLegacy{ 0 },
-        _foreground{},
-        _background{},
-        _extendedAttrs{ ExtendedAttributes::Normal },
-        _hyperlinkId{ 0 }
-    {
-    }
+    constexpr TextAttribute() noexcept = default;
 
-    explicit constexpr TextAttribute(const WORD wLegacyAttr) noexcept :
+    explicit TextAttribute(const WORD wLegacyAttr) noexcept :
         _wAttrLegacy{ gsl::narrow_cast<WORD>(wLegacyAttr & META_ATTRS) },
         _foreground{ s_LegacyIndexOrDefault(wLegacyAttr & FG_ATTRS, s_legacyDefaultForeground) },
-        _background{ s_LegacyIndexOrDefault((wLegacyAttr & BG_ATTRS) >> 4, s_legacyDefaultBackground) },
-        _extendedAttrs{ ExtendedAttributes::Normal },
-        _hyperlinkId{ 0 }
+        _background{ s_LegacyIndexOrDefault((wLegacyAttr & BG_ATTRS) >> 4, s_legacyDefaultBackground) }
     {
         // If we're given lead/trailing byte information with the legacy color, strip it.
         WI_ClearAllFlags(_wAttrLegacy, COMMON_LVB_SBCSDBCS);
@@ -52,11 +43,8 @@ public:
 
     constexpr TextAttribute(const COLORREF rgbForeground,
                             const COLORREF rgbBackground) noexcept :
-        _wAttrLegacy{ 0 },
         _foreground{ rgbForeground },
-        _background{ rgbBackground },
-        _extendedAttrs{ ExtendedAttributes::Normal },
-        _hyperlinkId{ 0 }
+        _background{ rgbBackground }
     {
     }
 
@@ -170,11 +158,11 @@ private:
     static BYTE s_legacyDefaultForeground;
     static BYTE s_legacyDefaultBackground;
 
-    uint16_t _wAttrLegacy; // sizeof: 2, alignof: 2
-    uint16_t _hyperlinkId; // sizeof: 2, alignof: 2
+    uint16_t _wAttrLegacy = 0; // sizeof: 2, alignof: 2
+    uint16_t _hyperlinkId = 0; // sizeof: 2, alignof: 2
     TextColor _foreground; // sizeof: 4, alignof: 1
     TextColor _background; // sizeof: 4, alignof: 1
-    ExtendedAttributes _extendedAttrs; // sizeof: 1, alignof: 1
+    ExtendedAttributes _extendedAttrs = ExtendedAttributes::Normal; // sizeof: 1, alignof: 1
 
 #ifdef UNIT_TESTING
     friend class TextBufferTests;

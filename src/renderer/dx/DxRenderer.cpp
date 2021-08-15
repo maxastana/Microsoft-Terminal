@@ -1002,7 +1002,7 @@ try
     {
         // Enable shader effects if the path isn't empty. Otherwise leave it untouched.
         _terminalEffectsEnabled = value.empty() ? _terminalEffectsEnabled : true;
-        _pixelShaderPath = { value };
+        _pixelShaderPath = value;
         _recreateDeviceRequested = true;
         LOG_IF_FAILED(InvalidateAll());
     }

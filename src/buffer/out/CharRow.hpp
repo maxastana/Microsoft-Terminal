@@ -47,9 +47,9 @@ enum class DelimiterClass
 class CharRow final
 {
 public:
-    using glyph_type = typename wchar_t;
-    using value_type = typename CharRowCell;
-    using reference = typename CharRowCellReference;
+    using glyph_type = wchar_t;
+    using value_type = CharRowCell;
+    using reference = CharRowCellReference;
 
     CharRow(CharRowCell* buffer, size_t rowWidth, ROW* const pParent) noexcept;
 

@@ -9,6 +9,15 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(SolutionDir)src\common.build.pre.props"/>
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset>ClangCL</PlatformToolset>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>-O3 -Wno-microsoft-include -Wno-c++11-narrowing %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <!-- DONT ADD NEW FILES HERE, ADD THEM TO vt-renderer-common.vcxitems -->
   <Import Project="$(SolutionDir)src\renderer\vt\vt-renderer-common.vcxitems" />
   <!-- Careful reordering these. Some default props (contained in these files) are order sensitive. -->

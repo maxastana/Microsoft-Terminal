@@ -23,11 +23,15 @@ typedef NTSTATUS *PNTSTATUS;
 
 // End From ntdef.h
 
-#define INLINE_NTSTATUS_FROM_WIN32 1 // Must use inline NTSTATUS or it will call the wrapped function twice.
 #pragma warning(push)
 #pragma warning(disable:4430) // Must disable 4430 "default int" warning for C++ because ntstatus.h is inflexible SDK definition.
 #include <ntstatus.h>
 #pragma warning(pop)
+
+#undef NTSTATUS_FROM_WIN32
+inline long NTSTATUS_FROM_WIN32(long x) {
+    return x <= 0 ? (NTSTATUS)x : (NTSTATUS) (((x) & 0x0000FFFF) | (FACILITY_NTWIN32 << 16) | ERROR_SEVERITY_ERROR);
+}
 
 #include <initguid.h>
 

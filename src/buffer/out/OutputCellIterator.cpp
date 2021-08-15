@@ -68,9 +68,8 @@ OutputCellIterator::OutputCellIterator(const wchar_t& wch, const TextAttribute& 
 // - fillLimit - How many times to allow this value to be viewed/filled. Infinite if 0.
 OutputCellIterator::OutputCellIterator(const CHAR_INFO& charInfo, const size_t fillLimit) noexcept :
     _mode(Mode::Fill),
-    _currentView(s_GenerateView(charInfo)),
-    _run(),
     _attr(InvalidTextAttribute),
+    _currentView(s_GenerateView(charInfo)),
     _pos(0),
     _distance(0),
     _fillLimit(fillLimit)
@@ -83,9 +82,9 @@ OutputCellIterator::OutputCellIterator(const CHAR_INFO& charInfo, const size_t f
 // - utf16Text - UTF-16 text range
 OutputCellIterator::OutputCellIterator(const std::wstring_view utf16Text) noexcept :
     _mode(Mode::LooseTextOnly),
-    _currentView(s_GenerateView(utf16Text)),
     _run(utf16Text),
     _attr(InvalidTextAttribute),
+    _currentView(s_GenerateView(utf16Text)),
     _pos(0),
     _distance(0),
     _fillLimit(0)
@@ -99,11 +98,11 @@ OutputCellIterator::OutputCellIterator(const std::wstring_view utf16Text) noexce
 // - attribute - Color to apply over the entire range
 OutputCellIterator::OutputCellIterator(const std::wstring_view utf16Text, const TextAttribute attribute) noexcept :
     _mode(Mode::Loose),
-    _currentView(s_GenerateView(utf16Text, attribute)),
     _run(utf16Text),
     _attr(attribute),
-    _distance(0),
+    _currentView(s_GenerateView(utf16Text, attribute)),
     _pos(0),
+    _distance(0),
     _fillLimit(0)
 {
 }
@@ -114,11 +113,11 @@ OutputCellIterator::OutputCellIterator(const std::wstring_view utf16Text, const 
 // - legacyAttrs - One legacy color item per cell
 OutputCellIterator::OutputCellIterator(const gsl::span<const WORD> legacyAttrs) noexcept :
     _mode(Mode::LegacyAttr),
-    _currentView(s_GenerateViewLegacyAttr(til::at(legacyAttrs, 0))),
     _run(legacyAttrs),
     _attr(InvalidTextAttribute),
-    _distance(0),
+    _currentView(s_GenerateViewLegacyAttr(til::at(legacyAttrs, 0))),
     _pos(0),
+    _distance(0),
     _fillLimit(0)
 {
 }
@@ -129,11 +128,11 @@ OutputCellIterator::OutputCellIterator(const gsl::span<const WORD> legacyAttrs) 
 // - charInfos - Multiple cell with unicode text and legacy color data.
 OutputCellIterator::OutputCellIterator(const gsl::span<const CHAR_INFO> charInfos) noexcept :
     _mode(Mode::CharInfo),
-    _currentView(s_GenerateView(til::at(charInfos, 0))),
     _run(charInfos),
     _attr(InvalidTextAttribute),
-    _distance(0),
+    _currentView(s_GenerateView(til::at(charInfos, 0))),
     _pos(0),
+    _distance(0),
     _fillLimit(0)
 {
 }
@@ -144,11 +143,11 @@ OutputCellIterator::OutputCellIterator(const gsl::span<const CHAR_INFO> charInfo
 // - cells - Multiple cells in a run
 OutputCellIterator::OutputCellIterator(const gsl::span<const OutputCell> cells) :
     _mode(Mode::Cell),
-    _currentView(s_GenerateView(til::at(cells, 0))),
     _run(cells),
     _attr(InvalidTextAttribute),
-    _distance(0),
+    _currentView(s_GenerateView(til::at(cells, 0))),
     _pos(0),
+    _distance(0),
     _fillLimit(0)
 {
 }

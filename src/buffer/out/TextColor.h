@@ -49,26 +49,26 @@ struct TextColor
 {
 public:
     constexpr TextColor() noexcept :
-        _meta{ ColorType::IsDefault },
         _red{ 0 },
         _green{ 0 },
-        _blue{ 0 }
+        _blue{ 0 },
+        _meta{ ColorType::IsDefault }
     {
     }
 
     constexpr TextColor(const BYTE index, const bool isIndex256) noexcept :
-        _meta{ isIndex256 ? ColorType::IsIndex256 : ColorType::IsIndex16 },
         _index{ index },
         _green{ 0 },
-        _blue{ 0 }
+        _blue{ 0 },
+        _meta{ isIndex256 ? ColorType::IsIndex256 : ColorType::IsIndex16 }
     {
     }
 
     constexpr TextColor(const COLORREF rgb) noexcept :
-        _meta{ ColorType::IsRgb },
         _red{ GetRValue(rgb) },
         _green{ GetGValue(rgb) },
-        _blue{ GetBValue(rgb) }
+        _blue{ GetBValue(rgb) },
+        _meta{ ColorType::IsRgb }
     {
     }
 

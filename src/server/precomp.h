@@ -44,20 +44,10 @@ typedef long NTSTATUS;
 
 #define FACILITY_NTWIN32 0x7
 
-#define __NTSTATUS_FROM_WIN32(x) ((NTSTATUS)(x) <= 0 ? ((NTSTATUS)(x)) : ((NTSTATUS)(((x)&0x0000FFFF) | (FACILITY_NTWIN32 << 16) | ERROR_SEVERITY_ERROR)))
-
-#ifdef INLINE_NTSTATUS_FROM_WIN32
-#ifndef __midl
-__inline NTSTATUS_FROM_WIN32(long x)
-{
-    return x <= 0 ? (NTSTATUS)x : (NTSTATUS)(((x)&0x0000FFFF) | (FACILITY_NTWIN32 << 16) | ERROR_SEVERITY_ERROR);
+#undef NTSTATUS_FROM_WIN32
+inline long NTSTATUS_FROM_WIN32(long x) {
+    return x <= 0 ? (NTSTATUS)x : (NTSTATUS) (((x) & 0x0000FFFF) | (FACILITY_NTWIN32 << 16) | ERROR_SEVERITY_ERROR);
 }
-#else
-#define NTSTATUS_FROM_WIN32(x) __NTSTATUS_FROM_WIN32(x)
-#endif
-#else
-#define NTSTATUS_FROM_WIN32(x) __NTSTATUS_FROM_WIN32(x)
-#endif
 
 //#include <ntstatus.h>
 

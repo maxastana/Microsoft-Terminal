@@ -92,10 +92,10 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <TreatSpecificWarningsAsErrors>4189;4100;4242;4389;4244</TreatSpecificWarningsAsErrors>
       <!--<WarningLevel>EnableAllWarnings</WarningLevel>-->
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <!--
         C4103: alignment changed after including header, may be due to missing #pragma pack(pop)
           Caused by a regression in VS 16.10, it detects the use of /pshpack[1248].h/ in system headers.

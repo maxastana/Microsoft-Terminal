@@ -29,7 +29,7 @@ OutputCellView::OutputCellView(const std::wstring_view view,
 // - Reference to UTF-16 character data
 // C26445 - suppressed to enable the `TextBufferTextIterator::operator->` method which needs a non-temporary memory location holding the wstring_view.
 // TODO: GH 2681 - remove this suppression by reconciling the probably bad design of the iterators that leads to this being required.
-[[gsl::suppress(26445)]] const std::wstring_view& OutputCellView::Chars() const noexcept
+[[gsl::suppress("26445")]] const std::wstring_view& OutputCellView::Chars() const noexcept
 {
     static constexpr std::wstring_view emptyBufferCell{ L"\0", 1 };
     static constexpr std::wstring_view spaceBufferCell{ L" ", 1 };

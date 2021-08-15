@@ -117,6 +117,5 @@ private:
     void _RedrawCursorAlways() noexcept;
 
     CursorType _cursorType;
-    bool _fUseColor;
     COLORREF _color;
 };

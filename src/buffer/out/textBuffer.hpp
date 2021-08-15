@@ -55,7 +55,7 @@ filling in the last row, and updating the screen.
 #include "Row.hpp"
 #include "TextAttribute.hpp"
 #include "UnicodeStorage.hpp"
-#include "../types/inc/Viewport.hpp"
+#include "../types/inc/viewport.hpp"
 
 #include "../buffer/out/textBufferCellIterator.hpp"
 #include "../buffer/out/textBufferTextIterator.hpp"

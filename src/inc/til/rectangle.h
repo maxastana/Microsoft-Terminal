@@ -15,16 +15,16 @@ namespace til // Terminal Implementation Library. Also: "Today I Learned"
         {
         public:
             constexpr _rectangle_const_iterator(point topLeft, point bottomRight) :
+                _current(topLeft),
                 _topLeft(topLeft),
-                _bottomRight(bottomRight),
-                _current(topLeft)
+                _bottomRight(bottomRight)
             {
             }
 
             constexpr _rectangle_const_iterator(point topLeft, point bottomRight, point start) :
+                _current(start),
                 _topLeft(topLeft),
-                _bottomRight(bottomRight),
-                _current(start)
+                _bottomRight(bottomRight)
             {
             }
 

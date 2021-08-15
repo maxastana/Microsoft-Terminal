@@ -114,15 +114,6 @@
   #define HAVE_AVX512
 #endif
 
-#if defined(HAVE_CPUID) && \
-    CLANG_PREREQ(3, 8) && \
-    __has_attribute(target) && \
-   (!defined(_MSC_VER) || defined(__AVX2__)) && \
-   (!defined(__apple_build_version__) || __apple_build_version__ >= 8000000)
-  #define HAVE_AVX2
-  #define HAVE_AVX512
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
