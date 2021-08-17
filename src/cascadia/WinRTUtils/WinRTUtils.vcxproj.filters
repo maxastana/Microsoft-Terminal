@@ -7,11 +7,13 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="LibraryResources.cpp" />
     <ClCompile Include="ScopedResourceLoader.cpp" />
+    <ClCompile Include="thread_assert.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="ScopedResourceLoader.h" />
     <ClInclude Include="inc\LibraryResources.h" />
+    <ClInclude Include="inc\ScopedResourceLoader.h" />
+    <ClInclude Include="inc\thread_assert.h" />
     <ClInclude Include="inc\ThrottledFunc.h" />
     <ClInclude Include="inc\Utils.h" />
     <ClInclude Include="inc\WtExeUtils.h" />
