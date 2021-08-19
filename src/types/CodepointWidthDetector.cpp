@@ -9,12 +9,12 @@ namespace
     // used to store range data in CodepointWidthDetector's internal map
     struct UnicodeRange final
     {
-        unsigned int lowerBound;
-        unsigned int upperBound;
+        uint32_t lowerBound;
+        uint32_t upperBound;
         CodepointWidth width;
     };
 
-    static bool operator<(const UnicodeRange& range, const unsigned int searchTerm) noexcept
+    static bool operator<(const UnicodeRange& range, const uint32_t searchTerm) noexcept
     {
         return range.upperBound < searchTerm;
     }
@@ -324,55 +324,45 @@ namespace
 }
 
 // Routine Description:
-// - Constructs an instance of the CodepointWidthDetector class
-CodepointWidthDetector::CodepointWidthDetector() noexcept :
-    _fallbackCache{},
-    _pfnFallbackMethod{}
-{
-}
-
-// Routine Description:
 // - returns the width type of codepoint as fast as we can by using quick lookup table and fallback cache.
 // Arguments:
 // - glyph - the utf16 encoded codepoint to search for
 // Return Value:
 // - the width type of the codepoint
-CodepointWidth CodepointWidthDetector::GetWidth(const std::wstring_view glyph) const
+CodepointWidth CodepointWidthDetector::GetWidth(const std::wstring_view& glyph) const noexcept
+try
 {
-    THROW_HR_IF(E_INVALIDARG, glyph.empty());
-    if (glyph.size() == 1)
+#pragma warning(suppress : 26494) // Variable 'codepoint' is uninitialized. Always initialize an object (type.5).
+    uint32_t codepoint;
+    switch (glyph.size())
     {
-        // We first attempt to look at our custom quick lookup table of char width preferences.
-        const auto width = GetQuickCharWidth(glyph.front());
+    case 1:
+        codepoint = til::at(glyph, 0);
+        break;
+    case 2:
+        codepoint = (til::at(glyph, 0) & 0x3FF) << 10;
+        codepoint |= til::at(glyph, 1) & 0x3FF;
+        codepoint += 0x10000;
+        break;
+    default:
+        throw std::invalid_argument("invalid UTF16 scalar value pair");
+    }
 
-        // If it's invalid, the quick width had no opinion, so go to the lookup table.
-        if (width == CodepointWidth::Invalid)
-        {
-            return _lookupGlyphWidthWithCache(glyph);
-        }
-        // If it's ambiguous, the quick width wanted us to ask the font directly, try that if we can.
-        // If not, go to the lookup table.
-        else if (width == CodepointWidth::Ambiguous)
-        {
-            if (_pfnFallbackMethod)
-            {
-                return _checkFallbackViaCache(glyph) ? CodepointWidth::Wide : CodepointWidth::Ambiguous;
-            }
-            else
-            {
-                return _lookupGlyphWidthWithCache(glyph);
-            }
-        }
-        // Otherwise, return Width as it is.
-        else
-        {
-            return width;
-        }
-    }
-    else
+    auto width = _lookupGlyphWidth(codepoint);
+
+    if (width == CodepointWidth::Ambiguous && _pfnFallbackMethod)
     {
-        return _lookupGlyphWidthWithCache(glyph);
+        width = _checkFallbackViaCache(codepoint, glyph) ? CodepointWidth::Wide : CodepointWidth::Ambiguous;
     }
+
+    return width;
+}
+catch (...)
+{
+    LOG_CAUGHT_EXCEPTION();
+    // If we got this far, we couldn't figure it out.
+    // It's better to be too wide than too narrow.
+    return glyph.empty() ? CodepointWidth::Ambiguous : CodepointWidth::Wide;
 }
 
 // Routine Description:
@@ -383,13 +373,7 @@ CodepointWidth CodepointWidthDetector::GetWidth(const std::wstring_view glyph) c
 // - true if wch is wide
 bool CodepointWidthDetector::IsWide(const wchar_t wch) const noexcept
 {
-    try
-    {
-        return IsWide({ &wch, 1 });
-    }
-    CATCH_LOG();
-
-    return true;
+    return IsWide({ &wch, 1 });
 }
 
 // Routine Description:
@@ -398,7 +382,7 @@ bool CodepointWidthDetector::IsWide(const wchar_t wch) const noexcept
 // - glyph - the utf16 encoded codepoint to check width of
 // Return Value:
 // - true if codepoint is wide
-bool CodepointWidthDetector::IsWide(const std::wstring_view glyph) const
+bool CodepointWidthDetector::IsWide(const std::wstring_view& glyph) const noexcept
 {
     return GetWidth(glyph) == CodepointWidth::Wide;
 }
@@ -409,62 +393,22 @@ bool CodepointWidthDetector::IsWide(const std::wstring_view glyph) const
 // - glyph - the utf16 encoded codepoint to search for
 // Return Value:
 // - the width type of the codepoint
-CodepointWidth CodepointWidthDetector::_lookupGlyphWidth(const std::wstring_view glyph) const
+CodepointWidth CodepointWidthDetector::_lookupGlyphWidth(uint32_t codepoint) const
 {
-    if (glyph.empty())
+    // No need to check ASCII
+    if (codepoint >= 0x80)
     {
-        return CodepointWidth::Invalid;
-    }
+        const auto it = std::lower_bound(s_wideAndAmbiguousTable.begin(), s_wideAndAmbiguousTable.end(), codepoint);
 
-    const auto codepoint = _extractCodepoint(glyph);
-    const auto it = std::lower_bound(s_wideAndAmbiguousTable.begin(), s_wideAndAmbiguousTable.end(), codepoint);
-
-    // For characters that are not _in_ the table, lower_bound will return the nearest item that is.
-    // We must check its bounds to make sure that our hit was a true hit.
-    if (it != s_wideAndAmbiguousTable.end() && codepoint >= it->lowerBound && codepoint <= it->upperBound)
-    {
-        return it->width;
+        // For characters that are not _in_ the table, lower_bound will return the nearest item that is.
+        // We must check its bounds to make sure that our hit was a true hit.
+        if (it != s_wideAndAmbiguousTable.end() && codepoint >= it->lowerBound && codepoint <= it->upperBound)
+        {
+            return it->width;
+        }
     }
 
     return CodepointWidth::Narrow;
-}
-
-// Routine Description:
-// - returns the width type of codepoint using fallback methods.
-// Arguments:
-// - glyph - the utf16 encoded codepoint to check width of
-// Return Value:
-// - the width type of the codepoint
-CodepointWidth CodepointWidthDetector::_lookupGlyphWidthWithCache(const std::wstring_view glyph) const noexcept
-{
-    try
-    {
-        // Use our generated table to try to lookup the width based on the Unicode standard.
-        const CodepointWidth width = _lookupGlyphWidth(glyph);
-
-        // If it's ambiguous, then ask the font if we can.
-        if (width == CodepointWidth::Ambiguous)
-        {
-            if (_pfnFallbackMethod)
-            {
-                return _checkFallbackViaCache(glyph) ? CodepointWidth::Wide : CodepointWidth::Ambiguous;
-            }
-            else
-            {
-                return CodepointWidth::Ambiguous;
-            }
-        }
-        // If it's not ambiguous, it should say wide or narrow.
-        else
-        {
-            return width;
-        }
-    }
-    CATCH_LOG();
-
-    // If we got this far, we couldn't figure it out.
-    // It's better to be too wide than too narrow.
-    return CodepointWidth::Wide;
 }
 
 // Routine Description:
@@ -474,47 +418,18 @@ CodepointWidth CodepointWidthDetector::_lookupGlyphWidthWithCache(const std::wst
 // Arguments:
 // - glyph - the utf16 encoded codepoint to check width of
 // - true if codepoint is wide or false if it is narrow
-bool CodepointWidthDetector::_checkFallbackViaCache(const std::wstring_view glyph) const
+bool CodepointWidthDetector::_checkFallbackViaCache(uint32_t codepoint, const std::wstring_view& glyph) const
 {
-    const std::wstring findMe{ glyph };
-
     // TODO: Cache needs to be emptied when font changes.
-    const auto it = _fallbackCache.find(findMe);
-    if (it == _fallbackCache.end())
-    {
-        auto result = _pfnFallbackMethod(glyph);
-        _fallbackCache.insert_or_assign(findMe, result);
-        return result;
-    }
-    else
+    const auto it = _fallbackCache.find(codepoint);
+    if (it != _fallbackCache.end())
     {
         return it->second;
     }
-}
 
-// Routine Description:
-// - extract unicode codepoint from utf16 encoding
-// Arguments:
-// - glyph - the utf16 encoded codepoint convert
-// Return Value:
-// - the codepoint being stored
-unsigned int CodepointWidthDetector::_extractCodepoint(const std::wstring_view glyph) noexcept
-{
-    if (glyph.size() == 1)
-    {
-        return static_cast<unsigned int>(glyph.front());
-    }
-    else
-    {
-        const unsigned int mask = 0x3FF;
-        // leading bits, shifted over to make space for trailing bits
-        unsigned int codepoint = (glyph.at(0) & mask) << 10;
-        // trailing bits
-        codepoint |= (glyph.at(1) & mask);
-        // 0x10000 is subtracted from the codepoint to encode a surrogate pair, add it back
-        codepoint += 0x10000;
-        return codepoint;
-    }
+    const auto result = _pfnFallbackMethod(glyph);
+    _fallbackCache.insert_or_assign(codepoint, result);
+    return result;
 }
 
 // Method Description:
@@ -527,9 +442,9 @@ unsigned int CodepointWidthDetector::_extractCodepoint(const std::wstring_view g
 // - pfnFallback - the function to use as the fallback method.
 // Return Value:
 // - <none>
-void CodepointWidthDetector::SetFallbackMethod(std::function<bool(const std::wstring_view)> pfnFallback)
+void CodepointWidthDetector::SetFallbackMethod(std::function<bool(const std::wstring_view&)> pfnFallback) noexcept
 {
-    _pfnFallbackMethod = pfnFallback;
+    _pfnFallbackMethod = std::move(pfnFallback);
 }
 
 // Method Description:
@@ -542,5 +457,6 @@ void CodepointWidthDetector::SetFallbackMethod(std::function<bool(const std::wst
 // - <none>
 void CodepointWidthDetector::NotifyFontChanged() const noexcept
 {
+#pragma warning(suppress : 26447) // The function is declared 'noexcept' but calls function 'clear()' which may throw exceptions (f.6).
     _fallbackCache.clear();
 }

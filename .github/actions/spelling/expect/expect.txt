@@ -312,6 +312,7 @@ commdlg
 COMMITID
 compat
 componentization
+COMPOSITIONSURFACE
 conapi
 conareainfo
 conattrs
@@ -426,6 +427,8 @@ cstring
 cstyle
 csv
 CSwitch
+csx
+csy
 CTerminal
 CText
 ctime
@@ -847,6 +850,7 @@ GAUSSIAN
 gci
 gcx
 gcy
+GDC
 gdi
 gdip
 gdirenderer
@@ -1344,6 +1348,7 @@ LPWINDOWPOS
 lpwpos
 lpwstr
 LRESULT
+lroundf
 lru
 lsb
 lsconfig
@@ -1445,6 +1450,7 @@ MOUSEMOVE
 mousewheel
 movemask
 MOVESTART
+movsb
 msb
 msbuild
 mscorlib
@@ -1623,6 +1629,7 @@ NVIDIA
 NVR
 OACR
 oauth
+obin
 objbase
 ocf
 ocolor
@@ -1746,6 +1753,7 @@ pdx
 peb
 PEMAGIC
 PENDTASKMSG
+Pentium
 pfa
 PFACENODE
 pfed
@@ -1910,6 +1918,7 @@ pythonw
 qos
 QRSTU
 qsort
+Qstrip
 queryable
 QUESTIONMARK
 quickedit
@@ -1917,6 +1926,7 @@ QWER
 qzmp
 RAII
 RALT
+rapi
 rasterbar
 rasterfont
 rasterization
@@ -2199,7 +2209,6 @@ somefile
 SOURCEBRANCH
 sourced
 SOURCESDIRECTORY
-SPACEBAR
 spammy
 spand
 sprintf
@@ -2309,6 +2318,7 @@ taskbar
 tbar
 TBase
 tbc
+TBDR
 tbi
 Tbl
 TBM
@@ -2421,6 +2431,7 @@ Trd
 TREX
 triaged
 triaging
+TRIANGLELIST
 TRIANGLESTRIP
 TRIMZEROHEADINGS
 truetype
@@ -2498,12 +2509,13 @@ unittesting
 universaltest
 unk
 unknwn
+Unmap
 unmark
 UNORM
 unparseable
 unpause
-Unregister
 unregistering
+unscoped
 untests
 untextured
 untimes
@@ -2568,6 +2580,7 @@ vectorized
 VERCTRL
 versioning
 VERTBAR
+VERTEXID
 VFT
 vga
 vgaoem
@@ -2575,6 +2588,7 @@ viewkind
 viewports
 Virt
 VIRTTERM
+virtualalloc
 Virtualizing
 vkey
 VKKEYSCAN
@@ -2851,6 +2865,7 @@ YDPI
 yIcon
 yml
 YOffset
+yolo
 YPosition
 YSize
 YSubstantial

@@ -33,7 +33,7 @@ void CharRowCell::Reset() noexcept
 // - true if cell contains a space glyph, false otherwise
 bool CharRowCell::IsSpace() const noexcept
 {
-    return !_attr.IsGlyphStored() && _wch == UNICODE_SPACE;
+    return !_attr.IsGlyphStored() && (_wch == 0 || _wch == UNICODE_SPACE);
 }
 
 // Routine Description:

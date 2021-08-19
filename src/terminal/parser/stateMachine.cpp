@@ -1325,7 +1325,8 @@ void StateMachine::_EventCsiParam(const wchar_t wch)
 // - wch - Character that triggered the event
 // Return Value:
 // - <none>
-void StateMachine::_EventOscParam(const wchar_t wch) noexcept
+#pragma warning(suppress : 26440) // Function ... can be declared 'noexcept' (f.6).
+void StateMachine::_EventOscParam(const wchar_t wch)
 {
     _trace.TraceOnEvent(L"OscParam");
     if (_isOscTerminator(wch))
@@ -1577,7 +1578,8 @@ void StateMachine::_EventDcsEntry(const wchar_t wch)
 // - wch - Character that triggered the event
 // Return Value:
 // - <none>
-void StateMachine::_EventDcsIgnore() noexcept
+#pragma warning(suppress : 26440) // Function ... can be declared 'noexcept' (f.6).
+void StateMachine::_EventDcsIgnore(const wchar_t /*wch*/)
 {
     _trace.TraceOnEvent(L"DcsIgnore");
     _ActionIgnore();
@@ -1697,7 +1699,8 @@ void StateMachine::_EventDcsPassThrough(const wchar_t wch)
 // - wch - Character that triggered the event
 // Return Value:
 // - <none>
-void StateMachine::_EventSosPmApcString(const wchar_t /*wch*/) noexcept
+#pragma warning(suppress : 26440) // Function ... can be declared 'noexcept' (f.6).
+void StateMachine::_EventSosPmApcString(const wchar_t /*wch*/)
 {
     _trace.TraceOnEvent(L"SosPmApcString");
     _ActionIgnore();
@@ -1738,52 +1741,34 @@ void StateMachine::ProcessCharacter(const wchar_t wch)
         _ActionInterrupt();
         _EnterEscape();
     }
-    else
+    else if (_state < VTStates::TotalStates)
     {
+        static constexpr alignas(64) void (StateMachine::*funcs[])(wchar_t) = {
+            &StateMachine::_EventGround, // VTStates::Ground
+            &StateMachine::_EventEscape, // VTStates::Escape
+            &StateMachine::_EventEscapeIntermediate, // VTStates::EscapeIntermediate
+            &StateMachine::_EventCsiEntry, // VTStates::CsiEntry
+            &StateMachine::_EventCsiIntermediate, // VTStates::CsiIntermediate
+            &StateMachine::_EventCsiIgnore, // VTStates::CsiIgnore
+            &StateMachine::_EventCsiParam, // VTStates::CsiParam
+            &StateMachine::_EventOscParam, // VTStates::OscParam
+            &StateMachine::_EventOscString, // VTStates::OscString
+            &StateMachine::_EventOscTermination, // VTStates::OscTermination
+            &StateMachine::_EventSs3Entry, // VTStates::Ss3Entry
+            &StateMachine::_EventSs3Param, // VTStates::Ss3Param
+            &StateMachine::_EventVt52Param, // VTStates::Vt52Param
+            &StateMachine::_EventDcsEntry, // VTStates::DcsEntry
+            &StateMachine::_EventDcsIgnore, // VTStates::DcsIgnore
+            &StateMachine::_EventDcsIntermediate, // VTStates::DcsIntermediate
+            &StateMachine::_EventDcsParam, // VTStates::DcsParam
+            &StateMachine::_EventDcsPassThrough, // VTStates::DcsPassThrough
+            &StateMachine::_EventSosPmApcString, // VTStates::SosPmApcString
+        };
+
         // Then pass to the current state as an event
-        switch (_state)
-        {
-        case VTStates::Ground:
-            return _EventGround(wch);
-        case VTStates::Escape:
-            return _EventEscape(wch);
-        case VTStates::EscapeIntermediate:
-            return _EventEscapeIntermediate(wch);
-        case VTStates::CsiEntry:
-            return _EventCsiEntry(wch);
-        case VTStates::CsiIntermediate:
-            return _EventCsiIntermediate(wch);
-        case VTStates::CsiIgnore:
-            return _EventCsiIgnore(wch);
-        case VTStates::CsiParam:
-            return _EventCsiParam(wch);
-        case VTStates::OscParam:
-            return _EventOscParam(wch);
-        case VTStates::OscString:
-            return _EventOscString(wch);
-        case VTStates::OscTermination:
-            return _EventOscTermination(wch);
-        case VTStates::Ss3Entry:
-            return _EventSs3Entry(wch);
-        case VTStates::Ss3Param:
-            return _EventSs3Param(wch);
-        case VTStates::Vt52Param:
-            return _EventVt52Param(wch);
-        case VTStates::DcsEntry:
-            return _EventDcsEntry(wch);
-        case VTStates::DcsIgnore:
-            return _EventDcsIgnore();
-        case VTStates::DcsIntermediate:
-            return _EventDcsIntermediate(wch);
-        case VTStates::DcsParam:
-            return _EventDcsParam(wch);
-        case VTStates::DcsPassThrough:
-            return _EventDcsPassThrough(wch);
-        case VTStates::SosPmApcString:
-            return _EventSosPmApcString(wch);
-        default:
-            return;
-        }
+        // Invalid _state values will jump to address 0, which is fine I guess.
+#pragma warning(suppress : 26482) // Only index into arrays using constant expressions (bounds.2).
+        (this->*funcs[WI_EnumValue(_state)])(wch);
     }
 }
 // Method Description:

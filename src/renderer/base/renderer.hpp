@@ -73,7 +73,7 @@ namespace Microsoft::Console::Render
                                               const FontInfoDesired& FontInfoDesired,
                                               _Out_ FontInfo& FontInfo) override;
 
-        bool IsGlyphWideByFont(const std::wstring_view glyph) override;
+        bool IsGlyphWideByFont(const std::wstring_view& glyph) override;
 
         void EnablePainting() override;
         void WaitForPaintCompletionAndDisable(const DWORD dwTimeoutMs) override;
@@ -108,6 +108,7 @@ namespace Microsoft::Console::Render
         [[nodiscard]] HRESULT _PaintTitle(IRenderEngine* const pEngine);
         [[nodiscard]] std::optional<CursorOptions> _GetCursorInfo();
         [[nodiscard]] HRESULT _PrepareRenderInfo(_In_ IRenderEngine* const pEngine);
+        bool _isSoftFontChar(const std::wstring_view& v) const noexcept;
 
         std::array<IRenderEngine*, 2> _engines{};
         IRenderData* _pData = nullptr; // Non-ownership pointer

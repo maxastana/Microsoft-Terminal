@@ -253,12 +253,6 @@ BgfxEngine::BgfxEngine(PVOID SharedViewBase, LONG DisplayHeight, LONG DisplayWid
     return S_OK;
 }
 
-[[nodiscard]] HRESULT BgfxEngine::IsGlyphWideByFont(const std::wstring_view /*glyph*/, _Out_ bool* const pResult) noexcept
-{
-    *pResult = false;
-    return S_OK;
-}
-
 // Method Description:
 // - Updates the window's title string.
 //      Does nothing for BGFX.

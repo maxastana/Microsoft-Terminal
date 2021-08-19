@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+  IgnorableNamespaces="uap rescap uap3">
+
+  <Identity
+    Name="OpenConsole"
+    Publisher="CN=lhecker"
+    Version="1.0.0.0" />
+
+  <Properties>
+    <DisplayName>OpenConsole</DisplayName>
+    <PublisherDisplayName>lhecker</PublisherDisplayName>
+    <Logo></Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14393.0" MaxVersionTested="10.0.14393.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="$targetentrypoint$">
+      <uap:VisualElements
+        DisplayName="OpenConsole"
+        BackgroundColor="transparent"
+        Square150x150Logo="Images\Square150x150Logo.png"
+        Square44x44Logo="Images\Square44x44Logo.png" Description="OpenConsole">
+      </uap:VisualElements>
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+            <com:ComServer>
+                <com:SurrogateServer DisplayName="OpenConsoleShellExt">
+                    <com:Class Id="74cd627e-aad1-4ee4-9427-7c4db186ee59" Path="OpenConsoleShellExt\OpenConsoleShellExt.dll" ThreadingModel="STA"/>
+                </com:SurrogateServer>
+            </com:ComServer>
+        </com:Extension>
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+            <desktop4:FileExplorerContextMenus>
+                <desktop5:ItemType Type="Directory">
+                    <desktop5:Verb Id="OpenTerminalHere" Clsid="74cd627e-aad1-4ee4-9427-7c4db186ee59" />
+                </desktop5:ItemType>
+                <desktop5:ItemType Type="Directory\Background">
+                  <desktop5:Verb Id="OpenTerminalHere" Clsid="74cd627e-aad1-4ee4-9427-7c4db186ee59" />
+                </desktop5:ItemType>
+            </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

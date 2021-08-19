@@ -1498,18 +1498,13 @@ CATCH_RETURN()
 // - See https://docs.microsoft.com/en-us/windows/uwp/gaming/reduce-latency-with-dxgi-1-3-swap-chains.
 void DxEngine::WaitUntilCanRender() noexcept
 {
-    if (!_swapChainFrameLatencyWaitableObject)
-    {
-        return;
-    }
+    // DxEngine isn't really performant and holds the console lock for at least 20ms per (full) frame.
+    // Sleeping 8ms per frame thus increases throughput of the concurrently running VtEngine.
+    Sleep(8);
 
-    const auto ret = WaitForSingleObjectEx(
-        _swapChainFrameLatencyWaitableObject.get(),
-        1000, // 1 second timeout (shouldn't ever occur)
-        true);
-    if (ret != WAIT_OBJECT_0)
+    if (_swapChainFrameLatencyWaitableObject)
     {
-        LOG_WIN32_MSG(ret, "Waiting for swap chain frame latency waitable object returned error or timeout.");
+        WaitForSingleObjectEx(_swapChainFrameLatencyWaitableObject.get(), 1000, true);
     }
 }
 
@@ -2135,7 +2130,7 @@ CATCH_RETURN();
 // - pResult - True if it should take two columns. False if it should take one.
 // Return Value:
 // - S_OK or relevant DirectWrite error.
-[[nodiscard]] HRESULT DxEngine::IsGlyphWideByFont(const std::wstring_view glyph, _Out_ bool* const pResult) noexcept
+[[nodiscard]] HRESULT DxEngine::IsGlyphWideByFont(const std::wstring_view& glyph, _Out_ bool* const pResult) noexcept
 try
 {
     RETURN_HR_IF_NULL(E_INVALIDARG, pResult);

@@ -100,22 +100,22 @@ namespace Microsoft::Console::VirtualTerminal
         void _EventCsiIntermediate(const wchar_t wch);
         void _EventCsiIgnore(const wchar_t wch);
         void _EventCsiParam(const wchar_t wch);
-        void _EventOscParam(const wchar_t wch) noexcept;
+        void _EventOscParam(const wchar_t wch);
         void _EventOscString(const wchar_t wch);
         void _EventOscTermination(const wchar_t wch);
         void _EventSs3Entry(const wchar_t wch);
         void _EventSs3Param(const wchar_t wch);
         void _EventVt52Param(const wchar_t wch);
         void _EventDcsEntry(const wchar_t wch);
-        void _EventDcsIgnore() noexcept;
+        void _EventDcsIgnore(const wchar_t wch);
         void _EventDcsIntermediate(const wchar_t wch);
         void _EventDcsParam(const wchar_t wch);
         void _EventDcsPassThrough(const wchar_t wch);
-        void _EventSosPmApcString(const wchar_t wch) noexcept;
+        void _EventSosPmApcString(const wchar_t wch);
 
         void _AccumulateTo(const wchar_t wch, size_t& value) noexcept;
 
-        enum class VTStates
+        enum class VTStates : uint_fast8_t
         {
             Ground,
             Escape,
@@ -135,7 +135,8 @@ namespace Microsoft::Console::VirtualTerminal
             DcsIntermediate,
             DcsParam,
             DcsPassThrough,
-            SosPmApcString
+            SosPmApcString,
+            TotalStates
         };
 
         Microsoft::Console::VirtualTerminal::ParserTracing _trace;

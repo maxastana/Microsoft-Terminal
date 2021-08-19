@@ -1,0 +1,14 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/martinus/robin-hood-hashing",
+          "commitHash": "24b3f50f9532153edc23b29ae277dcccfd75a462"
+        }
+      }
+    }
+  ],
+  "Version": 1
+}

@@ -188,12 +188,13 @@ DWORD GetRegistryValues(
 
     if (pStateInfo == nullptr)
     {
-        Status = RegistrySerialization::s_QueryValue(hConsoleKey,
-                                                     CONSOLE_REGISTRY_CURRENTPAGE,
-                                                     sizeof(dwValue),
-                                                     REG_DWORD,
-                                                     (PBYTE)&dwValue,
-                                                     nullptr);
+        Status = RegistrySerialization::s_QueryValue(
+            hConsoleKey,
+            CONSOLE_REGISTRY_CURRENTPAGE,
+            sizeof(dwValue),
+            REG_DWORD,
+            (PBYTE)&dwValue,
+            nullptr);
         if (NT_SUCCESS(Status))
         {
             dwRet = dwValue;
@@ -211,9 +212,10 @@ DWORD GetRegistryValues(
     }
     else
     {
-        Status = RegistrySerialization::s_OpenKey(hConsoleKey,
-                                                  pStateInfo->OriginalTitle,
-                                                  &hTitleKey);
+        Status = RegistrySerialization::s_OpenKey(
+            hConsoleKey,
+            pStateInfo->OriginalTitle,
+            &hTitleKey);
         if (!NT_SUCCESS(Status))
         {
             RegCloseKey(hConsoleKey);
@@ -701,11 +703,12 @@ VOID SetRegistryValues(
     //
     // Save the current page.
     //
-    LOG_IF_FAILED(RegistrySerialization::s_SetValue(hConsoleKey,
-                                                    CONSOLE_REGISTRY_CURRENTPAGE,
-                                                    REG_DWORD,
-                                                    (BYTE*)&dwPage,
-                                                    sizeof(dwPage)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_SetValue(
+        hConsoleKey,
+        CONSOLE_REGISTRY_CURRENTPAGE,
+        REG_DWORD,
+        (BYTE*)&dwPage,
+        sizeof(dwPage)));
 
     //
     // Open the console title subkey unless we're changing the defaults.
@@ -716,9 +719,10 @@ VOID SetRegistryValues(
     }
     else
     {
-        Status = RegistrySerialization::s_CreateKey(hConsoleKey,
-                                                    pStateInfo->OriginalTitle,
-                                                    &hTitleKey);
+        Status = RegistrySerialization::s_CreateKey(
+            hConsoleKey,
+            pStateInfo->OriginalTitle,
+            &hTitleKey);
         if (!NT_SUCCESS(Status))
         {
             RegCloseKey(hConsoleKey);
@@ -732,30 +736,33 @@ VOID SetRegistryValues(
     //
 
     dwValue = pStateInfo->ScreenAttributes;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_FILLATTR,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_FILLATTR,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->PopupAttributes;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_POPUPATTR,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_POPUPATTR,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     for (i = 0; i < 16; i++)
     {
         dwValue = pStateInfo->ColorTable[i];
         if (SUCCEEDED(StringCchPrintf(awchBuffer, ARRAYSIZE(awchBuffer), CONSOLE_REGISTRY_COLORTABLE, i)))
         {
-            LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                               hTitleKey,
-                                                               awchBuffer,
-                                                               REG_DWORD,
-                                                               (BYTE*)&dwValue,
-                                                               sizeof(dwValue)));
+            LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+                hConsoleKey,
+                hTitleKey,
+                awchBuffer,
+                REG_DWORD,
+                (BYTE*)&dwValue,
+                sizeof(dwValue)));
         }
     }
 
@@ -764,30 +771,33 @@ VOID SetRegistryValues(
     //
 
     dwValue = pStateInfo->InsertMode;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_INSERTMODE,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_INSERTMODE,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->QuickEdit;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_QUICKEDIT,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_QUICKEDIT,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
 
     FAIL_FAST_IF(!(OEMCP != 0));
     if (g_fEastAsianSystem)
     {
         dwValue = (DWORD)pStateInfo->CodePage;
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_CODEPAGE,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_CODEPAGE,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
     }
 
     //
@@ -796,12 +806,13 @@ VOID SetRegistryValues(
 
     dwValue = MAKELONG(pStateInfo->ScreenBufferSize.X,
                        pStateInfo->ScreenBufferSize.Y);
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_BUFFERSIZE,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_BUFFERSIZE,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
 
     //
     // Save window size
@@ -809,12 +820,13 @@ VOID SetRegistryValues(
 
     dwValue = MAKELONG(pStateInfo->WindowSize.X,
                        pStateInfo->WindowSize.Y);
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_WINDOWSIZE,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_WINDOWSIZE,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
 
     //
     // Save window position
@@ -822,18 +834,19 @@ VOID SetRegistryValues(
 
     if (pStateInfo->AutoPosition)
     {
-        LOG_IF_FAILED(RegistrySerialization::s_DeleteValue(hTitleKey, CONSOLE_REGISTRY_WINDOWPOS));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_DeleteValue(hTitleKey, CONSOLE_REGISTRY_WINDOWPOS));
     }
     else
     {
         dwValue = MAKELONG(pStateInfo->WindowPosX,
                            pStateInfo->WindowPosY);
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_WINDOWPOS,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_WINDOWPOS,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
     }
 
     //
@@ -842,107 +855,120 @@ VOID SetRegistryValues(
 
     dwValue = MAKELONG(pStateInfo->FontSize.X,
                        pStateInfo->FontSize.Y);
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_FONTSIZE,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_FONTSIZE,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->FontFamily;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_FONTFAMILY,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_FONTFAMILY,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->FontWeight;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_FONTWEIGHT,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_FACENAME,
-                                                       REG_SZ,
-                                                       (BYTE*)(pStateInfo->FaceName),
-                                                       (DWORD)(wcslen(pStateInfo->FaceName) + 1) * sizeof(TCHAR)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_FONTWEIGHT,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_FACENAME,
+        REG_SZ,
+        (BYTE*)(pStateInfo->FaceName),
+        (DWORD)(wcslen(pStateInfo->FaceName) + 1) * sizeof(TCHAR)));
 
     //
     // Save cursor size
     //
 
     dwValue = pStateInfo->CursorSize;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_CURSORSIZE,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_CURSORSIZE,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
 
     //
     // Save history buffer size and number
     //
 
     dwValue = pStateInfo->HistoryBufferSize;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_HISTORYSIZE,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_HISTORYSIZE,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->NumberOfHistoryBuffers;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_HISTORYBUFS,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_HISTORYBUFS,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->HistoryNoDup;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_HISTORYNODUP,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_HISTORYNODUP,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
 
     // Save per-title V2 console state
     dwValue = pStateInfo->fWrapText;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_LINEWRAP,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_LINEWRAP,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->fFilterOnPaste;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_FILTERONPASTE,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_FILTERONPASTE,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->fCtrlKeyShortcutsDisabled;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_CTRLKEYSHORTCUTS_DISABLED,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_CTRLKEYSHORTCUTS_DISABLED,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->fLineSelection;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_LINESELECTION,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_LINESELECTION,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
     dwValue = pStateInfo->bWindowTransparency;
-    LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                       hTitleKey,
-                                                       CONSOLE_REGISTRY_WINDOWALPHA,
-                                                       REG_DWORD,
-                                                       (BYTE*)&dwValue,
-                                                       sizeof(dwValue)));
+    LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+        hConsoleKey,
+        hTitleKey,
+        CONSOLE_REGISTRY_WINDOWALPHA,
+        REG_DWORD,
+        (BYTE*)&dwValue,
+        sizeof(dwValue)));
 
     SetGlobalRegistryValues();
 
@@ -954,50 +980,56 @@ VOID SetRegistryValues(
     {
         // Save cursor type and color
         dwValue = pStateInfo->CursorType;
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_CURSORTYPE,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_CURSORTYPE,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
 
         dwValue = pStateInfo->CursorColor;
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_CURSORCOLOR,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_CURSORCOLOR,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
 
         dwValue = pStateInfo->InterceptCopyPaste;
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_INTERCEPTCOPYPASTE,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_INTERCEPTCOPYPASTE,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
 
         dwValue = pStateInfo->TerminalScrolling;
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_TERMINALSCROLLING,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_TERMINALSCROLLING,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
         dwValue = pStateInfo->DefaultForeground;
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_DEFAULTFOREGROUND,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_DEFAULTFOREGROUND,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
         dwValue = pStateInfo->DefaultBackground;
-        LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
-                                                           hTitleKey,
-                                                           CONSOLE_REGISTRY_DEFAULTBACKGROUND,
-                                                           REG_DWORD,
-                                                           (BYTE*)&dwValue,
-                                                           sizeof(dwValue)));
+        LOG_IF_NTSTATUS_FAILED(RegistrySerialization::s_UpdateValue(
+            hConsoleKey,
+            hTitleKey,
+            CONSOLE_REGISTRY_DEFAULTBACKGROUND,
+            REG_DWORD,
+            (BYTE*)&dwValue,
+            sizeof(dwValue)));
     }
 
     //

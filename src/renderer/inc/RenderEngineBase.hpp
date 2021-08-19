@@ -24,40 +24,27 @@ namespace Microsoft::Console::Render
     class RenderEngineBase : public IRenderEngine
     {
     public:
+        RenderEngineBase() = default;
         ~RenderEngineBase() = 0;
-
-    protected:
-        RenderEngineBase();
         RenderEngineBase(const RenderEngineBase&) = default;
         RenderEngineBase(RenderEngineBase&&) = default;
         RenderEngineBase& operator=(const RenderEngineBase&) = default;
         RenderEngineBase& operator=(RenderEngineBase&&) = default;
 
-    public:
-        [[nodiscard]] HRESULT InvalidateTitle(const std::wstring_view proposedTitle) noexcept override;
-
+        [[nodiscard]] HRESULT InvalidateTitle() noexcept override;
         [[nodiscard]] HRESULT UpdateTitle(const std::wstring_view newTitle) noexcept override;
-
-        [[nodiscard]] HRESULT UpdateSoftFont(const gsl::span<const uint16_t> bitPattern,
-                                             const SIZE cellSize,
-                                             const size_t centeringHint) noexcept override;
-
+        [[nodiscard]] HRESULT UpdateSoftFont(const gsl::span<const uint16_t> bitPattern, const SIZE cellSize, const size_t centeringHint) noexcept override;
         [[nodiscard]] HRESULT PrepareRenderInfo(const RenderFrameInfo& info) noexcept override;
-
         [[nodiscard]] HRESULT ResetLineTransform() noexcept override;
-        [[nodiscard]] HRESULT PrepareLineTransform(const LineRendition lineRendition,
-                                                   const size_t targetRow,
-                                                   const size_t viewportLeft) noexcept override;
-
+        [[nodiscard]] HRESULT PrepareLineTransform(const LineRendition lineRendition, const size_t targetRow, const size_t viewportLeft) noexcept override;
         [[nodiscard]] virtual bool RequiresContinuousRedraw() noexcept override;
-
         void WaitUntilCanRender() noexcept override;
+        [[nodiscard]] HRESULT IsGlyphWideByFont(const std::wstring_view& glyph, _Out_ bool* const pResult) noexcept override;
 
     protected:
         [[nodiscard]] virtual HRESULT _DoUpdateTitle(const std::wstring_view newTitle) noexcept = 0;
 
-        bool _titleChanged;
-        std::wstring _lastFrameTitle;
+        bool _titleChanged = false;
     };
 
     inline Microsoft::Console::Render::RenderEngineBase::~RenderEngineBase() {}

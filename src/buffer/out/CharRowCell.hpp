@@ -50,7 +50,7 @@ public:
     friend constexpr bool operator==(const CharRowCell& a, const CharRowCell& b) noexcept;
 
 private:
-    wchar_t _wch{ UNICODE_SPACE };
+    wchar_t _wch{};
     DbcsAttribute _attr{};
 };
 

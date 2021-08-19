@@ -38,7 +38,7 @@ using namespace Microsoft::Console::Render;
 // - pResult - receives return value, True if it is full-width (2 wide). False if it is half-width (1 wide).
 // Return Value:
 // - S_OK
-[[nodiscard]] HRESULT GdiEngine::IsGlyphWideByFont(const std::wstring_view glyph, _Out_ bool* const pResult) noexcept
+[[nodiscard]] HRESULT GdiEngine::IsGlyphWideByFont(const std::wstring_view& glyph, _Out_ bool* const pResult) noexcept
 {
     bool isFullWidth = false;
 

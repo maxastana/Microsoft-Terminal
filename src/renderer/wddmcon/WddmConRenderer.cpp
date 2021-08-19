@@ -402,12 +402,6 @@ RECT WddmConEngine::GetDisplaySize()
     return S_OK;
 }
 
-[[nodiscard]] HRESULT WddmConEngine::IsGlyphWideByFont(const std::wstring_view /*glyph*/, _Out_ bool* const pResult) noexcept
-{
-    *pResult = false;
-    return S_OK;
-}
-
 // Method Description:
 // - Updates the window's title string.
 //      Does nothing for WddmCon.

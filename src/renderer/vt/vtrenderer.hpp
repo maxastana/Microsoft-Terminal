@@ -88,7 +88,6 @@ namespace Microsoft::Console::Render
 
         [[nodiscard]] HRESULT GetDirtyArea(gsl::span<const til::rectangle>& area) noexcept override;
         [[nodiscard]] HRESULT GetFontSize(_Out_ COORD* const pFontSize) noexcept override;
-        [[nodiscard]] HRESULT IsGlyphWideByFont(const std::wstring_view glyph, _Out_ bool* const pResult) noexcept override;
 
         [[nodiscard]] HRESULT SuppressResizeRepaint() noexcept;
 

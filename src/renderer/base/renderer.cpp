@@ -69,11 +69,6 @@ Renderer::~Renderer()
         auto tries = maxRetriesForRenderEngine;
         while (tries > 0)
         {
-            if (_destructing)
-            {
-                return S_FALSE;
-            }
-
             const auto hr = _PaintFrameForEngine(pEngine);
             if (E_PENDING == hr)
             {
@@ -487,7 +482,7 @@ void Renderer::TriggerTitleChange()
     const auto newTitle = _pData->GetConsoleTitle();
     FOREACH_ENGINE(pEngine)
     {
-        LOG_IF_FAILED(pEngine->InvalidateTitle(newTitle));
+        LOG_IF_FAILED(pEngine->InvalidateTitle());
     }
     _NotifyPaintFrame();
 }
@@ -593,7 +588,7 @@ bool Renderer::s_IsSoftFontChar(const std::wstring_view& v, const size_t firstSo
 // - glyph - the utf16 encoded codepoint to test
 // Return Value:
 // - True if the codepoint is full-width (two wide), false if it is half-width (one wide).
-bool Renderer::IsGlyphWideByFont(const std::wstring_view glyph)
+bool Renderer::IsGlyphWideByFont(const std::wstring_view& glyph)
 {
     bool fIsFullWidth = false;
 
@@ -761,7 +756,7 @@ void Renderer::_PaintBufferOutputHelper(_In_ IRenderEngine* const pEngine,
         // Retrieve the first pattern id
         auto patternIds = _pData->GetPatternId(target);
         // Determine whether we're using a soft font.
-        auto usingSoftFont = s_IsSoftFontChar(it->Chars(), _firstSoftFontChar, _lastSoftFontChar);
+        auto usingSoftFont = _isSoftFontChar(it->Chars());
 
         // And hold the point where we should start drawing.
         auto screenPoint = target;
@@ -808,7 +803,7 @@ void Renderer::_PaintBufferOutputHelper(_In_ IRenderEngine* const pEngine,
             {
                 COORD thisPoint{ screenPoint.X + gsl::narrow<SHORT>(cols), screenPoint.Y };
                 const auto thisPointPatterns = _pData->GetPatternId(thisPoint);
-                const auto thisUsingSoftFont = s_IsSoftFontChar(it->Chars(), _firstSoftFontChar, _lastSoftFontChar);
+                const auto thisUsingSoftFont = _isSoftFontChar(it->Chars());
                 const auto changedPatternOrFont = patternIds != thisPointPatterns || usingSoftFont != thisUsingSoftFont;
                 if (color != it->TextAttr() || changedPatternOrFont)
                 {

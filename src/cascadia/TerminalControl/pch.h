@@ -51,6 +51,10 @@
 #include <winrt/Microsoft.Terminal.TerminalConnection.h>
 #include <winrt/Microsoft.Terminal.Core.h>
 
+#include <d3d11_1.h>
+#include <dxgi1_3.h>
+#include <dcomp.h>
+
 #include <windows.ui.xaml.media.dxinterop.h>
 
 #include <TraceLoggingProvider.h>
