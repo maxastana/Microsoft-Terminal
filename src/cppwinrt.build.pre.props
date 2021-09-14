@@ -55,6 +55,7 @@
   -->
   <PropertyGroup>
     <_NoWinAPIFamilyApp>true</_NoWinAPIFamilyApp>
+    <_VC_Target_Library_Platform>Desktop</_VC_Target_Library_Platform>
   </PropertyGroup>
 
   <PropertyGroup Label="Configuration">

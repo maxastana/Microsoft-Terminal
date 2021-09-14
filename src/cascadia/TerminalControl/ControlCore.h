@@ -42,6 +42,9 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         bool Initialize(const double actualWidth,
                         const double actualHeight,
                         const double compositionScale);
+        bool InitializeWithHwnd(const double actualWidth,
+                        const double actualHeight,
+                        const double compositionScale, const uint64_t hwnd);
         void EnablePainting();
 
         void UpdateSettings(const IControlSettings& settings);

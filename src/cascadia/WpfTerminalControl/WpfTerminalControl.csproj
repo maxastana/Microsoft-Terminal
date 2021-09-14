@@ -31,7 +31,7 @@
 
   <Target Name="CollectNativePackContents">
     <ItemGroup>
-      <None Include="$(RepoBinPath)\Win32\$(Configuration)\PublicTerminalCore.dll">
+      <None Include="$(RepoBinPath)\Win32\$(Configuration)\Microsoft.Terminal.Control\Microsoft.Terminal.Control.dll">
         <Pack>true</Pack>
         <PackagePath>runtimes\win-x86\native\</PackagePath>
       </None>
@@ -39,7 +39,7 @@
         <Pack>true</Pack>
         <PackagePath>runtimes\win-x86\native\</PackagePath>
       </None>
-      <None Include="$(RepoBinPath)\x64\$(Configuration)\PublicTerminalCore.dll">
+      <None Include="$(RepoBinPath)\x64\$(Configuration)\Microsoft.Terminal.Control\Microsoft.Terminal.Control.dll">
         <Pack>true</Pack>
         <PackagePath>runtimes\win-x64\native\</PackagePath>
       </None>

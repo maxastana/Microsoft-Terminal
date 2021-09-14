@@ -26,6 +26,8 @@
 #include "winrt/Windows.Foundation.Collections.h"
 #include <Windows.h>
 
+#include <wrl.h>
+
 #include <TraceLoggingProvider.h>
 TRACELOGGING_DECLARE_PROVIDER(g_hTerminalConnectionProvider);
 #include <telemetry/ProjectTelemetry.h>

@@ -135,55 +135,61 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         // proc, this'll return null. We'll need to instead make a new
         // DispatcherQueue (on a new thread), so we can use that for throttled
         // functions.
-        _dispatcher = winrt::Windows::System::DispatcherQueue::GetForCurrentThread();
-        if (!_dispatcher)
+        try
         {
-            auto controller{ winrt::Windows::System::DispatcherQueueController::CreateOnDedicatedThread() };
-            _dispatcher = controller.DispatcherQueue();
+            _dispatcher = winrt::Windows::System::DispatcherQueue::GetForCurrentThread();
+            if (!_dispatcher)
+            {
+                auto controller{ winrt::Windows::System::DispatcherQueueController::CreateOnDedicatedThread() };
+                _dispatcher = controller.DispatcherQueue();
+            }
+
+            // A few different events should be throttled, so they don't fire absolutely all the time:
+            // * _tsfTryRedrawCanvas: When the cursor position moves, we need to
+            //   inform TSF, so it can move the canvas for the composition. We
+            //   throttle this so that we're not hopping across the process boundary
+            //   every time that the cursor moves.
+            // * _updatePatternLocations: When there's new output, or we scroll the
+            //   viewport, we should re-check if there are any visible hyperlinks.
+            //   But we don't really need to do this every single time text is
+            //   output, we can limit this update to once every 500ms.
+            // * _updateScrollBar: Same idea as the TSF update - we don't _really_
+            //   need to hop across the process boundary every time text is output.
+            //   We can throttle this to once every 8ms, which will get us out of
+            //   the way of the main output & rendering threads.
+            _tsfTryRedrawCanvas = std::make_shared<ThrottledFuncTrailing<>>(
+                _dispatcher,
+                TsfRedrawInterval,
+                [weakThis = get_weak()]() {
+                    if (auto core{ weakThis.get() }; !core->_IsClosing())
+                    {
+                        core->_CursorPositionChangedHandlers(*core, nullptr);
+                    }
+                });
+
+            _updatePatternLocations = std::make_shared<ThrottledFuncTrailing<>>(
+                _dispatcher,
+                UpdatePatternLocationsInterval,
+                [weakThis = get_weak()]() {
+                    if (auto core{ weakThis.get() }; !core->_IsClosing())
+                    {
+                        core->UpdatePatternLocations();
+                    }
+                });
+
+            _updateScrollBar = std::make_shared<ThrottledFuncTrailing<Control::ScrollPositionChangedArgs>>(
+                _dispatcher,
+                ScrollBarUpdateInterval,
+                [weakThis = get_weak()](const auto& update) {
+                    if (auto core{ weakThis.get() }; !core->_IsClosing())
+                    {
+                        core->_ScrollPositionChangedHandlers(*core, update);
+                    }
+                });
         }
-
-        // A few different events should be throttled, so they don't fire absolutely all the time:
-        // * _tsfTryRedrawCanvas: When the cursor position moves, we need to
-        //   inform TSF, so it can move the canvas for the composition. We
-        //   throttle this so that we're not hopping across the process boundary
-        //   every time that the cursor moves.
-        // * _updatePatternLocations: When there's new output, or we scroll the
-        //   viewport, we should re-check if there are any visible hyperlinks.
-        //   But we don't really need to do this every single time text is
-        //   output, we can limit this update to once every 500ms.
-        // * _updateScrollBar: Same idea as the TSF update - we don't _really_
-        //   need to hop across the process boundary every time text is output.
-        //   We can throttle this to once every 8ms, which will get us out of
-        //   the way of the main output & rendering threads.
-        _tsfTryRedrawCanvas = std::make_shared<ThrottledFuncTrailing<>>(
-            _dispatcher,
-            TsfRedrawInterval,
-            [weakThis = get_weak()]() {
-                if (auto core{ weakThis.get() }; !core->_IsClosing())
-                {
-                    core->_CursorPositionChangedHandlers(*core, nullptr);
-                }
-            });
-
-        _updatePatternLocations = std::make_shared<ThrottledFuncTrailing<>>(
-            _dispatcher,
-            UpdatePatternLocationsInterval,
-            [weakThis = get_weak()]() {
-                if (auto core{ weakThis.get() }; !core->_IsClosing())
-                {
-                    core->UpdatePatternLocations();
-                }
-            });
-
-        _updateScrollBar = std::make_shared<ThrottledFuncTrailing<Control::ScrollPositionChangedArgs>>(
-            _dispatcher,
-            ScrollBarUpdateInterval,
-            [weakThis = get_weak()](const auto& update) {
-                if (auto core{ weakThis.get() }; !core->_IsClosing())
-                {
-                    core->_ScrollPositionChangedHandlers(*core, update);
-                }
-            });
+        catch (...)
+        {
+        }
 
         UpdateSettings(settings);
     }
@@ -289,6 +295,20 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         _connection.Start();
 
         return true;
+    }
+
+    bool ControlCore::InitializeWithHwnd(const double actualWidth,
+                                         const double actualHeight,
+                                         const double compositionScale,
+                                         const uint64_t hwnd)
+    {
+        auto i = Initialize(actualWidth, actualHeight, compositionScale);
+        if (i)
+        {
+            auto lock = _terminal->LockForWriting();
+            (void)_renderEngine->SetHwnd(reinterpret_cast<HWND>(hwnd));
+        }
+        return i;
     }
 
     // Method Description:
@@ -415,7 +435,8 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         //      itself - it was initiated by the mouse wheel, or the scrollbar.
         _terminal->UserScrollViewport(viewTop);
 
-        _updatePatternLocations->Run();
+        if (_updatePatternLocations)
+            _updatePatternLocations->Run();
     }
 
     void ControlCore::AdjustOpacity(const double adjustment)
@@ -1191,7 +1212,8 @@ namespace winrt::Microsoft::Terminal::Control::implementation
                                                             bufferSize) };
         if (!_inUnitTests)
         {
-            _updateScrollBar->Run(update);
+            if (_updateScrollBar)
+                _updateScrollBar->Run(update);
         }
         else
         {
@@ -1199,14 +1221,16 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         }
 
         // Additionally, start the throttled update of where our links are.
-        _updatePatternLocations->Run();
+        if (_updatePatternLocations)
+            _updatePatternLocations->Run();
     }
 
     void ControlCore::_terminalCursorPositionChanged()
     {
         // When the buffer's cursor moves, start the throttled func to
         // eventually dispatch a CursorPositionChanged event.
-        _tsfTryRedrawCanvas->Run();
+        if (_tsfTryRedrawCanvas)
+            _tsfTryRedrawCanvas->Run();
     }
 
     void ControlCore::_terminalTaskbarProgressChanged()
@@ -1496,7 +1520,8 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         _terminal->Write(hstr);
 
         // Start the throttled update of where our hyperlinks are.
-        _updatePatternLocations->Run();
+        if (_updatePatternLocations)
+            _updatePatternLocations->Run();
     }
 
     // Method Description:
