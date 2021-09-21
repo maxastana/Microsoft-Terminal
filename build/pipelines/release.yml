@@ -152,14 +152,14 @@ jobs:
       inputs:
         solution: '**\OpenConsole.sln'
         vsVersion: 16.0
-        msbuildArgs: /p:WindowsTerminalOfficialBuild=true /p:WindowsTerminalBranding=${{ parameters.branding }};PGOBuildMode=${{ parameters.pgoBuildMode }} /t:Terminal\CascadiaPackage;Terminal\WindowsTerminalUniversal /p:WindowsTerminalReleaseBuild=true /bl:$(Build.SourcesDirectory)\msbuild.binlog
+        msbuildArgs: /p:WindowsTerminalOfficialBuild=true /p:WindowsTerminalBranding=${{ parameters.branding }};PGOBuildMode=${{ parameters.pgoBuildMode }} /t:Terminal\CascadiaPackage;Terminal\WindowsTerminalUniversal /p:WindowsTerminalReleaseBuild=true /bl:$(Build.SourcesDirectory)\msbuild.binlog /noconlog
         platform: $(BuildPlatform)
         configuration: $(BuildConfiguration)
         clean: true
         maximumCpuCount: true
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifact: binlog'
-      condition: failed()
+      condition: always()
       continueOnError: True
       inputs:
         PathtoPublish: $(Build.SourcesDirectory)\msbuild.binlog
@@ -194,9 +194,16 @@ jobs:
       inputs:
         solution: '**\OpenConsole.sln'
         vsVersion: 16.0
-        msbuildArgs: /p:WindowsTerminalOfficialBuild=true /p:WindowsTerminalBranding=${{ parameters.branding }};PGOBuildMode=${{ parameters.pgoBuildMode }} /p:WindowsTerminalReleaseBuild=true /t:Terminal\wpf\PublicTerminalCore
+        msbuildArgs: /p:WindowsTerminalOfficialBuild=true /p:WindowsTerminalBranding=${{ parameters.branding }};PGOBuildMode=${{ parameters.pgoBuildMode }} /p:WindowsTerminalReleaseBuild=true /t:Terminal\wpf\PublicTerminalCore /bl:$(Build.SourcesDirectory)\msbuild-wpf.binlog /noconlog
         platform: $(BuildPlatform)
         configuration: $(BuildConfiguration)
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: binlog-wpf'
+      condition: always()
+      continueOnError: True
+      inputs:
+        PathtoPublish: $(Build.SourcesDirectory)\msbuild-wpf.binlog
+        ArtifactName: binlog-wpf-$(BuildPlatform)
   - task: PowerShell@2
     displayName: Source Index PDBs
     inputs:
