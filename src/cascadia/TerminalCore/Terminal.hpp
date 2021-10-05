@@ -22,6 +22,8 @@
 
 static constexpr std::wstring_view linkPattern{ LR"(\b(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|$!:,.;]*[A-Za-z0-9+&@#/%=~_|$])" };
 static constexpr size_t TaskbarMinProgress{ 10 };
+static constexpr size_t DefaultBgIndex{ 16 };
+static constexpr size_t DefaultFgIndex{ 17 };
 
 // You have to forward decl the ICoreSettings here, instead of including the header.
 // If you include the header, there will be compilation errors with other
@@ -301,6 +303,7 @@ private:
     bool _bracketedPasteMode;
     bool _trimBlockSelection;
     bool _intenseIsBright;
+    bool _perceptualColorNudging;
 
     size_t _taskbarState;
     size_t _taskbarProgress;
@@ -386,6 +389,9 @@ private:
     void _NotifyScrollEvent() noexcept;
 
     void _NotifyTerminalCursorPositionChanged() noexcept;
+
+    std::array<std::array<COLORREF, 18>, 18> _adjustedForegroundColors;
+    void _MakeAdjustedColorArray();
 
 #pragma region TextSelection
     // These methods are defined in TerminalSelection.cpp

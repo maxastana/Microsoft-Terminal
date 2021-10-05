@@ -9,6 +9,7 @@
 #include "../../inc/argb.h"
 #include "../../types/inc/utils.hpp"
 #include "../../types/inc/colorTable.hpp"
+#include "ColorFix.hpp"
 
 #include <winrt/Microsoft.Terminal.Core.h>
 
@@ -53,7 +54,8 @@ Terminal::Terminal() :
     _taskbarState{ 0 },
     _taskbarProgress{ 0 },
     _trimBlockSelection{ false },
-    _intenseIsBright{ true }
+    _intenseIsBright{ true },
+    _perceptualColorNudging{ true }
 {
     auto dispatch = std::make_unique<TerminalDispatch>(*this);
     auto engine = std::make_unique<OutputStateMachineEngine>(std::move(dispatch));
@@ -175,10 +177,15 @@ void Terminal::UpdateAppearance(const ICoreAppearance& appearance)
     _defaultBg = newBackgroundColor.with_alpha(0);
     _defaultFg = appearance.DefaultForeground();
     _intenseIsBright = appearance.IntenseIsBright();
+    _perceptualColorNudging = appearance.PerceptualColorNudging();
 
     for (int i = 0; i < 16; i++)
     {
         _colorTable.at(i) = til::color{ appearance.GetColorTableEntry(i) };
+    }
+    if (_perceptualColorNudging)
+    {
+        _MakeAdjustedColorArray();
     }
 
     CursorType cursorShape = CursorType::VerticalBar;
@@ -1285,4 +1292,29 @@ const size_t Microsoft::Terminal::Core::Terminal::GetTaskbarState() const noexce
 const size_t Microsoft::Terminal::Core::Terminal::GetTaskbarProgress() const noexcept
 {
     return _taskbarProgress;
+}
+
+// Method Description:
+// - Creates the adjusted color array, which contains the possible foreground colors,
+//   adjusted for perceivability
+// - The adjusted color array is 2-d, and effectively maps a background and foreground
+//   color pair to the adjusted foreground for that color pair
+void Terminal::_MakeAdjustedColorArray()
+{
+    // The color table has 16 colors, but the adjusted color table needs to be 18
+    // to include the default background and default foreground colors
+    std::array<COLORREF, 18> colorTableWithDefaults;
+    std::copy_n(std::begin(_colorTable), 16, std::begin(colorTableWithDefaults));
+    colorTableWithDefaults[DefaultBgIndex] = _defaultBg;
+    colorTableWithDefaults[DefaultFgIndex] = _defaultFg;
+    for (auto fgIndex = 0; fgIndex < 18; ++fgIndex)
+    {
+        //auto fg = colorTableWithDefaults.at(fgIndex);
+        const auto fg = til::at(colorTableWithDefaults, fgIndex);
+        for (auto bgIndex = 0; bgIndex < 18; ++bgIndex)
+        {
+            const auto bg = til::at(colorTableWithDefaults, bgIndex);
+            _adjustedForegroundColors[bgIndex][fgIndex] = ColorFix::GetPerceivableColor(fg, bg);
+        }
+    }
 }
