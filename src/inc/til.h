@@ -53,6 +53,15 @@
 
 namespace til // Terminal Implementation Library. Also: "Today I Learned"
 {
+    template<class To, class From, std::enable_if_t<std::conjunction_v<std::bool_constant<sizeof(To) == sizeof(From)>, std::is_trivially_copyable<To>, std::is_trivially_copyable<From>>, int> = 0>
+    [[nodiscard]] constexpr To bit_cast(const From& _Val) noexcept
+    {
+#ifdef __cpp_lib_bit_cast
+#warning "Replace til::bit_cast and __builtin_bit_cast with std::bit_cast"
+#endif
+        return __builtin_bit_cast(To, _Val);
+    }
+
     template<typename T>
     void manage_vector(std::vector<T>& vector, typename std::vector<T>::size_type requestedSize, float shrinkThreshold)
     {

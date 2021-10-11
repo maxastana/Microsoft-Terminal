@@ -14,26 +14,22 @@ Author:
 #pragma once
 
 #include "convert.hpp"
-#include <functional>
-
-static_assert(sizeof(unsigned int) == sizeof(wchar_t) * 2,
-              "UnicodeRange expects to be able to store a unicode codepoint in an unsigned int");
 
 // use to measure the width of a codepoint
 class CodepointWidthDetector final
 {
 public:
-    CodepointWidthDetector() noexcept;
+    CodepointWidthDetector() noexcept = default;
+
     CodepointWidthDetector(const CodepointWidthDetector&) = delete;
     CodepointWidthDetector(CodepointWidthDetector&&) = delete;
-    ~CodepointWidthDetector() = default;
     CodepointWidthDetector& operator=(const CodepointWidthDetector&) = delete;
     CodepointWidthDetector& operator=(CodepointWidthDetector&&) = delete;
 
-    CodepointWidth GetWidth(const std::wstring_view glyph) const;
-    bool IsWide(const std::wstring_view glyph) const;
+    CodepointWidth GetWidth(const std::wstring_view& glyph) const noexcept;
+    bool IsWide(const std::wstring_view& glyph) const noexcept;
     bool IsWide(const wchar_t wch) const noexcept;
-    void SetFallbackMethod(std::function<bool(const std::wstring_view)> pfnFallback);
+    void SetFallbackMethod(std::function<bool(const std::wstring_view&)> pfnFallback) noexcept;
     void NotifyFontChanged() const noexcept;
 
 #ifdef UNIT_TESTING
@@ -41,11 +37,22 @@ public:
 #endif
 
 private:
-    CodepointWidth _lookupGlyphWidth(const std::wstring_view glyph) const;
-    CodepointWidth _lookupGlyphWidthWithCache(const std::wstring_view glyph) const noexcept;
-    bool _checkFallbackViaCache(const std::wstring_view glyph) const;
-    static unsigned int _extractCodepoint(const std::wstring_view glyph) noexcept;
+    template<typename T, typename U>
+    CodepointWidth _getCodepointWidth(const T& table, U codepoint, const std::wstring_view& glyph) const noexcept
+    {
+    #pragma warning(suppress : 26447) // The function is declared 'noexcept' but calls function 'lower_bound<...>()' which may throw exceptions (f.6).
+        const auto it = std::lower_bound(table.begin(), table.end(), codepoint);
 
-    mutable std::unordered_map<std::wstring, bool> _fallbackCache;
-    std::function<bool(std::wstring_view)> _pfnFallbackMethod;
+        // (it->upperBound - it->boundWidth) is equal to the lowerBound of the code point range.
+        if (it != table.end() && codepoint >= (it->upperBound - it->boundWidth)) {
+            return it->isAmbiguous ? _checkFallbackViaCache(codepoint, glyph) : CodepointWidth::Wide;
+        }
+
+        return CodepointWidth::Narrow;
+    }
+
+    CodepointWidth _checkFallbackViaCache(uint32_t codepoint, const std::wstring_view& glyph) const noexcept;
+
+    mutable std::unordered_map<uint32_t, CodepointWidth> _fallbackCache;
+    std::function<bool(const std::wstring_view&)> _pfnFallbackMethod;
 };

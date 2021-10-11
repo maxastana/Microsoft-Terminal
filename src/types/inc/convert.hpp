@@ -34,6 +34,4 @@ enum class CodepointWidth : BYTE
 [[nodiscard]] size_t GetALengthFromW(const UINT codepage,
                                      const std::wstring_view source);
 
-CodepointWidth GetQuickCharWidth(const wchar_t wch) noexcept;
-
-wchar_t Utf16ToUcs2(const std::wstring_view charData);
+wchar_t Utf16ToUcs2(const std::wstring_view charData) noexcept;

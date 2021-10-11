@@ -4,11 +4,6 @@
 #include "precomp.h"
 #include "UnicodeStorage.hpp"
 
-UnicodeStorage::UnicodeStorage() noexcept :
-    _map{}
-{
-}
-
 // Routine Description:
 // - fetches the text associated with key
 // Arguments:
@@ -16,26 +11,30 @@ UnicodeStorage::UnicodeStorage() noexcept :
 // Return Value:
 // - the glyph data associated with key
 // Note: will throw exception if key is not stored yet
-const UnicodeStorage::mapped_type& UnicodeStorage::GetText(const key_type key) const
+std::wstring_view UnicodeStorage::GetText(const COORD key) const
 {
-    return _map.at(key);
+    return { _map.at(key).data(), 2 };
 }
 
 // Routine Description:
-// - stores glyph data associated with key.
+// - stores a surrogate pair associated with key.
 // Arguments:
 // - key - the key into the storage
 // - glyph - the glyph data to store
-void UnicodeStorage::StoreGlyph(const key_type key, const mapped_type& glyph)
+void UnicodeStorage::StoreGlyph(const COORD key, const std::wstring_view& glyph)
 {
-    _map.insert_or_assign(key, glyph);
+    // If you crash here it means that Windows Terminal has started supporting more of unicode.
+    // At the time of writing it only supports surrogate pairs at most.
+    // Replace the _map value type with std::wstring or something (at the cost of reduced performance).
+    assert(glyph.size() == 2);
+    memcpy(_map[key].data(), glyph.data(), 2 * sizeof(wchar_t));
 }
 
 // Routine Description:
 // - erases key and its associated data from the storage
 // Arguments:
 // - key - the key to remove
-void UnicodeStorage::Erase(const key_type key) noexcept
+void UnicodeStorage::Erase(const COORD key) noexcept
 {
     _map.erase(key);
 }
@@ -50,7 +49,8 @@ void UnicodeStorage::Erase(const key_type key) noexcept
 void UnicodeStorage::Remap(const std::unordered_map<SHORT, SHORT>& rowMap, const std::optional<SHORT> width)
 {
     // Make a temporary map to hold all the new row positioning
-    std::unordered_map<key_type, mapped_type> newMap;
+    decltype(_map) newMap;
+    newMap.reserve(_map.size());
 
     // Walk through every stored item.
     for (const auto& pair : _map)
@@ -94,5 +94,5 @@ void UnicodeStorage::Remap(const std::unordered_map<SHORT, SHORT>& rowMap, const
     }
 
     // Swap into the stored map, free the temporary when we exit.
-    _map.swap(newMap);
+    _map = std::move(newMap);
 }

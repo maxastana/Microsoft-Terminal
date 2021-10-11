@@ -12,17 +12,27 @@
 void CharRowCellReference::operator=(const std::wstring_view chars)
 {
     THROW_HR_IF(E_INVALIDARG, chars.empty());
+
+    auto& dbcsAttr = _cellData().DbcsAttr();
+
     if (chars.size() == 1)
     {
+        if (dbcsAttr.IsGlyphStored())
+        {
+            auto& storage = _parent.GetUnicodeStorage();
+            const auto key = _parent.GetStorageKey(_index);
+            storage.Erase(key);
+        }
+
         _cellData().Char() = chars.front();
-        _cellData().DbcsAttr().SetGlyphStored(false);
+        dbcsAttr.SetGlyphStored(false);
     }
     else
     {
         auto& storage = _parent.GetUnicodeStorage();
         const auto key = _parent.GetStorageKey(_index);
-        storage.StoreGlyph(key, { chars.cbegin(), chars.cend() });
-        _cellData().DbcsAttr().SetGlyphStored(true);
+        storage.StoreGlyph(key, chars);
+        dbcsAttr.SetGlyphStored(true);
     }
 }
 
@@ -107,30 +117,3 @@ CharRowCellReference::const_iterator CharRowCellReference::end() const
     }
 }
 #pragma warning(pop)
-
-bool operator==(const CharRowCellReference& ref, const std::vector<wchar_t>& glyph)
-{
-    const DbcsAttribute& dbcsAttr = ref._cellData().DbcsAttr();
-    if (glyph.size() == 1 && dbcsAttr.IsGlyphStored())
-    {
-        return false;
-    }
-    else if (glyph.size() > 1 && !dbcsAttr.IsGlyphStored())
-    {
-        return false;
-    }
-    else if (glyph.size() == 1 && !dbcsAttr.IsGlyphStored())
-    {
-        return ref._cellData().Char() == glyph.front();
-    }
-    else
-    {
-        const auto& chars = ref._parent.GetUnicodeStorage().GetText(ref._parent.GetStorageKey(ref._index));
-        return chars == glyph;
-    }
-}
-
-bool operator==(const std::vector<wchar_t>& glyph, const CharRowCellReference& ref)
-{
-    return ref == glyph;
-}

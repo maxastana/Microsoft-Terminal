@@ -14,29 +14,16 @@ Author(s):
 
 #pragma once
 
-#include <vector>
-#include <unordered_map>
-#include <climits>
-
-// std::unordered_map needs help to know how to hash a COORD
 namespace std
 {
     template<>
     struct hash<COORD>
     {
-        // Routine Description:
-        // - hashes a coord. coord will be hashed by storing the x and y values consecutively in the lower
-        // bits of a size_t.
-        // Arguments:
-        // - coord - the coord to hash
-        // Return Value:
-        // - the hashed coord
-        constexpr size_t operator()(const COORD& coord) const noexcept
+        // We take COORD by value not just because it neatly fits into a register...
+        // Reading unaligned pointers doesn't work
+        size_t operator()(COORD coord) const noexcept
         {
-            size_t retVal = coord.Y;
-            const size_t xCoord = coord.X;
-            retVal |= xCoord << (sizeof(coord.Y) * CHAR_BIT);
-            return retVal;
+            return std::hash<uint32_t>{}(til::bit_cast<uint32_t>(coord));
         }
     };
 }
@@ -44,21 +31,13 @@ namespace std
 class UnicodeStorage final
 {
 public:
-    using key_type = typename COORD;
-    using mapped_type = typename std::vector<wchar_t>;
-
-    UnicodeStorage() noexcept;
-
-    const mapped_type& GetText(const key_type key) const;
-
-    void StoreGlyph(const key_type key, const mapped_type& glyph);
-
-    void Erase(const key_type key) noexcept;
-
+    std::wstring_view GetText(const COORD key) const;
+    void StoreGlyph(const COORD key, const std::wstring_view& glyph);
+    void Erase(const COORD key) noexcept;
     void Remap(const std::unordered_map<SHORT, SHORT>& rowMap, const std::optional<SHORT> width);
 
 private:
-    std::unordered_map<key_type, mapped_type> _map;
+    std::unordered_map<COORD, std::array<wchar_t, 2>> _map;
 
 #ifdef UNIT_TESTING
     friend class UnicodeStorageTests;

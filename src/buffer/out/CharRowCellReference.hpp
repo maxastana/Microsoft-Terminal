@@ -44,9 +44,6 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
-    friend bool operator==(const CharRowCellReference& ref, const std::vector<wchar_t>& glyph);
-    friend bool operator==(const std::vector<wchar_t>& glyph, const CharRowCellReference& ref);
-
 private:
     // what char row the object belongs to
     CharRow& _parent;
@@ -58,6 +55,3 @@ private:
 
     std::wstring_view _glyphData() const;
 };
-
-bool operator==(const CharRowCellReference& ref, const std::vector<wchar_t>& glyph);
-bool operator==(const std::vector<wchar_t>& glyph, const CharRowCellReference& ref);
