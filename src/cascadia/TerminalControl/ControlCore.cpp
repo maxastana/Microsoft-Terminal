@@ -137,12 +137,12 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         // functions.
         try
         {
-            _dispatcher = winrt::Windows::System::DispatcherQueue::GetForCurrentThread();
-            if (!_dispatcher)
-            {
-                auto controller{ winrt::Windows::System::DispatcherQueueController::CreateOnDedicatedThread() };
-                _dispatcher = controller.DispatcherQueue();
-            }
+            //_dispatcher = winrt::Windows::System::DispatcherQueue::GetForCurrentThread();
+            //if (!_dispatcher)
+            //{
+                //auto controller{ winrt::Windows::System::DispatcherQueueController::CreateOnDedicatedThread() };
+                //_dispatcher = controller.DispatcherQueue();
+            //}
 
             // A few different events should be throttled, so they don't fire absolutely all the time:
             // * _tsfTryRedrawCanvas: When the cursor position moves, we need to
@@ -157,8 +157,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
             //   need to hop across the process boundary every time text is output.
             //   We can throttle this to once every 8ms, which will get us out of
             //   the way of the main output & rendering threads.
-            _tsfTryRedrawCanvas = std::make_shared<ThrottledFuncTrailing<>>(
-                _dispatcher,
+            _tsfTryRedrawCanvas = std::make_unique<til::throttled_func_trailing<>>(
                 TsfRedrawInterval,
                 [weakThis = get_weak()]() {
                     if (auto core{ weakThis.get() }; !core->_IsClosing())
@@ -167,8 +166,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
                     }
                 });
 
-            _updatePatternLocations = std::make_shared<ThrottledFuncTrailing<>>(
-                _dispatcher,
+            _updatePatternLocations = std::make_unique<til::throttled_func_trailing<>>(
                 UpdatePatternLocationsInterval,
                 [weakThis = get_weak()]() {
                     if (auto core{ weakThis.get() }; !core->_IsClosing())
@@ -177,8 +175,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
                     }
                 });
 
-            _updateScrollBar = std::make_shared<ThrottledFuncTrailing<Control::ScrollPositionChangedArgs>>(
-                _dispatcher,
+            _updateScrollBar = std::make_unique<til::throttled_func_trailing<Control::ScrollPositionChangedArgs>>(
                 ScrollBarUpdateInterval,
                 [weakThis = get_weak()](const auto& update) {
                     if (auto core{ weakThis.get() }; !core->_IsClosing())
@@ -436,7 +433,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         _terminal->UserScrollViewport(viewTop);
 
         if (_updatePatternLocations)
-            _updatePatternLocations->Run();
+            _updatePatternLocations->operator()();
     }
 
     void ControlCore::AdjustOpacity(const double adjustment)
@@ -1213,7 +1210,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         if (!_inUnitTests)
         {
             if (_updateScrollBar)
-                _updateScrollBar->Run(update);
+                _updateScrollBar->operator()(update);
         }
         else
         {
@@ -1222,7 +1219,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
 
         // Additionally, start the throttled update of where our links are.
         if (_updatePatternLocations)
-            _updatePatternLocations->Run();
+            _updatePatternLocations->operator()();
     }
 
     void ControlCore::_terminalCursorPositionChanged()
@@ -1230,7 +1227,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
         // When the buffer's cursor moves, start the throttled func to
         // eventually dispatch a CursorPositionChanged event.
         if (_tsfTryRedrawCanvas)
-            _tsfTryRedrawCanvas->Run();
+            _tsfTryRedrawCanvas->operator()();
     }
 
     void ControlCore::_terminalTaskbarProgressChanged()
@@ -1521,7 +1518,7 @@ namespace winrt::Microsoft::Terminal::Control::implementation
 
         // Start the throttled update of where our hyperlinks are.
         if (_updatePatternLocations)
-            _updatePatternLocations->Run();
+            _updatePatternLocations->operator()();
     }
 
     // Method Description:
