@@ -40,12 +40,10 @@
 #include "MultipleActionsArgs.g.h"
 
 #include "../../cascadia/inc/cppwinrt_utils.h"
-#include "JsonUtils.h"
-#include "HashUtils.h"
 #include "TerminalWarnings.h"
 #include "../inc/WindowingBehavior.h"
 
-#include "TerminalSettingsSerializationHelpers.h"
+#include "HashUtils.h"
 
 #define ACTION_ARG(type, name, ...)                                                                    \
 public:                                                                                                \

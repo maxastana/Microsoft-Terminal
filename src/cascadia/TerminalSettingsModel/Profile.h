@@ -49,7 +49,6 @@ Author(s):
 #include "MTSMSettings.h"
 
 #include "../inc/cppwinrt_utils.h"
-#include "JsonUtils.h"
 #include <DefaultSettings.h>
 #include "AppearanceConfig.h"
 #include "FontConfig.h"

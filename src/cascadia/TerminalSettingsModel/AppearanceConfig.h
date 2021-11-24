@@ -17,7 +17,6 @@ Author(s):
 #pragma once
 
 #include "AppearanceConfig.g.h"
-#include "JsonUtils.h"
 #include "IInheritable.h"
 #include "MTSMSettings.h"
 #include <DefaultSettings.h>

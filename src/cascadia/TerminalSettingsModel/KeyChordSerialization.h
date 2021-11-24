@@ -4,7 +4,6 @@
 #pragma once
 
 #include "KeyChordSerialization.g.h"
-#include "JsonUtils.h"
 #include "../inc/cppwinrt_utils.h"
 
 namespace winrt::Microsoft::Terminal::Settings::Model::implementation

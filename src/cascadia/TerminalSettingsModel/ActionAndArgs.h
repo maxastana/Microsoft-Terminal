@@ -5,7 +5,6 @@
 
 #include "ActionAndArgs.g.h"
 #include "ActionArgs.h"
-#include "TerminalWarnings.h"
 #include "../inc/cppwinrt_utils.h"
 
 namespace winrt::Microsoft::Terminal::Settings::Model::implementation
@@ -35,6 +34,10 @@ namespace winrt::Microsoft::Terminal::Settings::Model::factory_implementation
 {
     BASIC_FACTORY(ActionAndArgs);
 }
+
+#ifdef JSON_UTILS_H
+#error foo
+#endif
 
 namespace Microsoft::Terminal::Settings::Model::JsonUtils
 {

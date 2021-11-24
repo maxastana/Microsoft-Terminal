@@ -40,6 +40,9 @@
 #include <LibraryResources.h>
 #include <WtExeUtils.h>
 
+#include "TerminalSettingsSerializationHelpers.h"
+#include "JsonUtils.h"
+
 using namespace winrt::Microsoft::Terminal::Control;
 
 namespace winrt::Microsoft::Terminal::Settings::Model::implementation
