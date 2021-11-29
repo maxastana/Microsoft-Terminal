@@ -335,8 +335,6 @@ void NonClientIslandWindow::Initialize()
 {
     IslandWindow::Initialize();
 
-    _UpdateFrameMargins();
-
     // Set up our grid of content. We'll use _rootGrid as our root element.
     // There will be two children of this grid - the TitlebarControl, and the
     // "client content"
@@ -474,7 +472,6 @@ void NonClientIslandWindow::OnSize(const UINT width, const UINT height)
     // otherwise the titlebar may still be partially visible
     // when we move between different DPI monitors.
     RefreshCurrentDPI();
-    _UpdateFrameMargins();
 }
 
 // Method Description:
@@ -515,9 +512,6 @@ void NonClientIslandWindow::_OnMaximizeChange() noexcept
         }
         CATCH_LOG();
     }
-
-    // no frame margin when maximized
-    _UpdateFrameMargins();
 }
 
 // Method Description:
@@ -844,55 +838,6 @@ SIZE NonClientIslandWindow::GetTotalNonClientExclusiveSize(UINT dpi) const noexc
 }
 
 // Method Description:
-// - Updates the borders of our window frame, using DwmExtendFrameIntoClientArea.
-// Arguments:
-// - <none>
-// Return Value:
-// - the HRESULT returned by DwmExtendFrameIntoClientArea.
-void NonClientIslandWindow::_UpdateFrameMargins() const noexcept
-{
-    MARGINS margins = { 0, 0, 0, 0 };
-
-    // GH#603: When we're in Focus Mode, hide the titlebar, by setting it to a single
-    // pixel tall. Otherwise, the titlebar will be visible underneath controls with
-    // vintage opacity set.
-    //
-    // We can't set it to all 0's unfortunately.
-    if (_borderless)
-    {
-        margins.cyTopHeight = 1;
-    }
-    else if (_GetTopBorderHeight() != 0)
-    {
-        RECT frame = {};
-        winrt::check_bool(::AdjustWindowRectExForDpi(&frame, GetWindowStyle(_window.get()), FALSE, 0, _currentDpi));
-
-        // We removed the whole top part of the frame (see handling of
-        // WM_NCCALCSIZE) so the top border is missing now. We add it back here.
-        // Note #1: You might wonder why we don't remove just the title bar instead
-        //  of removing the whole top part of the frame and then adding the little
-        //  top border back. I tried to do this but it didn't work: DWM drew the
-        //  whole title bar anyways on top of the window. It seems that DWM only
-        //  wants to draw either nothing or the whole top part of the frame.
-        // Note #2: For some reason if you try to set the top margin to just the
-        //  top border height (what we want to do), then there is a transparency
-        //  bug when the window is inactive, so I've decided to add the whole top
-        //  part of the frame instead and then we will hide everything that we
-        //  don't need (that is, the whole thing but the little 1 pixel wide border
-        //  at the top) in the WM_PAINT handler. This eliminates the transparency
-        //  bug and it's what a lot of Win32 apps that customize the title bar do
-        //  so it should work fine.
-        margins.cyTopHeight = -frame.top;
-    }
-
-    // Extend the frame into the client area. microsoft/terminal#2735 - Just log
-    // the failure here, don't crash. If DWM crashes for any reason, calling
-    // THROW_IF_FAILED() will cause us to take a trip upstate. Just log, and
-    // we'll fix ourselves when DWM comes back.
-    LOG_IF_FAILED(DwmExtendFrameIntoClientArea(_window.get(), &margins));
-}
-
-// Method Description:
 // - Handle window messages from the message loop.
 // Arguments:
 // - message: A window message ID identifying the message.
@@ -997,7 +942,21 @@ void NonClientIslandWindow::_UpdateFrameMargins() const noexcept
 
         // To hide the original title bar, we have to paint on top of it with
         // the alpha component set to 255. This is a hack to do it with GDI.
-        // See NonClientIslandWindow::_UpdateFrameMargins for more information.
+        // We removed the whole top part of the frame (see handling of
+        // WM_NCCALCSIZE) so the top border is missing now. We add it back here.
+        // Note #1: You might wonder why we don't remove just the title bar instead
+        //  of removing the whole top part of the frame and then adding the little
+        //  top border back. I tried to do this but it didn't work: DWM drew the
+        //  whole title bar anyways on top of the window. It seems that DWM only
+        //  wants to draw either nothing or the whole top part of the frame.
+        // Note #2: For some reason if you try to set the top margin to just the
+        //  top border height (what we want to do), then there is a transparency
+        //  bug when the window is inactive, so I've decided to add the whole top
+        //  part of the frame instead and then we will hide everything that we
+        //  don't need (that is, the whole thing but the little 1 pixel wide border
+        //  at the top) in the WM_PAINT handler. This eliminates the transparency
+        //  bug and it's what a lot of Win32 apps that customize the title bar do
+        //  so it should work fine.
         HDC opaqueDc;
         BP_PAINTPARAMS params = { sizeof(params), BPPF_NOCLIP | BPPF_ERASE };
         HPAINTBUFFER buf = BeginBufferedPaint(hdc.get(), &rcRest, BPBF_TOPDOWNDIB, &params, &opaqueDc);
@@ -1074,10 +1033,6 @@ void NonClientIslandWindow::_SetIsBorderless(const bool borderlessEnabled)
     {
         _titlebar.Visibility(_IsTitlebarVisible() ? Visibility::Visible : Visibility::Collapsed);
     }
-
-    // Update the margins when entering/leaving focus mode, so we can prevent
-    // the titlebar from showing through transparent terminal controls
-    _UpdateFrameMargins();
 
     // GH#4224 - When the auto-hide taskbar setting is enabled, then we don't
     // always get another window message to trigger us to remove the drag bar.
