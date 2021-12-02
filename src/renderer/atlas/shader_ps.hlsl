@@ -44,9 +44,9 @@ cbuffer ConstBuffer : register(b0)
     uint2 cellSize;
     uint2 underlinePos;
     uint2 strikethroughPos;
+    uint2 cursorColor; // x: foreground, y: background
+    uint2 selectionColor; // x: foreground, y: background
     uint backgroundColor;
-    uint cursorColor;
-    uint selectionColor;
 };
 StructuredBuffer<Cell> cells : register(t0);
 Texture2D<float4> glyphs : register(t1);
@@ -122,14 +122,26 @@ float4 main(float4 pos: SV_Position): SV_Target
     float4 color = decodeRGBA(cell.color.y);
     float4 fg = decodeRGBA(cell.color.x);
 
+    if (cell.flags & CellFlags_Selected)
+    {
+        // The selection color asserts itself over the attributes.
+        color = decodeRGBA(selectionColor.y);
+        fg = decodeRGBA(selectionColor.x);
+    }
+
     // Layer 1 (optional):
     // Colored cursors are drawn "in between" the background color and the text of a cell.
-    if ((cell.flags & CellFlags_Cursor) && cursorColor != INVALID_COLOR)
+    // It asserts itself over the selection colors.
+    if ((cell.flags & CellFlags_Cursor) && cursorColor.y != INVALID_COLOR)
     {
         // The cursor texture is stored at the top-left-most glyph cell.
         // Cursor pixels are either entirely transparent or opaque.
         // --> We can just use .a as a mask to flip cursor pixels on or off.
-        color = alphaBlendPremultiplied(color, decodeRGBA(cursorColor) * glyphs[cellPos].a);
+        color = alphaBlendPremultiplied(color, decodeRGBA(cursorColor.y) * glyphs[cellPos].a);
+
+        // The cursor foreground color should apply to all "foreground" things drawn in the cell;
+        // this includes grid lines!
+        fg = alphaBlendPremultiplied(fg, decodeRGBA(cursorColor.x) * glyphs[cellPos].a);
     }
 
     // Layer 2:
@@ -166,16 +178,9 @@ float4 main(float4 pos: SV_Position): SV_Target
 
     // Layer 3 (optional):
     // Uncolored cursors invert the cells color.
-    if ((cell.flags & CellFlags_Cursor) && cursorColor == INVALID_COLOR)
+    if ((cell.flags & CellFlags_Cursor) && cursorColor.y == INVALID_COLOR)
     {
         color.rgb = abs(glyphs[cellPos].rgb - color.rgb);
-    }
-
-    // Layer 4:
-    // The current selection is drawn semi-transparent on top.
-    if (cell.flags & CellFlags_Selected)
-    {
-        color = alphaBlendPremultiplied(color, decodeRGBA(selectionColor));
     }
 
     return color;

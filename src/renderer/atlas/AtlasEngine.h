@@ -532,7 +532,8 @@ namespace Microsoft::Console::Render
 
         struct CachedCursorOptions
         {
-            u32 cursorColor = INVALID_COLOR;
+            u32 cursorBackgroundColor = INVALID_COLOR;
+            u32 cursorForegroundColor = INVALID_COLOR;
             u16 cursorType = gsl::narrow_cast<u16>(CursorType::Legacy);
             u8 heightPercentage = 20;
 
@@ -561,9 +562,9 @@ namespace Microsoft::Console::Render
             alignas(sizeof(u32x2)) u32x2 cellSize;
             alignas(sizeof(u32x2)) u32x2 underlinePos;
             alignas(sizeof(u32x2)) u32x2 strikethroughPos;
+            alignas(sizeof(u32x2)) u32x2 cursorColor;
+            alignas(sizeof(u32x2)) u32x2 selectionColor;
             alignas(sizeof(u32)) u32 backgroundColor = 0;
-            alignas(sizeof(u32)) u32 cursorColor = 0;
-            alignas(sizeof(u32)) u32 selectionColor = 0;
 #pragma warning(suppress : 4324) // 'ConstBuffer': structure was padded due to alignment specifier
         };
 
@@ -696,7 +697,8 @@ namespace Microsoft::Console::Render
             f32 gamma = 0;
             f32 grayscaleEnhancedContrast = 0;
             u32 backgroundColor = 0xff000000;
-            u32 selectionColor = 0x7fffffff;
+            u32 selectionBackgroundColor = 0xffffffff;
+            u32 selectionForegroundColor = 0xff000000;
 
             CachedCursorOptions cursorOptions;
             RenderInvalidations invalidations = RenderInvalidations::None;
@@ -736,7 +738,8 @@ namespace Microsoft::Console::Render
             u16 currentRow = 0;
             CellFlags flags = CellFlags::None;
             // SetSelectionBackground()
-            u32 selectionColor = 0x7fffffff;
+            u32 selectionBackgroundColor = 0xffffffff;
+            u32 selectionForegroundColor = 0xff000000;
 
             // dirtyRect is a computed value based on invalidatedRows.
             til::rectangle dirtyRect;
