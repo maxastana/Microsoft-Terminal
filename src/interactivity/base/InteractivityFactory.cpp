@@ -350,8 +350,8 @@ using namespace Microsoft::Console::Interactivity;
             {
             case ApiLevel::Win32:
                 pseudoClass.lpszClassName = PSEUDO_WINDOW_CLASS;
-                pseudoClass.lpfnWndProc = DefWindowProc;
-                RegisterClass(&pseudoClass);
+                pseudoClass.lpfnWndProc = DefWindowProcW;
+                RegisterClassW(&pseudoClass);
                 // Attempt to create window
                 hwnd = CreateWindowExW(
                     0, PSEUDO_WINDOW_CLASS, nullptr, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, HWND_DESKTOP, nullptr, nullptr, nullptr);

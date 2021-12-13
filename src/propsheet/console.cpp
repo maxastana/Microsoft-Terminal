@@ -33,7 +33,7 @@ void RecreateFontHandles(const HWND hWnd);
 void UpdateItem(HWND hDlg, UINT item, UINT nNum)
 {
     SetDlgItemInt(hDlg, item, nNum, TRUE);
-    SendDlgItemMessage(hDlg, item, EM_SETSEL, 0, -1);
+    SendDlgItemMessageW(hDlg, item, EM_SETSEL, 0, -1);
 }
 
 // Routine Description:
@@ -43,7 +43,7 @@ void Undo(HWND hControlWindow)
     if (!InEM_UNDO)
     {
         InEM_UNDO = TRUE;
-        SendMessage(hControlWindow, EM_UNDO, 0, 0);
+        SendMessageW(hControlWindow, EM_UNDO, 0, 0);
         InEM_UNDO = FALSE;
     }
 }
@@ -66,7 +66,7 @@ BOOL CheckNum(HWND hDlg, UINT Item)
         fSigned = FALSE;
     }
 
-    GetDlgItemText(hDlg, Item, szNum, ARRAYSIZE(szNum));
+    GetDlgItemTextW(hDlg, Item, szNum, ARRAYSIZE(szNum));
     for (i = 0; szNum[i]; i++)
     {
         if (!iswdigit(szNum[i]) && (!fSigned || i > 0 || szNum[i] != TEXT('-')))
@@ -116,7 +116,7 @@ void SaveConsoleSettingsIfNeeded(const HWND hwnd)
                 // An error occurred try to save the link file, display a message box to that effect...
                 GetStartupInfoW(&si);
                 LoadStringW(ghInstance, IDS_LINKERROR, awchBuffer, ARRAYSIZE(awchBuffer));
-                StringCchPrintf(szMessage,
+                StringCchPrintfW(szMessage,
                                 ARRAYSIZE(szMessage),
                                 awchBuffer,
                                 gpStateInfo->LinkTitle);
@@ -180,8 +180,8 @@ void EndDlgPage(const HWND hDlg, const BOOL fSaveNow)
 #define TOOLTIP_MAXLENGTH (256)
 void CreateAndAssociateToolTipToControl(const UINT dlgItem, const HWND hDlg, const UINT idsToolTip)
 {
-    HWND hwndTooltip = CreateWindowEx(0 /*dwExtStyle*/,
-                                      TOOLTIPS_CLASS,
+    HWND hwndTooltip = CreateWindowExW(0 /*dwExtStyle*/,
+                                      TOOLTIPS_CLASSW,
                                       nullptr /*lpWindowName*/,
                                       TTS_ALWAYSTIP,
                                       CW_USEDEFAULT,
@@ -196,7 +196,7 @@ void CreateAndAssociateToolTipToControl(const UINT dlgItem, const HWND hDlg, con
     if (hwndTooltip)
     {
         WCHAR szTooltip[TOOLTIP_MAXLENGTH] = { 0 };
-        if (LoadString(ghInstance, idsToolTip, szTooltip, ARRAYSIZE(szTooltip)) > 0)
+        if (LoadStringW(ghInstance, idsToolTip, szTooltip, ARRAYSIZE(szTooltip)) > 0)
         {
             TOOLINFO toolInfo = { 0 };
             toolInfo.cbSize = sizeof(toolInfo);
@@ -204,7 +204,7 @@ void CreateAndAssociateToolTipToControl(const UINT dlgItem, const HWND hDlg, con
             toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
             toolInfo.uId = (UINT_PTR)GetDlgItem(hDlg, dlgItem);
             toolInfo.lpszText = szTooltip;
-            SendMessage(hwndTooltip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
+            SendMessageW(hwndTooltip, TTM_ADDTOOLW, 0, (LPARAM)&toolInfo);
         }
     }
 }
@@ -500,7 +500,7 @@ UINT CALLBACK PropSheetPageProc(_In_ HWND hWnd, _In_ UINT uMsg, _Inout_ LPPROPSH
     return 1;
 }
 
-BOOL PopulatePropSheetPageArray(_Out_writes_(cPsps) PROPSHEETPAGE* pPsp, const size_t cPsps, const BOOL fRegisterCallbacks)
+BOOL PopulatePropSheetPageArray(_Out_writes_(cPsps) PROPSHEETPAGEW* pPsp, const size_t cPsps, const BOOL fRegisterCallbacks)
 {
     BOOL fRet = (cPsps == NUMBER_OF_PAGES);
     if (fRet)
@@ -508,57 +508,57 @@ BOOL PopulatePropSheetPageArray(_Out_writes_(cPsps) PROPSHEETPAGE* pPsp, const s
         // This has been validated above. OACR is being silly. Restate it so it can see the condition.
         __analysis_assume(cPsps == NUMBER_OF_PAGES);
 
-        PROPSHEETPAGE* const pOptionsPage = &(pPsp[OPTIONS_PAGE_INDEX]);
-        PROPSHEETPAGE* const pFontPage = &(pPsp[FONT_PAGE_INDEX]);
-        PROPSHEETPAGE* const pLayoutPage = &(pPsp[LAYOUT_PAGE_INDEX]);
-        PROPSHEETPAGE* const pColorsPage = &(pPsp[COLORS_PAGE_INDEX]);
-        PROPSHEETPAGE* const pTerminalPage = &(pPsp[TERMINAL_PAGE_INDEX]);
+        PROPSHEETPAGEW* const pOptionsPage = &(pPsp[OPTIONS_PAGE_INDEX]);
+        PROPSHEETPAGEW* const pFontPage = &(pPsp[FONT_PAGE_INDEX]);
+        PROPSHEETPAGEW* const pLayoutPage = &(pPsp[LAYOUT_PAGE_INDEX]);
+        PROPSHEETPAGEW* const pColorsPage = &(pPsp[COLORS_PAGE_INDEX]);
+        PROPSHEETPAGEW* const pTerminalPage = &(pPsp[TERMINAL_PAGE_INDEX]);
 
-        pOptionsPage->dwSize = sizeof(PROPSHEETPAGE);
+        pOptionsPage->dwSize = sizeof(PROPSHEETPAGEW);
         pOptionsPage->hInstance = ghInstance;
         if (g_fIsComCtlV6Present)
         {
-            pOptionsPage->pszTemplate = (gpStateInfo->Defaults) ? MAKEINTRESOURCE(DID_SETTINGS) : MAKEINTRESOURCE(DID_SETTINGS2);
+            pOptionsPage->pszTemplate = (gpStateInfo->Defaults) ? MAKEINTRESOURCEW(DID_SETTINGS) : MAKEINTRESOURCEW(DID_SETTINGS2);
         }
         else
         {
-            pOptionsPage->pszTemplate = (gpStateInfo->Defaults) ? MAKEINTRESOURCE(DID_SETTINGS_COMCTL5) : MAKEINTRESOURCE(DID_SETTINGS2_COMCTL5);
+            pOptionsPage->pszTemplate = (gpStateInfo->Defaults) ? MAKEINTRESOURCEW(DID_SETTINGS_COMCTL5) : MAKEINTRESOURCEW(DID_SETTINGS2_COMCTL5);
         }
         pOptionsPage->pfnDlgProc = SettingsDlgProc;
         pOptionsPage->lParam = OPTIONS_PAGE_INDEX;
         pOptionsPage->dwFlags = PSP_DEFAULT;
 
-        pFontPage->dwSize = sizeof(PROPSHEETPAGE);
+        pFontPage->dwSize = sizeof(PROPSHEETPAGEW);
         pFontPage->hInstance = ghInstance;
-        pFontPage->pszTemplate = MAKEINTRESOURCE(DID_FONTDLG);
+        pFontPage->pszTemplate = MAKEINTRESOURCEW(DID_FONTDLG);
         pFontPage->pfnDlgProc = FontDlgProc;
         pFontPage->lParam = FONT_PAGE_INDEX;
         pOptionsPage->dwFlags = PSP_DEFAULT;
 
-        pLayoutPage->dwSize = sizeof(PROPSHEETPAGE);
+        pLayoutPage->dwSize = sizeof(PROPSHEETPAGEW);
         pLayoutPage->hInstance = ghInstance;
-        pLayoutPage->pszTemplate = MAKEINTRESOURCE(DID_SCRBUFSIZE);
+        pLayoutPage->pszTemplate = MAKEINTRESOURCEW(DID_SCRBUFSIZE);
         pLayoutPage->pfnDlgProc = ScreenSizeDlgProc;
         pLayoutPage->lParam = LAYOUT_PAGE_INDEX;
         pOptionsPage->dwFlags = PSP_DEFAULT;
 
-        pColorsPage->dwSize = sizeof(PROPSHEETPAGE);
+        pColorsPage->dwSize = sizeof(PROPSHEETPAGEW);
         pColorsPage->hInstance = ghInstance;
-        pColorsPage->pszTemplate = MAKEINTRESOURCE(DID_COLOR);
+        pColorsPage->pszTemplate = MAKEINTRESOURCEW(DID_COLOR);
         pColorsPage->pfnDlgProc = ColorDlgProc;
         pColorsPage->lParam = COLORS_PAGE_INDEX;
         pOptionsPage->dwFlags = PSP_DEFAULT;
         if (g_fForceV2)
         {
-            pTerminalPage->dwSize = sizeof(PROPSHEETPAGE);
+            pTerminalPage->dwSize = sizeof(PROPSHEETPAGEW);
             pTerminalPage->hInstance = ghInstance;
             if (g_defAppEnabled)
             {
-                pTerminalPage->pszTemplate = MAKEINTRESOURCE(DID_TERMINAL_WITH_DEFTERM);
+                pTerminalPage->pszTemplate = MAKEINTRESOURCEW(DID_TERMINAL_WITH_DEFTERM);
             }
             else
             {
-                pTerminalPage->pszTemplate = MAKEINTRESOURCE(DID_TERMINAL);
+                pTerminalPage->pszTemplate = MAKEINTRESOURCEW(DID_TERMINAL);
             }
             pTerminalPage->pfnDlgProc = TerminalDlgProc;
             pTerminalPage->lParam = TERMINAL_PAGE_INDEX;
@@ -585,7 +585,7 @@ BOOL PopulatePropSheetPageArray(_Out_writes_(cPsps) PROPSHEETPAGE* pPsp, const s
 // - Creates the property sheet to change console settings.
 INT_PTR ConsolePropertySheet(__in HWND hWnd, __in PCONSOLE_STATE_INFO pStateInfo)
 {
-    PROPSHEETPAGE psp[NUMBER_OF_PAGES];
+    PROPSHEETPAGEW psp[NUMBER_OF_PAGES];
     PROPSHEETHEADER psh;
     INT_PTR Result = IDCANCEL;
     WCHAR awchBuffer[MAX_PATH] = { 0 };
@@ -652,12 +652,12 @@ INT_PTR ConsolePropertySheet(__in HWND hWnd, __in PCONSOLE_STATE_INFO pStateInfo
                   PSH_NOAPPLYNOW | PSH_USECALLBACK | PSH_NOCONTEXTHELP;
     if (gpStateInfo->Defaults)
     {
-        LoadString(ghInstance, IDS_TITLE, awchBuffer, ARRAYSIZE(awchBuffer));
+        LoadStringW(ghInstance, IDS_TITLE, awchBuffer, ARRAYSIZE(awchBuffer));
     }
     else
     {
         awchBuffer[0] = L'"';
-        ExpandEnvironmentStrings(gpStateInfo->OriginalTitle,
+        ExpandEnvironmentStringsW(gpStateInfo->OriginalTitle,
                                  &awchBuffer[1],
                                  ARRAYSIZE(awchBuffer) - 2);
         StringCchCat(awchBuffer, ARRAYSIZE(awchBuffer), TEXT("\""));
@@ -715,7 +715,7 @@ void RegisterClasses(HINSTANCE hModule)
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
 
     wc.lpszClassName = TEXT("ColorTableColor");
     wc.hInstance = hModule;
@@ -727,19 +727,19 @@ void RegisterClasses(HINSTANCE hModule)
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
 
     wc.lpszClassName = TEXT("WOAWinPreview");
     wc.lpfnWndProc = PreviewWndProc;
     wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND + 1);
     wc.style = 0;
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
 
     wc.lpszClassName = TEXT("WOAFontPreview");
     wc.lpfnWndProc = FontPreviewWndProc;
     wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wc.style = 0;
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
 }
 
 void UnregisterClasses(HINSTANCE hModule)

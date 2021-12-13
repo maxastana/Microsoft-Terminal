@@ -86,7 +86,7 @@ void _UpdateTextAndScroll(const HWND hDlg,
                           const WORD scrollItem) noexcept
 {
     UpdateItem(hDlg, textItem, value);
-    SendDlgItemMessage(hDlg, scrollItem, UDM_SETPOS, 0, MAKELONG(value, 0));
+    SendDlgItemMessageW(hDlg, scrollItem, UDM_SETPOS, 0, MAKELONG(value, 0));
 }
 
 void _PrepDefAppCombo(const HWND hDlg,
@@ -132,31 +132,31 @@ bool InitTerminalDialog(const HWND hDlg) noexcept
     CheckRadioButton(hDlg, IDD_TERMINAL_INVERSE_CURSOR, IDD_TERMINAL_CURSOR_USECOLOR, IDD_TERMINAL_INVERSE_CURSOR);
 
     // initialize size of edit controls
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_FG_RED, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_FG_GREEN, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_FG_BLUE, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_FG_RED, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_FG_GREEN, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_FG_BLUE, EM_LIMITTEXT, 3, 0);
 
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_BG_RED, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_BG_GREEN, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_BG_BLUE, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_BG_RED, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_BG_GREEN, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_BG_BLUE, EM_LIMITTEXT, 3, 0);
 
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_CURSOR_RED, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_CURSOR_GREEN, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_CURSOR_BLUE, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_CURSOR_RED, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_CURSOR_GREEN, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_CURSOR_BLUE, EM_LIMITTEXT, 3, 0);
 
     // Cap the color inputs to 255
     const auto colorRange = MAKELONG(COLOR_MAX, 0);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_FG_REDSCROLL, UDM_SETRANGE, 0, colorRange);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_FG_GREENSCROLL, UDM_SETRANGE, 0, colorRange);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_FG_BLUESCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_FG_REDSCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_FG_GREENSCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_FG_BLUESCROLL, UDM_SETRANGE, 0, colorRange);
 
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_BG_REDSCROLL, UDM_SETRANGE, 0, colorRange);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_BG_GREENSCROLL, UDM_SETRANGE, 0, colorRange);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_BG_BLUESCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_BG_REDSCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_BG_GREENSCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_BG_BLUESCROLL, UDM_SETRANGE, 0, colorRange);
 
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_CURSOR_REDSCROLL, UDM_SETRANGE, 0, colorRange);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_CURSOR_GREENSCROLL, UDM_SETRANGE, 0, colorRange);
-    SendDlgItemMessage(hDlg, IDD_TERMINAL_CURSOR_BLUESCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_CURSOR_REDSCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_CURSOR_GREENSCROLL, UDM_SETRANGE, 0, colorRange);
+    SendDlgItemMessageW(hDlg, IDD_TERMINAL_CURSOR_BLUESCROLL, UDM_SETRANGE, 0, colorRange);
 
     const bool initialTerminalFG = gpStateInfo->DefaultForeground != INVALID_COLOR;
     const bool initialTerminalBG = gpStateInfo->DefaultBackground != INVALID_COLOR;
@@ -465,7 +465,7 @@ INT_PTR WINAPI TerminalDlgProc(const HWND hDlg, const UINT wMsg, const WPARAM wP
                     int item = GetDlgCtrlID(GetFocus());
                     if (item)
                     {
-                        SendMessage(hDlg, WM_COMMAND, MAKELONG(item, EN_KILLFOCUS), 0);
+                        SendMessageW(hDlg, WM_COMMAND, MAKELONG(item, EN_KILLFOCUS), 0);
                     }
                     return TRUE;
                 }
@@ -476,7 +476,7 @@ INT_PTR WINAPI TerminalDlgProc(const HWND hDlg, const UINT wMsg, const WPARAM wP
     case WM_VSCROLL:
         // Fake the dialog proc into thinking the edit control just
         // lost focus so it'll update properly
-        SendMessage(hDlg, WM_COMMAND, MAKELONG((GetDlgCtrlID((HWND)lParam) - 1), EN_KILLFOCUS), 0);
+        SendMessageW(hDlg, WM_COMMAND, MAKELONG((GetDlgCtrlID((HWND)lParam) - 1), EN_KILLFOCUS), 0);
         return TRUE;
 
     case WM_DESTROY:

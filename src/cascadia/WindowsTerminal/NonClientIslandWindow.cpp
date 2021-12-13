@@ -40,7 +40,7 @@ static constexpr const wchar_t* dragBarClassName{ L"DRAG_BAR_WINDOW_CLASS" };
     {
         auto cs = reinterpret_cast<CREATESTRUCT*>(lparam);
         auto nonClientIslandWindow{ reinterpret_cast<NonClientIslandWindow*>(cs->lpCreateParams) };
-        SetWindowLongPtr(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(nonClientIslandWindow));
+        SetWindowLongPtrW(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(nonClientIslandWindow));
         // fall through to default window procedure
     }
     else if (auto nonClientIslandWindow{ reinterpret_cast<NonClientIslandWindow*>(GetWindowLongPtr(window, GWLP_USERDATA)) })
@@ -48,7 +48,7 @@ static constexpr const wchar_t* dragBarClassName{ L"DRAG_BAR_WINDOW_CLASS" };
         return nonClientIslandWindow->_InputSinkMessageHandler(message, wparam, lparam);
     }
 
-    return DefWindowProc(window, message, wparam, lparam);
+    return DefWindowProcW(window, message, wparam, lparam);
 }
 
 void NonClientIslandWindow::MakeWindow() noexcept
@@ -177,7 +177,7 @@ LRESULT NonClientIslandWindow::_InputSinkMessageHandler(UINT const message,
             // Make sure to do this for the HTTOP, which is the top resize
             // border, so we can resize the window on the top.
             auto parentWindow{ GetHandle() };
-            return SendMessage(parentWindow, message, wparam, lparam);
+            return SendMessageW(parentWindow, message, wparam, lparam);
         }
         case HTMINBUTTON:
         case HTMAXBUTTON:
@@ -236,7 +236,7 @@ LRESULT NonClientIslandWindow::_InputSinkMessageHandler(UINT const message,
         {
             // Pass caption-related nonclient messages to the parent window.
             auto parentWindow{ GetHandle() };
-            return SendMessage(parentWindow, message, wparam, lparam);
+            return SendMessageW(parentWindow, message, wparam, lparam);
         }
         // The buttons won't work as you'd expect; we need to handle those
         // ourselves.
@@ -262,7 +262,7 @@ LRESULT NonClientIslandWindow::_InputSinkMessageHandler(UINT const message,
             // Pass caption-related nonclient messages to the parent window.
             // The buttons won't work as you'd expect; we need to handle those ourselves.
             auto parentWindow{ GetHandle() };
-            return SendMessage(parentWindow, message, wparam, lparam);
+            return SendMessageW(parentWindow, message, wparam, lparam);
         }
         break;
 
@@ -283,10 +283,10 @@ LRESULT NonClientIslandWindow::_InputSinkMessageHandler(UINT const message,
     case WM_NCRBUTTONDBLCLK:
     case WM_NCRBUTTONUP:
         auto parentWindow{ GetHandle() };
-        return SendMessage(parentWindow, message, wparam, lparam);
+        return SendMessageW(parentWindow, message, wparam, lparam);
     }
 
-    return DefWindowProc(_dragBarWindow.get(), message, wparam, lparam);
+    return DefWindowProcW(_dragBarWindow.get(), message, wparam, lparam);
 }
 
 // Method Description:
@@ -597,7 +597,7 @@ int NonClientIslandWindow::_GetResizeHandleHeight() const noexcept
     const auto originalSize = params->rgrc[0];
 
     // apply the default frame
-    const auto ret = DefWindowProc(_window.get(), WM_NCCALCSIZE, wParam, lParam);
+    const auto ret = DefWindowProcW(_window.get(), WM_NCCALCSIZE, wParam, lParam);
     if (ret != 0)
     {
         return ret;
@@ -708,7 +708,7 @@ int NonClientIslandWindow::_GetResizeHandleHeight() const noexcept
     // This will handle the left, right and bottom parts of the frame because
     // we didn't change them.
     LPARAM lParam = MAKELONG(ptMouse.x, ptMouse.y);
-    const auto originalRet = DefWindowProc(_window.get(), WM_NCHITTEST, 0, lParam);
+    const auto originalRet = DefWindowProcW(_window.get(), WM_NCHITTEST, 0, lParam);
 
     if (originalRet != HTCLIENT)
     {
@@ -770,7 +770,7 @@ int NonClientIslandWindow::_GetResizeHandleHeight() const noexcept
         // with that message at the time it was sent to handle the message
         // correctly.
         const auto screenPtLparam{ GetMessagePos() };
-        const LRESULT hitTest{ SendMessage(GetHandle(), WM_NCHITTEST, 0, screenPtLparam) };
+        const LRESULT hitTest{ SendMessageW(GetHandle(), WM_NCHITTEST, 0, screenPtLparam) };
         if (hitTest == HTTOP)
         {
             // We have to set the vertical resize cursor manually on
@@ -793,7 +793,7 @@ int NonClientIslandWindow::_GetResizeHandleHeight() const noexcept
         }
     }
 
-    return DefWindowProc(GetHandle(), WM_SETCURSOR, wParam, lParam);
+    return DefWindowProcW(GetHandle(), WM_SETCURSOR, wParam, lParam);
 }
 // Method Description:
 // - Get the dimensions of our non-client area, as a rect where each component
@@ -811,7 +811,7 @@ int NonClientIslandWindow::_GetResizeHandleHeight() const noexcept
 //   relative to the client area.
 RECT NonClientIslandWindow::GetNonClientFrame(UINT dpi) const noexcept
 {
-    const auto windowStyle = static_cast<DWORD>(GetWindowLong(_window.get(), GWL_STYLE));
+    const auto windowStyle = static_cast<DWORD>(GetWindowLongW(_window.get(), GWL_STYLE));
     RECT islandFrame{};
 
     // If we failed to get the correct window size for whatever reason, log
@@ -921,7 +921,7 @@ void NonClientIslandWindow::_UpdateFrameMargins() const noexcept
     case WM_PAINT:
         return _OnPaint();
     case WM_NCRBUTTONUP:
-        // The `DefWindowProc` function doesn't open the system menu for some
+        // The `DefWindowProcW` function doesn't open the system menu for some
         // reason so we have to do it ourselves.
         if (wParam == HTCAPTION)
         {

@@ -181,7 +181,7 @@ void HandleKeyEvent(const HWND hWnd,
         //       past by TranslateMessageEx) with the WM_CHAR we are processing now to ensure we have the correct
         //       wVirtualScanCode to associate with the message and pass down into the console input queue for further
         //       processing.
-        //       This is required because we cannot accurately re-synthesize (using MapVirtualKey/Ex)
+        //       This is required because we cannot accurately re-synthesize (using MapVirtualKeyW/Ex)
         //       the original scan code just based on the information we have now and the scan code might be
         //       required by the underlying client application, processed input handler (inside the console),
         //       or other input channels to help portray certain key sequences.
@@ -468,7 +468,7 @@ void HandleKeyEvent(const HWND hWnd,
 }
 
 // Routine Description:
-// - Returns TRUE if DefWindowProc should be called.
+// - Returns TRUE if DefWindowProcW should be called.
 BOOL HandleSysKeyEvent(const HWND hWnd, const UINT Message, const WPARAM wParam, const LPARAM lParam, _Inout_opt_ PBOOL pfUnlockConsole)
 {
     const CONSOLE_INFORMATION& gci = ServiceLocator::LocateGlobals().getConsoleInformation();
@@ -492,13 +492,13 @@ BOOL HandleSysKeyEvent(const HWND hWnd, const UINT Message, const WPARAM wParam,
     if (VirtualKeyCode == VK_ESCAPE &&
         bCtrlDown && !(GetKeyState(VK_MENU) & KEY_PRESSED) && !(GetKeyState(VK_SHIFT) & KEY_PRESSED))
     {
-        return TRUE; // call DefWindowProc
+        return TRUE; // call DefWindowProcW
     }
 
     // check for alt-f4
     if (VirtualKeyCode == VK_F4 && (GetKeyState(VK_MENU) & KEY_PRESSED) && IsInProcessedInputMode() && gci.IsAltF4CloseAllowed())
     {
-        return TRUE; // let DefWindowProc generate WM_CLOSE
+        return TRUE; // let DefWindowProcW generate WM_CLOSE
     }
 
     if (WI_IsFlagClear(lParam, WM_SYSKEYDOWN_ALT_PRESSED))
@@ -506,7 +506,7 @@ BOOL HandleSysKeyEvent(const HWND hWnd, const UINT Message, const WPARAM wParam,
         // Check for ENTER while iconic (restore accelerator).
         if (VirtualKeyCode == VK_RETURN)
         {
-            return TRUE; // call DefWindowProc
+            return TRUE; // call DefWindowProcW
         }
         else
         {
@@ -537,16 +537,16 @@ BOOL HandleSysKeyEvent(const HWND hWnd, const UINT Message, const WPARAM wParam,
                 return FALSE;
             }
 
-            return TRUE; // call DefWindowProc
+            return TRUE; // call DefWindowProcW
         }
 
         if (VirtualKeyCode == VK_ESCAPE)
         {
-            return TRUE; // call DefWindowProc
+            return TRUE; // call DefWindowProcW
         }
         if (VirtualKeyCode == VK_TAB)
         {
-            return TRUE; // call DefWindowProc
+            return TRUE; // call DefWindowProcW
         }
     }
 
@@ -575,7 +575,7 @@ BOOL HandleSysKeyEvent(const HWND hWnd, const UINT Message, const WPARAM wParam,
 }
 
 // Routine Description:
-// - Returns TRUE if DefWindowProc should be called.
+// - Returns TRUE if DefWindowProcW should be called.
 BOOL HandleMouseEvent(const SCREEN_INFORMATION& ScreenInfo,
                       const UINT Message,
                       const WPARAM wParam,

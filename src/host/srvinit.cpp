@@ -622,7 +622,7 @@ PWSTR TranslateConsoleTitle(_In_ PCWSTR pwszConsoleTitle, const BOOL fUnexpand, 
                 }
 
                 // No need to check return here -- pszTranslatedConsoleTitle is guaranteed large enough for SYSTEM_ROOT
-                (void)StringCbCopy(pszTranslatedConsoleTitle, cbTranslatedConsoleTitle, SYSTEM_ROOT);
+                (void)StringCbCopyW(pszTranslatedConsoleTitle, cbTranslatedConsoleTitle, SYSTEM_ROOT);
                 pszTranslatedConsoleTitle += (cbSystemRoot / sizeof(WCHAR)); // skip by characters -- not bytes
 
                 for (UINT i = 0; i < cbConsoleTitle; i += sizeof(WCHAR))

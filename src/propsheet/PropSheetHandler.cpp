@@ -62,7 +62,7 @@ public:
     // IShellPropSheetExt
     STDMETHODIMP AddPages(_In_ LPFNADDPROPSHEETPAGE pfnAddPage, _In_ LPARAM lParam)
     {
-        PROPSHEETPAGE psp[NUMBER_OF_PAGES] = {};
+        PROPSHEETPAGEW psp[NUMBER_OF_PAGES] = {};
         HRESULT hr = PopulatePropSheetPageArray(psp, ARRAYSIZE(psp), TRUE /*fRegisterCallbacks*/) ? S_OK : E_FAIL;
         if (SUCCEEDED(hr))
         {
@@ -143,7 +143,7 @@ private:
     {
         *ppidl = nullptr;
 
-        IShellLink* psl;
+        IShellLinkW* psl;
         HRESULT hr = psiLink->BindToHandler(nullptr, BHID_SFUIObject, IID_PPV_ARGS(&psl));
         if (SUCCEEDED(hr))
         {

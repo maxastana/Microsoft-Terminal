@@ -549,7 +549,7 @@ void AtlasEngine::_resolveFontMetrics(const FontInfoDesired& fontInfoDesired, Fo
     // In the future a more robust solution could be written, until then this simple solution works for most cases.
     static constexpr u32 codePoint = L'M';
     u16 glyphIndex;
-    THROW_IF_FAILED(fontFace->GetGlyphIndicesW(&codePoint, 1, &glyphIndex));
+    THROW_IF_FAILED(fontFace->GetGlyphIndices(&codePoint, 1, &glyphIndex));
 
     DWRITE_GLYPH_METRICS glyphMetrics;
     THROW_IF_FAILED(fontFace->GetDesignGlyphMetrics(&glyphIndex, 1, &glyphMetrics));

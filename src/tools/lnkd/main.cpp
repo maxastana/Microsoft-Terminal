@@ -42,7 +42,7 @@ HRESULT GetPropertyByteValue(_In_ IPropertyStore* pPropStore, _In_ REFPROPERTYKE
     return hr;
 }
 
-void DumpV2Properties(_In_ IShellLink* pslConsole)
+void DumpV2Properties(_In_ IShellLinkW* pslConsole)
 {
     IPropertyStore* pPropStoreLnk;
     HRESULT hr = pslConsole->QueryInterface(IID_PPV_ARGS(&pPropStoreLnk));
@@ -133,7 +133,7 @@ void DumpBool(_In_ PCWSTR pszAttrName, const BOOL fEnabled)
     wprintf(L"\t%s: %s\n", pszAttrName, fEnabled ? L"true" : L"false");
 }
 
-HRESULT DumpV1Properties(_In_ IShellLink* pslConsole)
+HRESULT DumpV1Properties(_In_ IShellLinkW* pslConsole)
 {
     IShellLinkDataList* pConsoleLnkDataList;
     HRESULT hr = pslConsole->QueryInterface(IID_PPV_ARGS(&pConsoleLnkDataList));
@@ -200,7 +200,7 @@ HRESULT DumpV1Properties(_In_ IShellLink* pslConsole)
 
 HRESULT DumpProperties(_In_ PCWSTR pszLnkFile)
 {
-    IShellLink* pslConsole;
+    IShellLinkW* pslConsole;
     HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pslConsole));
     if (SUCCEEDED(hr))
     {

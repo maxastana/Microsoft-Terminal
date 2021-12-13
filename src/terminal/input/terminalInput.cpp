@@ -429,11 +429,11 @@ static bool _searchWithModifier(const KeyEvent& keyEvent, InputSender sender)
             // See GH#3079 for details.
             // Also see https://github.com/microsoft/terminal/pull/4947#issuecomment-600382856
 
-            // VkKeyScan will give us both the Vkey of the key needed for this
+            // VkKeyScanW will give us both the Vkey of the key needed for this
             // character, and the modifiers the user might need to press to get
             // this character.
-            const auto slashKeyScan = VkKeyScan(L'/'); // On USASCII: 0x00bf
-            const auto questionMarkKeyScan = VkKeyScan(L'?'); //On USASCII: 0x01bf
+            const auto slashKeyScan = VkKeyScanW(L'/'); // On USASCII: 0x00bf
+            const auto questionMarkKeyScan = VkKeyScanW(L'?'); //On USASCII: 0x01bf
 
             const auto slashVkey = LOBYTE(slashKeyScan);
             const auto questionMarkVkey = LOBYTE(questionMarkKeyScan);
@@ -442,7 +442,7 @@ static bool _searchWithModifier(const KeyEvent& keyEvent, InputSender sender)
             const auto alt = keyEvent.IsAltPressed();
             const bool shift = keyEvent.IsShiftPressed();
 
-            // From the KeyEvent we're translating, synthesize the equivalent VkKeyScan result
+            // From the KeyEvent we're translating, synthesize the equivalent VkKeyScanW result
             const auto vkey = keyEvent.GetVirtualKeyCode();
             const short keyScanFromEvent = vkey |
                                            (shift ? 0x100 : 0) |

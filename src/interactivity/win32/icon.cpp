@@ -173,8 +173,8 @@ Icon& Icon::Instance()
     if (!_fInitialized)
     {
 #pragma warning(push)
-#pragma warning(disable : 4302) // typecast warning from MAKEINTRESOURCE
-        _hDefaultIcon = LoadIconW(nullptr, MAKEINTRESOURCE(IDI_APPLICATION));
+#pragma warning(disable : 4302) // typecast warning from MAKEINTRESOURCEW
+        _hDefaultIcon = LoadIconW(nullptr, MAKEINTRESOURCEW(IDI_APPLICATION));
 #pragma warning(pop)
 
         if (_hDefaultIcon == nullptr)
@@ -185,9 +185,9 @@ Icon& Icon::Instance()
         if (SUCCEEDED(hr))
         {
 #pragma warning(push)
-#pragma warning(disable : 4302) // typecast warning from MAKEINTRESOURCE
+#pragma warning(disable : 4302) // typecast warning from MAKEINTRESOURCEW
             _hDefaultSmIcon = (HICON)LoadImageW(nullptr,
-                                                MAKEINTRESOURCE(IDI_APPLICATION),
+                                                MAKEINTRESOURCEW(IDI_APPLICATION),
                                                 IMAGE_ICON,
                                                 GetSystemMetrics(SM_CXSMICON),
                                                 GetSystemMetrics(SM_CYSMICON),

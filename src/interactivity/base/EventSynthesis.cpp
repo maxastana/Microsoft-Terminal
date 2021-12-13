@@ -54,7 +54,7 @@ std::deque<std::unique_ptr<KeyEvent>> Microsoft::Console::Interactivity::CharToK
     {
         if constexpr (Feature_UseNumpadEventsForClipboardInput::IsEnabled())
         {
-            // Determine DBCS character because these character does not know by VkKeyScan.
+            // Determine DBCS character because these character does not know by VkKeyScanW.
             // GetStringTypeW(CT_CTYPE3) & C3_ALPHA can determine all linguistic characters. However, this is
             // not include symbolic character for DBCS.
             WORD CharType = 0;

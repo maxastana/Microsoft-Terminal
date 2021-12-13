@@ -5,7 +5,7 @@
 #include "consoleKeyInfo.hpp"
 
 // The following data structures are a hack to work around the fact that
-// MapVirtualKey does not return the correct virtual key code in many cases.
+// MapVirtualKeyW does not return the correct virtual key code in many cases.
 // we store the correct info (from the keydown message) in the CONSOLE_KEY_INFO
 // structure when a keydown message is translated. Then when we receive a
 // wm_[sys][dead]char message, we retrieve it and clear out the record.

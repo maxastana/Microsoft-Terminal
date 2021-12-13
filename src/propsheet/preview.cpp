@@ -412,7 +412,7 @@ VOID PreviewPaint(
         break;
 
     default:
-        return DefWindowProc(hWnd, wMessage, wParam, lParam);
+        return DefWindowProcW(hWnd, wMessage, wParam, lParam);
     }
     return 0L;
 }

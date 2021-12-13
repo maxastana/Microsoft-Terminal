@@ -23,7 +23,7 @@ Author(s):
 
 namespace Microsoft::Console::VirtualTerminal
 {
-    // The values used by VkKeyScan to encode modifiers in the high order byte
+    // The values used by VkKeyScanW to encode modifiers in the high order byte
     constexpr short KEYSCAN_SHIFT = 1;
     constexpr short KEYSCAN_CTRL = 2;
     constexpr short KEYSCAN_ALT = 4;

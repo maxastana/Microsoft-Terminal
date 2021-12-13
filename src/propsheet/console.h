@@ -163,7 +163,7 @@ void UninitializeConsoleState();
 void UpdateApplyButton(const HWND hDlg);
 [[nodiscard]] HRESULT FindFontAndUpdateState();
 
-BOOL PopulatePropSheetPageArray(_Out_writes_(cPsps) PROPSHEETPAGE* pPsp, const size_t cPsps, const BOOL fRegisterCallbacks);
+BOOL PopulatePropSheetPageArray(_Out_writes_(cPsps) PROPSHEETPAGEW* pPsp, const size_t cPsps, const BOOL fRegisterCallbacks);
 
 void CreateAndAssociateToolTipToControl(const UINT dlgItem, const HWND hDlg, const UINT idsToolTip);
 

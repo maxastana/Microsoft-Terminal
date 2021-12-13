@@ -32,7 +32,7 @@ namespace Conhost.UIA.Tests
 
         private bool IsProgramInPath(string name)
         {
-            string[] pathDirs = Environment.GetEnvironmentVariable("PATH").Split(';');
+            string[] pathDirs = Environment.GetEnvironmentVariableW("PATH").Split(';');
             foreach (string path in pathDirs)
             {
                 string joined = Path.Combine(path, name);

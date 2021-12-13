@@ -62,12 +62,12 @@ INT_PTR WINAPI ScreenSizeDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPa
     case WM_INITDIALOG:
         // initialize size of edit controls
 
-        SendDlgItemMessage(hDlg, IDD_SCRBUF_WIDTH, EM_LIMITTEXT, 4, 0);
-        SendDlgItemMessage(hDlg, IDD_SCRBUF_HEIGHT, EM_LIMITTEXT, 4, 0);
-        SendDlgItemMessage(hDlg, IDD_WINDOW_WIDTH, EM_LIMITTEXT, 4, 0);
-        SendDlgItemMessage(hDlg, IDD_WINDOW_HEIGHT, EM_LIMITTEXT, 4, 0);
-        SendDlgItemMessage(hDlg, IDD_WINDOW_POSX, EM_LIMITTEXT, 5, 0);
-        SendDlgItemMessage(hDlg, IDD_WINDOW_POSY, EM_LIMITTEXT, 5, 0);
+        SendDlgItemMessageW(hDlg, IDD_SCRBUF_WIDTH, EM_LIMITTEXT, 4, 0);
+        SendDlgItemMessageW(hDlg, IDD_SCRBUF_HEIGHT, EM_LIMITTEXT, 4, 0);
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_WIDTH, EM_LIMITTEXT, 4, 0);
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_HEIGHT, EM_LIMITTEXT, 4, 0);
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_POSX, EM_LIMITTEXT, 5, 0);
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_POSY, EM_LIMITTEXT, 5, 0);
 
         // Get some system parameters
 
@@ -80,25 +80,25 @@ INT_PTR WINAPI ScreenSizeDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPa
 
         // initialize arrow controls
 
-        SendDlgItemMessage(hDlg, IDD_SCRBUF_WIDTHSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
-        SendDlgItemMessage(hDlg, IDD_SCRBUF_WIDTHSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->ScreenBufferSize.X, 0));
-        SendDlgItemMessage(hDlg, IDD_SCRBUF_HEIGHTSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
-        SendDlgItemMessage(hDlg, IDD_SCRBUF_HEIGHTSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->ScreenBufferSize.Y, 0));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_WIDTHSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_WIDTHSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowSize.X, 0));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_HEIGHTSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_HEIGHTSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowSize.Y, 0));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_POSXSCROLL, UDM_SETRANGE, 0, MAKELONG(xScreen + cxScreen - cxFrame, xScreen - cxFrame));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_POSXSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowPosX, 0));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_POSYSCROLL, UDM_SETRANGE, 0, MAKELONG(yScreen + cyScreen - cyFrame, yScreen - cyFrame));
-        SendDlgItemMessage(hDlg, IDD_WINDOW_POSYSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowPosY, 0));
+        SendDlgItemMessageW(hDlg, IDD_SCRBUF_WIDTHSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
+        SendDlgItemMessageW(hDlg, IDD_SCRBUF_WIDTHSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->ScreenBufferSize.X, 0));
+        SendDlgItemMessageW(hDlg, IDD_SCRBUF_HEIGHTSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
+        SendDlgItemMessageW(hDlg, IDD_SCRBUF_HEIGHTSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->ScreenBufferSize.Y, 0));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_WIDTHSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_WIDTHSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowSize.X, 0));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_HEIGHTSCROLL, UDM_SETRANGE, 0, MAKELONG(9999, 1));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_HEIGHTSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowSize.Y, 0));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_POSXSCROLL, UDM_SETRANGE, 0, MAKELONG(xScreen + cxScreen - cxFrame, xScreen - cxFrame));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_POSXSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowPosX, 0));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_POSYSCROLL, UDM_SETRANGE, 0, MAKELONG(yScreen + cyScreen - cyFrame, yScreen - cyFrame));
+        SendDlgItemMessageW(hDlg, IDD_WINDOW_POSYSCROLL, UDM_SETPOS, 0, MAKELONG(gpStateInfo->WindowPosY, 0));
 
         //
         // put current values in dialog box
         //
 
         CheckDlgButton(hDlg, IDD_AUTO_POSITION, gpStateInfo->AutoPosition);
-        SendMessage(hDlg, WM_COMMAND, IDD_AUTO_POSITION, 0);
+        SendMessageW(hDlg, WM_COMMAND, IDD_AUTO_POSITION, 0);
 
         CheckDlgButton(hDlg, IDD_LINE_WRAP, gpStateInfo->fWrapText);
         CreateAndAssociateToolTipToControl(IDD_LINE_WRAP, hDlg, IDS_TOOLTIP_LINE_WRAP);
@@ -113,7 +113,7 @@ INT_PTR WINAPI ScreenSizeDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPa
          * lost focus so it'll update properly
          */
         Item = GetDlgCtrlID((HWND)lParam) - 1;
-        SendMessage(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
+        SendMessageW(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
         return TRUE;
 
     case WM_COMMAND:
@@ -143,7 +143,7 @@ INT_PTR WINAPI ScreenSizeDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPa
                 /*
                  * Update the state info structure
                  */
-                Value = (UINT)SendDlgItemMessage(hDlg, Item + 1, UDM_GETPOS, 0, 0);
+                Value = (UINT)SendDlgItemMessageW(hDlg, Item + 1, UDM_GETPOS, 0, 0);
                 if (HIWORD(Value) == 0)
                 {
                     UpdateStateInfo(hDlg, Item, (SHORT)LOWORD(Value));
@@ -161,7 +161,7 @@ INT_PTR WINAPI ScreenSizeDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPa
                  * Update the preview window with the new value
                  */
                 hWnd = GetDlgItem(hDlg, IDD_PREVIEWWINDOW);
-                SendMessage(hWnd, CM_PREVIEW_UPDATE, 0, 0);
+                SendMessageW(hWnd, CM_PREVIEW_UPDATE, 0, 0);
                 break;
             }
             return TRUE;
@@ -215,7 +215,7 @@ INT_PTR WINAPI ScreenSizeDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPa
             Item = GetDlgCtrlID(GetFocus());
             if (Item)
             {
-                SendMessage(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
+                SendMessageW(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
             }
             return TRUE;
 
@@ -232,7 +232,7 @@ INT_PTR WINAPI ScreenSizeDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPa
 
                 // Force the preview window to update as well
                 hWnd = GetDlgItem(hDlg, IDD_PREVIEWWINDOW);
-                SendMessage(hWnd, CM_PREVIEW_UPDATE, 0, 0);
+                SendMessageW(hWnd, CM_PREVIEW_UPDATE, 0, 0);
             }
             else
             {

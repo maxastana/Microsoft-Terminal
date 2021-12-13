@@ -39,7 +39,7 @@ The basic overview:
 1. Get an instance of the `ICustomDestinationList` COM object
 2. Call `ICustomDestinationList.BeginList`
 3. Create an `IObjectCollection` COM object
-4. Create `IShellLink` COM objects for each profile and add them to the `IObjectCollection`
+4. Create `IShellLinkW` COM objects for each profile and add them to the `IObjectCollection`
 5. Add the `IObjectCollection` to the `ICustomDestinationList`
 6. Call `ICustomDestination.CommitList`
 
@@ -66,7 +66,7 @@ There are also different "categories" that we could add the profiles to. A jumpl
 Following this, it would be more appropriate to add the profiles to the `Tasks` list as we are launching a profile. Essentially each item in the jumplist will be a shortcut that opens the terminal and provides command line arguments.
 
 #### Implementation notes
-When specifying the icon to use in the `IShellLink` object, it does not appear to be able to read `ms-appx://` URIs such as ones for the default profile icons and also only able to read `.ico` files. The way that the UWP api is able to do it is by adding additional `PropertyKey`s to the `IShellLink` object [3]. Using these tools [JumpList](https://github.com/EricZimmerman/JumpList) and [Lnk Explorer](https://github.com/EricZimmerman/LECmd), we can examine what is different with UWP jumplists. When we examine the `.lnk` items that the jumplist uses, we can see that additional properties are added to the property store.
+When specifying the icon to use in the `IShellLinkW` object, it does not appear to be able to read `ms-appx://` URIs such as ones for the default profile icons and also only able to read `.ico` files. The way that the UWP api is able to do it is by adding additional `PropertyKey`s to the `IShellLinkW` object [3]. Using these tools [JumpList](https://github.com/EricZimmerman/JumpList) and [Lnk Explorer](https://github.com/EricZimmerman/LECmd), we can examine what is different with UWP jumplists. When we examine the `.lnk` items that the jumplist uses, we can see that additional properties are added to the property store.
 
 | Property Key (Format ID\Property ID)     | Description                                  | Example Value                                                      |
 | ---------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------ |
@@ -79,7 +79,7 @@ When specifying the icon to use in the `IShellLink` object, it does not appear t
 | {436F2667-14E2-4FEB-B30A-146C53B5B674}\100 | Link Arguments                               | {61c54bbd-c2c6-5271-96e7-009a87ff44bf}                             |
 | {F29F85E0-4FF9-1068-AB91-08002B27B3D9}\2   | (Description not available)                  | Windows PowerShell                                                 |
 
-If we look at the property key `9f4c2855-9f79-4b39-a8d0-e1d42de1d5f3\29`, it specifies the uri for the icon and supports the `ms-appx://` scheme. So for icon support we can add that property key when creating the `IShellLink`. Also note that with this approach, it needs the `file://` uri scheme in the path for custom icons.
+If we look at the property key `9f4c2855-9f79-4b39-a8d0-e1d42de1d5f3\29`, it specifies the uri for the icon and supports the `ms-appx://` scheme. So for icon support we can add that property key when creating the `IShellLinkW`. Also note that with this approach, it needs the `file://` uri scheme in the path for custom icons.
 
 ### Launching the terminal from the jumplist
 The jumplist will launch the terminal by calling the executable alias `wt.exe` with arguments to indicate the profile. The command line arguments to use are tracked in issue [#607](https://github.com/microsoft/terminal/issues/607)

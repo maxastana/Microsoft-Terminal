@@ -261,7 +261,7 @@ try
 
     // Get the index of the block out of the font.
     UINT16 glyphIndex;
-    RETURN_IF_FAILED(face->GetGlyphIndicesW(&blockCodepoint, 1, &glyphIndex));
+    RETURN_IF_FAILED(face->GetGlyphIndices(&blockCodepoint, 1, &glyphIndex));
 
     // If it was 0, it wasn't found in the font. We're going to try again with
     // Unicode BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL U+253C which should be touching
@@ -269,7 +269,7 @@ try
     if (glyphIndex == 0)
     {
         const UINT32 alternateCp = L'\x253C';
-        RETURN_IF_FAILED(face->GetGlyphIndicesW(&alternateCp, 1, &glyphIndex));
+        RETURN_IF_FAILED(face->GetGlyphIndices(&alternateCp, 1, &glyphIndex));
     }
 
     // If we still didn't find the glyph index, we haven't implemented any further logic to figure out the box dimensions.
@@ -718,7 +718,7 @@ void DxFontRenderData::_BuildFontRenderData(const FontInfoDesired& desired, Font
 
     const UINT32 spaceCodePoint = L'M';
     UINT16 spaceGlyphIndex;
-    THROW_IF_FAILED(face->GetGlyphIndicesW(&spaceCodePoint, 1, &spaceGlyphIndex));
+    THROW_IF_FAILED(face->GetGlyphIndices(&spaceCodePoint, 1, &spaceGlyphIndex));
 
     INT32 advanceInDesignUnits;
     THROW_IF_FAILED(face->GetDesignGlyphAdvances(1, &spaceGlyphIndex, &advanceInDesignUnits));

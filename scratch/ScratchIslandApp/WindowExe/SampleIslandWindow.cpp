@@ -45,13 +45,13 @@ void SampleIslandWindow::MakeWindow() noexcept
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WndProc;
     wc.hIcon = LoadIconW(wc.hInstance, MAKEINTRESOURCEW(IDI_APPICON));
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
     WINRT_ASSERT(!_window);
 
     // Create the window with the default size here - During the creation of the
     // window, the system will give us a chance to set its size in WM_CREATE.
     // WM_CREATE will be handled synchronously, before CreateWindow returns.
-    WINRT_VERIFY(CreateWindowEx(0,
+    WINRT_VERIFY(CreateWindowExW(0,
                                 wc.lpszClassName,
                                 L"ScratchApp",
                                 WS_OVERLAPPEDWINDOW,

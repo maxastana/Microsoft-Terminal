@@ -258,7 +258,7 @@ DWORD GetRegistryValues(
 
     for (i = 0; i < 16; i++)
     {
-        StringCchPrintf(awchBuffer,
+        StringCchPrintfW(awchBuffer,
                         ARRAYSIZE(awchBuffer),
                         CONSOLE_REGISTRY_COLORTABLE,
                         i);
@@ -748,7 +748,7 @@ VOID SetRegistryValues(
     for (i = 0; i < 16; i++)
     {
         dwValue = pStateInfo->ColorTable[i];
-        if (SUCCEEDED(StringCchPrintf(awchBuffer, ARRAYSIZE(awchBuffer), CONSOLE_REGISTRY_COLORTABLE, i)))
+        if (SUCCEEDED(StringCchPrintfW(awchBuffer, ARRAYSIZE(awchBuffer), CONSOLE_REGISTRY_COLORTABLE, i)))
         {
             LOG_IF_FAILED(RegistrySerialization::s_UpdateValue(hConsoleKey,
                                                                hTitleKey,

@@ -64,7 +64,7 @@ void InitSideBySide(_Out_writes_(ScratchBufferSize) PWSTR ScratchBuffer, __range
 
     actctx.cbSize = sizeof(actctx);
     actctx.dwFlags = (ACTCTX_FLAG_RESOURCE_NAME_VALID | ACTCTX_FLAG_SET_PROCESS_DEFAULT);
-    actctx.lpResourceName = MAKEINTRESOURCE(IDR_SYSTEM_MANIFEST);
+    actctx.lpResourceName = MAKEINTRESOURCEW(IDR_SYSTEM_MANIFEST);
     actctx.lpSource = ScratchBuffer + NtToWin32PathOffset;
 
     HANDLE const hActCtx = CreateActCtxW(&actctx);
@@ -112,10 +112,10 @@ void InitEnvironmentVariables()
     WCHAR wchValue[MAX_PATH];
     for (UINT i = 0; i < ARRAYSIZE(EnvProgFiles); i++)
     {
-        if (!GetEnvironmentVariable(EnvProgFiles[i].szVariable, nullptr, 0))
+        if (!GetEnvironmentVariableW(EnvProgFiles[i].szVariable, nullptr, 0))
         {
             DWORD dwMaxBufferSize = sizeof(wchValue);
-            if (RegGetValue(HKEY_LOCAL_MACHINE,
+            if (RegGetValueW(HKEY_LOCAL_MACHINE,
                             L"Software\\Microsoft\\Windows\\CurrentVersion",
                             EnvProgFiles[i].szRegValue,
                             RRF_RT_REG_SZ,
@@ -124,7 +124,7 @@ void InitEnvironmentVariables()
                             &dwMaxBufferSize) == ERROR_SUCCESS)
             {
                 wchValue[(dwMaxBufferSize / sizeof(wchValue[0])) - 1] = 0;
-                SetEnvironmentVariable(EnvProgFiles[i].szVariable, wchValue);
+                SetEnvironmentVariableW(EnvProgFiles[i].szVariable, wchValue);
             }
         }
     }

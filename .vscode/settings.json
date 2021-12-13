@@ -101,5 +101,10 @@
         "**/obj/**": true,
         "**/packages/**": true,
         "**/Generated Files/**": true
-    }
+    },
+    "nmake.default-razzle-configuration": "amd64fre",
+    "vscode-nmake-tools.workspaceBuildDirectories": [
+        "e:\\src\\terminal-1"
+    ],
+    "C_Cpp.default.configurationProvider": "microsoft.vscode-nmake-tools"
 }

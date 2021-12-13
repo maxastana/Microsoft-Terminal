@@ -160,7 +160,7 @@ std::wstring OpenTerminalHere::_GetPathFromExplorer() const
     }
 
     TCHAR szName[MAX_PATH] = { 0 };
-    ::GetClassName(hwnd, szName, MAX_PATH);
+    ::GetClassNameW(hwnd, szName, MAX_PATH);
     if (0 == StrCmp(szName, L"WorkerW") ||
         0 == StrCmp(szName, L"Progman"))
     {

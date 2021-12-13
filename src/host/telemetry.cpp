@@ -286,11 +286,11 @@ void Telemetry::LogProcessConnected(const HANDLE hProcess)
     {
         TotalCodesForPreviousProcess();
 
-        // Don't initialize wszFilePathAndName, QueryFullProcessImageName does that for us.  Use QueryFullProcessImageName instead of
+        // Don't initialize wszFilePathAndName, QueryFullProcessImageNameW does that for us.  Use QueryFullProcessImageNameW instead of
         // GetProcessImageFileName because we need the path to begin with a drive letter and not a device name.
         WCHAR wszFilePathAndName[MAX_PATH];
         DWORD dwSize = ARRAYSIZE(wszFilePathAndName);
-        if (QueryFullProcessImageName(hProcess, 0, wszFilePathAndName, &dwSize))
+        if (QueryFullProcessImageNameW(hProcess, 0, wszFilePathAndName, &dwSize))
         {
             // Stripping out the path also helps with PII issues in case they launched the program
             // from a path containing their username.
@@ -314,7 +314,7 @@ void Telemetry::LogProcessConnected(const HANDLE hProcess)
                     // We could have gotten the system directory once when this class starts, but we'd have to hold the memory for it
                     // plus we're not sure we'd ever need it, so just get it when we know we're running bash.exe.
                     WCHAR wszSystemDirectory[MAX_PATH] = L"";
-                    if (GetSystemDirectory(wszSystemDirectory, ARRAYSIZE(wszSystemDirectory)))
+                    if (GetSystemDirectoryW(wszSystemDirectory, ARRAYSIZE(wszSystemDirectory)))
                     {
                         _fBashUsed = (PathIsSameRoot(wszFilePathAndName, wszSystemDirectory) == TRUE);
                     }

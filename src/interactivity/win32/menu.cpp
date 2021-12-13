@@ -51,7 +51,7 @@ Menu::Menu(HMENU hMenu, HMENU hHeirMenu) :
     // This gets the title bar menu.
     HMENU hMenu = GetSystemMenu(hWnd, FALSE);
     HMENU hHeirMenu = LoadMenuW(ServiceLocator::LocateGlobals().hInstance,
-                                MAKEINTRESOURCE(ID_CONSOLE_SYSTEMMENU));
+                                MAKEINTRESOURCEW(ID_CONSOLE_SYSTEMMENU));
 
     Menu* pNewMenu = new (std::nothrow) Menu(hMenu, hHeirMenu);
     status = NT_TESTNULL(pNewMenu);

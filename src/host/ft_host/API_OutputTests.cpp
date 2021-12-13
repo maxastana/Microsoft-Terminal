@@ -995,10 +995,10 @@ static void WinPtyTestStartSelection()
 {
     const HWND hwnd = GetConsoleWindow();
     const int SC_CONSOLE_SELECT_ALL = 0xFFF5;
-    SendMessage(hwnd, WM_SYSCOMMAND, SC_CONSOLE_SELECT_ALL, 0);
+    SendMessageW(hwnd, WM_SYSCOMMAND, SC_CONSOLE_SELECT_ALL, 0);
     auto press_escape = std::thread([=]() {
         Sleep(500);
-        SendMessage(hwnd, WM_CHAR, 27, 0x00010001); // 0x00010001 is the repeat count (1) and scan code (1)
+        SendMessageW(hwnd, WM_CHAR, 27, 0x00010001); // 0x00010001 is the repeat count (1) and scan code (1)
     });
     press_escape.detach();
 }

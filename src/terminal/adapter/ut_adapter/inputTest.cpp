@@ -650,7 +650,7 @@ void InputTest::DifferentModifiersTest()
 
     // C-/ -> C-_ -> 0x1f
     uiKeystate = LEFT_CTRL_PRESSED;
-    vkey = LOBYTE(VkKeyScan(L'/'));
+    vkey = LOBYTE(VkKeyScanW(L'/'));
     s_expectedInput = L"\x1f";
     TestKey(pInput, uiKeystate, vkey, L'/');
     uiKeystate = RIGHT_CTRL_PRESSED;
@@ -658,7 +658,7 @@ void InputTest::DifferentModifiersTest()
 
     // M-/ -> ESC /
     uiKeystate = LEFT_ALT_PRESSED;
-    vkey = LOBYTE(VkKeyScan(L'/'));
+    vkey = LOBYTE(VkKeyScanW(L'/'));
     s_expectedInput = L"\x1b/";
     TestKey(pInput, uiKeystate, vkey, L'/');
     uiKeystate = RIGHT_ALT_PRESSED;
@@ -668,7 +668,7 @@ void InputTest::DifferentModifiersTest()
     // C-? -> DEL -> 0x7f
     Log::Comment(NoThrowString().Format(L"Checking C-?"));
     // Use SHIFT_PRESSED to force us into differentiating between '/' and '?'
-    vkey = LOBYTE(VkKeyScan(L'?'));
+    vkey = LOBYTE(VkKeyScanW(L'?'));
     s_expectedInput = L"\x7f";
     TestKey(pInput, SHIFT_PRESSED | LEFT_CTRL_PRESSED, vkey, L'?');
     TestKey(pInput, SHIFT_PRESSED | RIGHT_CTRL_PRESSED, vkey, L'?');
@@ -676,7 +676,7 @@ void InputTest::DifferentModifiersTest()
     // C-M-/ -> 0x1b0x1f
     Log::Comment(NoThrowString().Format(L"Checking C-M-/"));
     uiKeystate = LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED;
-    vkey = LOBYTE(VkKeyScan(L'/'));
+    vkey = LOBYTE(VkKeyScanW(L'/'));
     s_expectedInput = L"\x1b\x1f";
     TestKey(pInput, LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED, vkey, L'/');
     TestKey(pInput, RIGHT_CTRL_PRESSED | LEFT_ALT_PRESSED, vkey, L'/');
@@ -686,7 +686,7 @@ void InputTest::DifferentModifiersTest()
     // C-M-? -> 0x1b0x7f
     Log::Comment(NoThrowString().Format(L"Checking C-M-?"));
     uiKeystate = LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED;
-    vkey = LOBYTE(VkKeyScan(L'?'));
+    vkey = LOBYTE(VkKeyScanW(L'?'));
     s_expectedInput = L"\x1b\x7f";
     TestKey(pInput, SHIFT_PRESSED | LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED, vkey, L'?');
     TestKey(pInput, SHIFT_PRESSED | RIGHT_CTRL_PRESSED | LEFT_ALT_PRESSED, vkey, L'?');

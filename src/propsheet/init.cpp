@@ -82,14 +82,14 @@ LONG CPlApplet(
 
         lpCPlInfo = (LPNEWCPLINFO)lParam2;
 
-        lpCPlInfo->hIcon = LoadIcon(nullptr, MAKEINTRESOURCE(IDI_CONSOLE));
+        lpCPlInfo->hIcon = LoadIcon(nullptr, MAKEINTRESOURCEW(IDI_CONSOLE));
 
-        if (!LoadString(ghInstance, IDS_NAME, lpCPlInfo->szName, ARRAYSIZE(lpCPlInfo->szName)))
+        if (!LoadStringW(ghInstance, IDS_NAME, lpCPlInfo->szName, ARRAYSIZE(lpCPlInfo->szName)))
         {
             lpCPlInfo->szName[0] = TEXT('\0');
         }
 
-        if (!LoadString(ghInstance, IDS_INFO, lpCPlInfo->szInfo, ARRAYSIZE(lpCPlInfo->szInfo)))
+        if (!LoadStringW(ghInstance, IDS_INFO, lpCPlInfo->szInfo, ARRAYSIZE(lpCPlInfo->szInfo)))
         {
             lpCPlInfo->szInfo[0] = TEXT('\0');
         }

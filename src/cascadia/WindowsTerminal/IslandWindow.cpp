@@ -56,7 +56,7 @@ void IslandWindow::MakeWindow() noexcept
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WndProc;
     wc.hIcon = LoadIconW(wc.hInstance, MAKEINTRESOURCEW(IDI_APPICON));
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
     WINRT_ASSERT(!_window);
 
     // Create the window with the default size here - During the creation of the
@@ -69,7 +69,7 @@ void IslandWindow::MakeWindow() noexcept
     // but it works just fine when the window is in the TOPMOST group. But if
     // you enable it always, activating the window will remove our DWM frame
     // entirely. Weird.
-    WINRT_VERIFY(CreateWindowEx(WS_EX_NOREDIRECTIONBITMAP | (_alwaysOnTop ? WS_EX_TOPMOST : 0),
+    WINRT_VERIFY(CreateWindowExW(WS_EX_NOREDIRECTIONBITMAP | (_alwaysOnTop ? WS_EX_TOPMOST : 0),
                                 wc.lpszClassName,
                                 L"Windows Terminal",
                                 WS_OVERLAPPEDWINDOW,
@@ -694,7 +694,7 @@ void IslandWindow::SetContent(winrt::Windows::UI::Xaml::UIElement content)
 //   relative to the client area.
 RECT IslandWindow::GetNonClientFrame(const UINT dpi) const noexcept
 {
-    const auto windowStyle = static_cast<DWORD>(GetWindowLong(_window.get(), GWL_STYLE));
+    const auto windowStyle = static_cast<DWORD>(GetWindowLongW(_window.get(), GWL_STYLE));
     RECT islandFrame{};
 
     // If we failed to get the correct window size for whatever reason, log

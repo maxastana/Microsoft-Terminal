@@ -20,7 +20,7 @@ static int iColor;
     HWND hWnd;
     HWND hDlg;
 
-    ColorId = GetWindowLong(hColor, GWL_ID);
+    ColorId = GetWindowLongW(hColor, GWL_ID);
     hDlg = GetParent(hColor);
 
     switch (wMsg)
@@ -52,14 +52,14 @@ static int iColor;
         case VK_LEFT:
             if (ColorId > IDD_COLOR_1)
             {
-                SendMessage(hDlg, CM_SETCOLOR, ColorId - 1 - IDD_COLOR_1, (LPARAM)hColor);
+                SendMessageW(hDlg, CM_SETCOLOR, ColorId - 1 - IDD_COLOR_1, (LPARAM)hColor);
             }
             break;
         case VK_DOWN:
         case VK_RIGHT:
             if (ColorId < IDD_COLOR_16)
             {
-                SendMessage(hDlg, CM_SETCOLOR, ColorId + 1 - IDD_COLOR_1, (LPARAM)hColor);
+                SendMessageW(hDlg, CM_SETCOLOR, ColorId + 1 - IDD_COLOR_1, (LPARAM)hColor);
             }
             break;
         case VK_TAB:
@@ -68,12 +68,12 @@ static int iColor;
             SetFocus(hWnd);
             break;
         default:
-            return DefWindowProc(hColor, wMsg, wParam, lParam);
+            return DefWindowProcW(hColor, wMsg, wParam, lParam);
         }
         break;
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
-        SendMessage(hDlg, CM_SETCOLOR, ColorId - IDD_COLOR_1, (LPARAM)hColor);
+        SendMessageW(hDlg, CM_SETCOLOR, ColorId - IDD_COLOR_1, (LPARAM)hColor);
         break;
     case WM_PAINT:
 
@@ -114,22 +114,22 @@ bool InitColorsDialog(HWND hDlg)
 
     // initialize size of edit controls
 
-    SendDlgItemMessage(hDlg, IDD_COLOR_RED, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_COLOR_GREEN, EM_LIMITTEXT, 3, 0);
-    SendDlgItemMessage(hDlg, IDD_COLOR_BLUE, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_COLOR_RED, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_COLOR_GREEN, EM_LIMITTEXT, 3, 0);
+    SendDlgItemMessageW(hDlg, IDD_COLOR_BLUE, EM_LIMITTEXT, 3, 0);
 
     // initialize arrow controls
 
-    SendDlgItemMessage(hDlg, IDD_COLOR_REDSCROLL, UDM_SETRANGE, 0, MAKELONG(255, 0));
-    SendDlgItemMessage(hDlg, IDD_COLOR_REDSCROLL, UDM_SETPOS, 0, MAKELONG(GetRValue(AttrToRGB(ColorArray[iColor])), 0));
-    SendDlgItemMessage(hDlg, IDD_COLOR_GREENSCROLL, UDM_SETRANGE, 0, MAKELONG(255, 0));
-    SendDlgItemMessage(hDlg, IDD_COLOR_GREENSCROLL, UDM_SETPOS, 0, MAKELONG(GetGValue(AttrToRGB(ColorArray[iColor])), 0));
-    SendDlgItemMessage(hDlg, IDD_COLOR_BLUESCROLL, UDM_SETRANGE, 0, MAKELONG(255, 0));
-    SendDlgItemMessage(hDlg, IDD_COLOR_BLUESCROLL, UDM_SETPOS, 0, MAKELONG(GetBValue(AttrToRGB(ColorArray[iColor])), 0));
+    SendDlgItemMessageW(hDlg, IDD_COLOR_REDSCROLL, UDM_SETRANGE, 0, MAKELONG(255, 0));
+    SendDlgItemMessageW(hDlg, IDD_COLOR_REDSCROLL, UDM_SETPOS, 0, MAKELONG(GetRValue(AttrToRGB(ColorArray[iColor])), 0));
+    SendDlgItemMessageW(hDlg, IDD_COLOR_GREENSCROLL, UDM_SETRANGE, 0, MAKELONG(255, 0));
+    SendDlgItemMessageW(hDlg, IDD_COLOR_GREENSCROLL, UDM_SETPOS, 0, MAKELONG(GetGValue(AttrToRGB(ColorArray[iColor])), 0));
+    SendDlgItemMessageW(hDlg, IDD_COLOR_BLUESCROLL, UDM_SETRANGE, 0, MAKELONG(255, 0));
+    SendDlgItemMessageW(hDlg, IDD_COLOR_BLUESCROLL, UDM_SETPOS, 0, MAKELONG(GetBValue(AttrToRGB(ColorArray[iColor])), 0));
 
     CreateAndAssociateToolTipToControl(IDD_TRANSPARENCY, hDlg, IDS_TOOLTIP_OPACITY);
 
-    SendMessage(GetDlgItem(hDlg, IDD_TRANSPARENCY), TBM_SETRANGE, FALSE, (LPARAM)MAKELONG(TRANSPARENCY_RANGE_MIN, BYTE_MAX));
+    SendMessageW(GetDlgItem(hDlg, IDD_TRANSPARENCY), TBM_SETRANGE, FALSE, (LPARAM)MAKELONG(TRANSPARENCY_RANGE_MIN, BYTE_MAX));
     ToggleV2ColorControls(hDlg);
 
     return TRUE;
@@ -273,7 +273,7 @@ INT_PTR WINAPI ColorDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)
             // Ignore opacity in v1 console
             if (g_fForceV2)
             {
-                gpStateInfo->bWindowTransparency = (BYTE)SendDlgItemMessage(hDlg, IDD_TRANSPARENCY, TBM_GETPOS, 0, 0);
+                gpStateInfo->bWindowTransparency = (BYTE)SendDlgItemMessageW(hDlg, IDD_TRANSPARENCY, TBM_GETPOS, 0, 0);
             }
 
             EndDlgPage(hDlg, !pshn->lParam);
@@ -300,7 +300,7 @@ INT_PTR WINAPI ColorDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)
             Item = GetDlgCtrlID(GetFocus());
             if (Item)
             {
-                SendMessage(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
+                SendMessageW(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
             }
             return TRUE;
         }
@@ -313,7 +313,7 @@ INT_PTR WINAPI ColorDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)
              * lost focus so it'll update properly
              */
         Item = GetDlgCtrlID((HWND)lParam) - 1;
-        SendMessage(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
+        SendMessageW(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
         return TRUE;
 
     case WM_HSCROLL:
@@ -329,7 +329,7 @@ INT_PTR WINAPI ColorDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)
 
                 //moving via keyboard
             default:
-                g_bPreviewOpacity = (BYTE)SendMessage((HWND)lParam, TBM_GETPOS, 0, 0);
+                g_bPreviewOpacity = (BYTE)SendMessageW((HWND)lParam, TBM_GETPOS, 0, 0);
             }
 
             PreviewOpacity(hDlg, g_bPreviewOpacity);
@@ -402,7 +402,7 @@ void PreviewOpacity(HWND hDlg, BYTE bOpacity)
         WCHAR wszOpacityValue[4];
         HWND hWndConsole = gpStateInfo->hWnd;
 
-        StringCchPrintf(wszOpacityValue, ARRAYSIZE(wszOpacityValue), L"%d", (int)((float)bOpacity / BYTE_MAX * 100));
+        StringCchPrintfW(wszOpacityValue, ARRAYSIZE(wszOpacityValue), L"%d", (int)((float)bOpacity / BYTE_MAX * 100));
         SetDlgItemText(hDlg, IDD_OPACITY_VALUE, wszOpacityValue);
 
         if (hWndConsole)
@@ -428,6 +428,6 @@ void SetOpacitySlider(__in HWND hDlg)
         g_bPreviewOpacity = BYTE_MAX; //always fully opaque in V1
     }
 
-    SendMessage(GetDlgItem(hDlg, IDD_TRANSPARENCY), TBM_SETPOS, TRUE, (LPARAM)(g_bPreviewOpacity));
+    SendMessageW(GetDlgItem(hDlg, IDD_TRANSPARENCY), TBM_SETPOS, TRUE, (LPARAM)(g_bPreviewOpacity));
     PreviewOpacity(hDlg, g_bPreviewOpacity);
 }

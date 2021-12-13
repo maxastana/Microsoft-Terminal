@@ -32,7 +32,7 @@ void NotificationIcon::_CreateWindow()
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = DefWindowProcW;
     wc.hIcon = static_cast<HICON>(GetActiveAppIconHandle(true));
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
 
     _notificationIconHwnd = wil::unique_hwnd(CreateWindowW(wc.lpszClassName,
                                                            wc.lpszClassName,

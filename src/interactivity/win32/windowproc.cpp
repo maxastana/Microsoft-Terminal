@@ -307,7 +307,7 @@ using namespace Microsoft::Console::Types;
 
         LOG_IF_FAILED(_HandlePaint());
 
-        // NOTE: We cannot let the OS handle this message (meaning do NOT pass to DefWindowProc)
+        // NOTE: We cannot let the OS handle this message (meaning do NOT pass to DefWindowProcW)
         // or it will cause missing painted regions in scenarios without a DWM (like Core Server SKU).
         // Ensure it is re-validated in this handler so we don't receive infinite WM_PAINTs after
         // we have stored the invalid region data for the next trip around the renderer thread.

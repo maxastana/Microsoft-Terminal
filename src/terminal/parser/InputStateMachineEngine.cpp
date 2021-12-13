@@ -576,7 +576,7 @@ void InputStateMachineEngine::_GenerateWrappedSequence(const wchar_t wch,
         next.Event.KeyEvent.dwControlKeyState = currentModifiers;
         next.Event.KeyEvent.wRepeatCount = 1;
         next.Event.KeyEvent.wVirtualKeyCode = VK_SHIFT;
-        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKey(VK_SHIFT, MAPVK_VK_TO_VSC));
+        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKeyW(VK_SHIFT, MAPVK_VK_TO_VSC));
         next.Event.KeyEvent.uChar.UnicodeChar = 0x0;
         input.push_back(next);
     }
@@ -588,7 +588,7 @@ void InputStateMachineEngine::_GenerateWrappedSequence(const wchar_t wch,
         next.Event.KeyEvent.dwControlKeyState = currentModifiers;
         next.Event.KeyEvent.wRepeatCount = 1;
         next.Event.KeyEvent.wVirtualKeyCode = VK_MENU;
-        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKey(VK_MENU, MAPVK_VK_TO_VSC));
+        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKeyW(VK_MENU, MAPVK_VK_TO_VSC));
         next.Event.KeyEvent.uChar.UnicodeChar = 0x0;
         input.push_back(next);
     }
@@ -600,7 +600,7 @@ void InputStateMachineEngine::_GenerateWrappedSequence(const wchar_t wch,
         next.Event.KeyEvent.dwControlKeyState = currentModifiers;
         next.Event.KeyEvent.wRepeatCount = 1;
         next.Event.KeyEvent.wVirtualKeyCode = VK_CONTROL;
-        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKey(VK_CONTROL, MAPVK_VK_TO_VSC));
+        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKeyW(VK_CONTROL, MAPVK_VK_TO_VSC));
         next.Event.KeyEvent.uChar.UnicodeChar = 0x0;
         input.push_back(next);
     }
@@ -618,7 +618,7 @@ void InputStateMachineEngine::_GenerateWrappedSequence(const wchar_t wch,
         next.Event.KeyEvent.dwControlKeyState = currentModifiers;
         next.Event.KeyEvent.wRepeatCount = 1;
         next.Event.KeyEvent.wVirtualKeyCode = VK_CONTROL;
-        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKey(VK_CONTROL, MAPVK_VK_TO_VSC));
+        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKeyW(VK_CONTROL, MAPVK_VK_TO_VSC));
         next.Event.KeyEvent.uChar.UnicodeChar = 0x0;
         input.push_back(next);
     }
@@ -630,7 +630,7 @@ void InputStateMachineEngine::_GenerateWrappedSequence(const wchar_t wch,
         next.Event.KeyEvent.dwControlKeyState = currentModifiers;
         next.Event.KeyEvent.wRepeatCount = 1;
         next.Event.KeyEvent.wVirtualKeyCode = VK_MENU;
-        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKey(VK_MENU, MAPVK_VK_TO_VSC));
+        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKeyW(VK_MENU, MAPVK_VK_TO_VSC));
         next.Event.KeyEvent.uChar.UnicodeChar = 0x0;
         input.push_back(next);
     }
@@ -642,7 +642,7 @@ void InputStateMachineEngine::_GenerateWrappedSequence(const wchar_t wch,
         next.Event.KeyEvent.dwControlKeyState = currentModifiers;
         next.Event.KeyEvent.wRepeatCount = 1;
         next.Event.KeyEvent.wVirtualKeyCode = VK_SHIFT;
-        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKey(VK_SHIFT, MAPVK_VK_TO_VSC));
+        next.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKeyW(VK_SHIFT, MAPVK_VK_TO_VSC));
         next.Event.KeyEvent.uChar.UnicodeChar = 0x0;
         input.push_back(next);
     }
@@ -673,7 +673,7 @@ void InputStateMachineEngine::_GetSingleKeypress(const wchar_t wch,
     rec.Event.KeyEvent.dwControlKeyState = modifierState;
     rec.Event.KeyEvent.wRepeatCount = 1;
     rec.Event.KeyEvent.wVirtualKeyCode = vkey;
-    rec.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKey(vkey, MAPVK_VK_TO_VSC));
+    rec.Event.KeyEvent.wVirtualScanCode = gsl::narrow_cast<WORD>(MapVirtualKeyW(vkey, MAPVK_VK_TO_VSC));
     rec.Event.KeyEvent.uChar.UnicodeChar = wch;
     input.push_back(rec);
 
@@ -712,7 +712,7 @@ bool InputStateMachineEngine::_WriteSingleKey(const wchar_t wch, const short vke
 // - true iff we successfully wrote the keypress to the input callback.
 bool InputStateMachineEngine::_WriteSingleKey(const short vkey, const DWORD modifierState)
 {
-    const wchar_t wch = gsl::narrow_cast<wchar_t>(MapVirtualKey(vkey, MAPVK_VK_TO_CHAR));
+    const wchar_t wch = gsl::narrow_cast<wchar_t>(MapVirtualKeyW(vkey, MAPVK_VK_TO_CHAR));
     return _WriteSingleKey(wch, vkey, modifierState);
 }
 

@@ -153,12 +153,12 @@ namespace Conhost.UIA.Tests.Elements
 
         public void ScrollWindow(int scrolls = -1)
         {
-            User32.SendMessage(WinCon.GetConsoleWindow(), User32.WindowMessages.WM_MOUSEWHEEL, (User32.WHEEL_DELTA * scrolls) << 16, IntPtr.Zero);
+            User32.SendMessageW(WinCon.GetConsoleWindow(), User32.WindowMessages.WM_MOUSEWHEEL, (User32.WHEEL_DELTA * scrolls) << 16, IntPtr.Zero);
         }
 
         public void HScrollWindow(int scrolls = -1)
         {
-            User32.SendMessage(WinCon.GetConsoleWindow(), User32.WindowMessages.WM_MOUSEHWHEEL, (User32.WHEEL_DELTA * scrolls) << 16, IntPtr.Zero);
+            User32.SendMessageW(WinCon.GetConsoleWindow(), User32.WindowMessages.WM_MOUSEHWHEEL, (User32.WHEEL_DELTA * scrolls) << 16, IntPtr.Zero);
         }
 
         public WinCon.COORD GetCursorPosition(IntPtr hConsole)

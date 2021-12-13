@@ -37,7 +37,7 @@ public:
             return that->MessageHandler(message, wparam, lparam);
         }
 
-        return DefWindowProc(window, message, wparam, lparam);
+        return DefWindowProcW(window, message, wparam, lparam);
     }
 
     [[nodiscard]] virtual LRESULT MessageHandler(UINT const message, WPARAM const wparam, LPARAM const lparam) noexcept
@@ -96,7 +96,7 @@ public:
         }
         }
 
-        return DefWindowProc(_window.get(), message, wparam, lparam);
+        return DefWindowProcW(_window.get(), message, wparam, lparam);
     }
 
     // DPI Change handler. on WM_DPICHANGE resize the window
@@ -213,12 +213,12 @@ protected:
     // - The value returned from the window proc.
     virtual [[nodiscard]] LRESULT _OnNcCreate(WPARAM wParam, LPARAM lParam) noexcept
     {
-        SetWindowLongPtr(_window.get(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+        SetWindowLongPtrW(_window.get(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
         EnableNonClientDpiScaling(_window.get());
         _currentDpi = GetDpiForWindow(_window.get());
 
-        return DefWindowProc(_window.get(), WM_NCCREATE, wParam, lParam);
+        return DefWindowProcW(_window.get(), WM_NCCREATE, wParam, lParam);
     };
 };
 

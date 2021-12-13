@@ -57,12 +57,12 @@ private:
                                                          _In_ REFPROPERTYKEY refPropKey,
                                                          _Out_ DWORD* const pdwValue);
 
-    [[nodiscard]] static HRESULT s_PopulateV1Properties(_In_ IShellLink* const pslConsole, _In_ PCONSOLE_STATE_INFO pStateInfo);
-    [[nodiscard]] static HRESULT s_PopulateV2Properties(_In_ IShellLink* const pslConsole, _In_ PCONSOLE_STATE_INFO pStateInfo);
+    [[nodiscard]] static HRESULT s_PopulateV1Properties(_In_ IShellLinkW* const pslConsole, _In_ PCONSOLE_STATE_INFO pStateInfo);
+    [[nodiscard]] static HRESULT s_PopulateV2Properties(_In_ IShellLinkW* const pslConsole, _In_ PCONSOLE_STATE_INFO pStateInfo);
 
     static void s_GetLinkTitle(_In_ PCWSTR pwszShortcutFilename, _Out_writes_(cchShortcutTitle) PWSTR pwszShortcutTitle, const size_t cchShortcutTitle);
     [[nodiscard]] static HRESULT s_GetLoadedShellLinkForShortcut(_In_ PCWSTR pwszShortcutFileName,
                                                                  const DWORD dwMode,
-                                                                 _COM_Outptr_ IShellLink** ppsl,
+                                                                 _COM_Outptr_ IShellLinkW** ppsl,
                                                                  _COM_Outptr_ IPersistFile** ppPf);
 };

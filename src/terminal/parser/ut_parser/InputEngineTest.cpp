@@ -760,7 +760,7 @@ void InputEngineTest::CursorPositioningTest()
     inputRec.Event.KeyEvent.dwControlKeyState = LEFT_ALT_PRESSED | SHIFT_PRESSED;
     inputRec.Event.KeyEvent.wRepeatCount = 1;
     inputRec.Event.KeyEvent.wVirtualKeyCode = VK_F3;
-    inputRec.Event.KeyEvent.wVirtualScanCode = static_cast<WORD>(MapVirtualKey(VK_F3, MAPVK_VK_TO_VSC));
+    inputRec.Event.KeyEvent.wVirtualScanCode = static_cast<WORD>(MapVirtualKeyW(VK_F3, MAPVK_VK_TO_VSC));
     inputRec.Event.KeyEvent.uChar.UnicodeChar = L'\0';
 
     testState.vExpectedInput.push_back(inputRec);

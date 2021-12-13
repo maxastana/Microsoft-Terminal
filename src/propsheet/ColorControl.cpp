@@ -49,7 +49,7 @@ void SimpleColorDoPaint(const HWND hColor, PAINTSTRUCT& ps, const int ColorId)
     int ColorId;
     HWND hDlg;
 
-    ColorId = GetWindowLong(hColor, GWL_ID);
+    ColorId = GetWindowLongW(hColor, GWL_ID);
     hDlg = GetParent(hColor);
 
     switch (wMsg)
@@ -63,7 +63,7 @@ void SimpleColorDoPaint(const HWND hColor, PAINTSTRUCT& ps, const int ColorId)
         EndPaint(hColor, &ps);
         break;
     default:
-        return DefWindowProc(hColor, wMsg, wParam, lParam);
+        return DefWindowProcW(hColor, wMsg, wParam, lParam);
         break;
     }
     return TRUE;

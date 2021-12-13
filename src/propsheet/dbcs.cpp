@@ -185,20 +185,20 @@ int LanguageListCreate(
      * Create ComboBox items
      */
     hWndLanguageCombo = GetDlgItem(hDlg, IDD_LANGUAGELIST);
-    SendMessage(hWndLanguageCombo, CB_RESETCONTENT, 0, 0L);
+    SendMessageW(hWndLanguageCombo, CB_RESETCONTENT, 0, 0L);
 
     // Add our current CJK code page to the list
     oemcp = GetOEMCP();
     if (GetCPInfoExW(oemcp, 0, &cpinfo))
     {
-        lListIndex = (LONG)SendMessage(hWndLanguageCombo, CB_ADDSTRING, 0, (LPARAM)cpinfo.CodePageName);
+        lListIndex = (LONG)SendMessageW(hWndLanguageCombo, CB_ADDSTRING, 0, (LPARAM)cpinfo.CodePageName);
         if (lListIndex != CB_ERR)
         {
-            SendMessage(hWndLanguageCombo, CB_SETITEMDATA, (DWORD)lListIndex, oemcp);
+            SendMessageW(hWndLanguageCombo, CB_SETITEMDATA, (DWORD)lListIndex, oemcp);
 
             if (CodePage == oemcp)
             {
-                SendMessage(hWndLanguageCombo, CB_SETCURSEL, lListIndex, 0L);
+                SendMessageW(hWndLanguageCombo, CB_SETCURSEL, lListIndex, 0L);
             }
         }
     }
@@ -206,14 +206,14 @@ int LanguageListCreate(
     // Add SBCS 437 OEM - United States to the list
     if (GetCPInfoExW(437, 0, &cpinfo))
     {
-        lListIndex = (LONG)SendMessage(hWndLanguageCombo, CB_ADDSTRING, 0, (LPARAM)cpinfo.CodePageName);
+        lListIndex = (LONG)SendMessageW(hWndLanguageCombo, CB_ADDSTRING, 0, (LPARAM)cpinfo.CodePageName);
         if (lListIndex != CB_ERR)
         {
-            SendMessage(hWndLanguageCombo, CB_SETITEMDATA, (DWORD)lListIndex, 437);
+            SendMessageW(hWndLanguageCombo, CB_SETITEMDATA, (DWORD)lListIndex, 437);
 
             if (CodePage == 437)
             {
-                SendMessage(hWndLanguageCombo, CB_SETCURSEL, lListIndex, 0L);
+                SendMessageW(hWndLanguageCombo, CB_SETCURSEL, lListIndex, 0L);
             }
         }
     }
@@ -222,8 +222,8 @@ int LanguageListCreate(
      * Get the LocaleIndex from the currently selected item.
      * (i will be LB_ERR if no currently selected item).
      */
-    lListIndex = (LONG)SendMessage(hWndLanguageCombo, CB_GETCURSEL, 0, 0L);
-    const int iRet = (int)SendMessage(hWndLanguageCombo, CB_GETITEMDATA, lListIndex, 0L);
+    lListIndex = (LONG)SendMessageW(hWndLanguageCombo, CB_GETCURSEL, 0, 0L);
+    const int iRet = (int)SendMessageW(hWndLanguageCombo, CB_GETITEMDATA, lListIndex, 0L);
 
     EnableWindow(hWndLanguageCombo, g_fEastAsianSystem);
 

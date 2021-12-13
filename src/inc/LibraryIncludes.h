@@ -128,3 +128,5 @@
 #pragma warning(pop)
 
 // clang-format on
+
+#include "BreakAllNonUnicodeThings.h"

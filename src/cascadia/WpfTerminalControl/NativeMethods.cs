@@ -32,7 +32,7 @@ namespace Microsoft.Terminal.Wpf
             WM_KILLFOCUS = 0x0008,
 
             /// <summary>
-            /// The WM_MOUSEACTIVATE message is sent when the cursor is in an inactive window and the user presses a mouse button. The parent window receives this message only if the child window passes it to the DefWindowProc function.
+            /// The WM_MOUSEACTIVATE message is sent when the cursor is in an inactive window and the user presses a mouse button. The parent window receives this message only if the child window passes it to the DefWindowProcW function.
             /// </summary>
             WM_MOUSEACTIVATE = 0x0021,
 
@@ -87,7 +87,7 @@ namespace Microsoft.Terminal.Wpf
             WM_RBUTTONDOWN = 0x0204,
 
             /// <summary>
-            /// The WM_MOUSEWHEEL message is sent to the focus window when the mouse wheel is rotated. The DefWindowProc function propagates the message to the window's parent. There should be no internal forwarding of the message, since DefWindowProc propagates it up the parent chain until it finds a window that processes it.
+            /// The WM_MOUSEWHEEL message is sent to the focus window when the mouse wheel is rotated. The DefWindowProcW function propagates the message to the window's parent. There should be no internal forwarding of the message, since DefWindowProcW propagates it up the parent chain until it finds a window that processes it.
             /// </summary>
             WM_MOUSEWHEEL = 0x020A,
         }

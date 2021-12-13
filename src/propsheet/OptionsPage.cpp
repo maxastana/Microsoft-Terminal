@@ -43,8 +43,8 @@ bool OptionsCommandCallback(HWND hDlg, const unsigned int Item, const unsigned i
             LONG lListIndex;
 
             hWndLanguageCombo = GetDlgItem(hDlg, IDD_LANGUAGELIST);
-            lListIndex = (LONG)SendMessage(hWndLanguageCombo, CB_GETCURSEL, 0, 0);
-            Value = (UINT)SendMessage(hWndLanguageCombo, CB_GETITEMDATA, lListIndex, 0);
+            lListIndex = (LONG)SendMessageW(hWndLanguageCombo, CB_GETCURSEL, 0, 0);
+            Value = (UINT)SendMessageW(hWndLanguageCombo, CB_GETITEMDATA, lListIndex, 0);
             if (Value != -1)
             {
                 fChangeCodePage = (Value != gpStateInfo->CodePage);
@@ -197,13 +197,13 @@ INT_PTR WINAPI SettingsDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPara
         InitializeCursorSize(hDlg);
 
         SetDlgItemInt(hDlg, IDD_HISTORY_SIZE, gpStateInfo->HistoryBufferSize, FALSE);
-        SendDlgItemMessage(hDlg, IDD_HISTORY_SIZE, EM_LIMITTEXT, 3, 0);
-        SendDlgItemMessage(hDlg, IDD_HISTORY_SIZESCROLL, UDM_SETRANGE, 0, MAKELONG(999, 1));
+        SendDlgItemMessageW(hDlg, IDD_HISTORY_SIZE, EM_LIMITTEXT, 3, 0);
+        SendDlgItemMessageW(hDlg, IDD_HISTORY_SIZESCROLL, UDM_SETRANGE, 0, MAKELONG(999, 1));
 
         SetDlgItemInt(hDlg, IDD_HISTORY_NUM, gpStateInfo->NumberOfHistoryBuffers, FALSE);
-        SendDlgItemMessage(hDlg, IDD_HISTORY_NUM, EM_LIMITTEXT, 3, 0);
-        SendDlgItemMessage(hDlg, IDD_HISTORY_NUM, EM_SETSEL, 0, (DWORD)-1);
-        SendDlgItemMessage(hDlg, IDD_HISTORY_NUMSCROLL, UDM_SETRANGE, 0, MAKELONG(999, 1));
+        SendDlgItemMessageW(hDlg, IDD_HISTORY_NUM, EM_LIMITTEXT, 3, 0);
+        SendDlgItemMessageW(hDlg, IDD_HISTORY_NUM, EM_SETSEL, 0, (DWORD)-1);
+        SendDlgItemMessageW(hDlg, IDD_HISTORY_NUMSCROLL, UDM_SETRANGE, 0, MAKELONG(999, 1));
 
         if (g_fEastAsianSystem)
         {
@@ -299,7 +299,7 @@ INT_PTR WINAPI SettingsDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPara
                     Item = GetDlgCtrlID(GetFocus());
                     if (Item)
                     {
-                        SendMessage(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
+                        SendMessageW(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
                     }
                     return TRUE;
                 }
@@ -315,7 +315,7 @@ INT_PTR WINAPI SettingsDlgProc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lPara
          * lost focus so it'll update properly
          */
         Item = GetDlgCtrlID((HWND)lParam) - 1;
-        SendMessage(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
+        SendMessageW(hDlg, WM_COMMAND, MAKELONG(Item, EN_KILLFOCUS), 0);
         return TRUE;
 
     default:

@@ -138,7 +138,7 @@ try
             break;
         }
     }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 catch (...)
 {
@@ -200,7 +200,7 @@ HwndTerminal::HwndTerminal(HWND parentHwnd) :
             nullptr));
 
 #pragma warning(suppress : 26490) // Win32 APIs can only store void*, have to use reinterpret_cast
-        SetWindowLongPtr(_hwnd.get(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+        SetWindowLongPtrW(_hwnd.get(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
     }
 }
 
@@ -385,7 +385,7 @@ HRESULT _stdcall CreateTerminal(HWND parentHwnd, _Out_ void** hwnd, _Out_ void**
     // In order for UIA to hook up properly there needs to be a "static" window hosting the
     // inner win32 control. If the static window is not present then WM_GETOBJECT messages
     // will not reach the child control, and the uia element will not be present in the tree.
-    auto _hostWindow = CreateWindowEx(
+    auto _hostWindow = CreateWindowExW(
         0,
         L"static",
         nullptr,

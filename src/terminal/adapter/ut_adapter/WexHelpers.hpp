@@ -266,7 +266,7 @@ namespace WEX
                 case FOCUS_EVENT:
                 {
                     WCHAR szFocus[512];
-                    VERIFY_SUCCEEDED(StringCchPrintf(szFocus,
+                    VERIFY_SUCCEEDED(StringCchPrintfW(szFocus,
                                                      ARRAYSIZE(szFocus),
                                                      L"FOCUS set: %s)",
                                                      ir.Event.FocusEvent.bSetFocus ? L"T" : L"F"));
@@ -277,7 +277,7 @@ namespace WEX
                 case KEY_EVENT:
                 {
                     WCHAR szKey[512];
-                    VERIFY_SUCCEEDED(StringCchPrintf(szKey,
+                    VERIFY_SUCCEEDED(StringCchPrintfW(szKey,
                                                      ARRAYSIZE(szKey),
                                                      L"KEY down: %s reps: %d kc: 0x%x sc: 0x%x uc: %d ctl: 0x%x)",
                                                      ir.Event.KeyEvent.bKeyDown ? L"T" : L"F",
@@ -293,7 +293,7 @@ namespace WEX
                 case MENU_EVENT:
                 {
                     WCHAR szMenu[512];
-                    VERIFY_SUCCEEDED(StringCchPrintf(szMenu,
+                    VERIFY_SUCCEEDED(StringCchPrintfW(szMenu,
                                                      ARRAYSIZE(szMenu),
                                                      L"MENU cmd: %d (0x%x))",
                                                      ir.Event.MenuEvent.dwCommandId,
@@ -305,7 +305,7 @@ namespace WEX
                 case MOUSE_EVENT:
                 {
                     WCHAR szMouse[512];
-                    VERIFY_SUCCEEDED(StringCchPrintf(szMouse,
+                    VERIFY_SUCCEEDED(StringCchPrintfW(szMouse,
                                                      ARRAYSIZE(szMouse),
                                                      L"MOUSE pos: (%d, %d) buttons: 0x%x ctl: 0x%x evflags: 0x%x)",
                                                      ir.Event.MouseEvent.dwMousePosition.X,
@@ -320,7 +320,7 @@ namespace WEX
                 case WINDOW_BUFFER_SIZE_EVENT:
                 {
                     WCHAR szBufferSize[512];
-                    VERIFY_SUCCEEDED(StringCchPrintf(szBufferSize,
+                    VERIFY_SUCCEEDED(StringCchPrintfW(szBufferSize,
                                                      ARRAYSIZE(szBufferSize),
                                                      L"WINDOW_BUFFER_SIZE (%d, %d)",
                                                      ir.Event.WindowBufferSizeEvent.dwSize.X,

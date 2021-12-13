@@ -426,7 +426,7 @@ namespace Conhost.UIA.Tests.Common.NativeMethods
         public const int GWL_EXSTYLE = (-20);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        public static extern int GetWindowLongW(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll")]
         public static extern bool AdjustWindowRectEx(ref RECT lpRect, int dwStyle, bool bMenu, int dwExStyle);
@@ -446,7 +446,7 @@ namespace Conhost.UIA.Tests.Common.NativeMethods
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, WindowMessages Msg, Int32 wParam, IntPtr lParam);
+        public static extern IntPtr SendMessageW(IntPtr hWnd, WindowMessages Msg, Int32 wParam, IntPtr lParam);
 
         public enum SPI : uint
         {
@@ -529,7 +529,7 @@ namespace Conhost.UIA.Tests.Common.NativeMethods
 
         // http://msdn.microsoft.com/en-us/library/windows/desktop/bb774944(v=vs.85).aspx
         // http://pinvoke.net/default.aspx/Enums/SLGP_FLAGS.html
-        /// <summary>IShellLink.GetPath fFlags: Flags that specify the type of path information to retrieve</summary>
+        /// <summary>IShellLinkW.GetPath fFlags: Flags that specify the type of path information to retrieve</summary>
         [Flags()]
         public enum SLGP_FLAGS
         {
@@ -543,7 +543,7 @@ namespace Conhost.UIA.Tests.Common.NativeMethods
 
         // http://msdn.microsoft.com/en-us/library/windows/desktop/bb774952(v=vs.85).aspx
         // http://pinvoke.net/default.aspx/Enums/SLR_FLAGS.html
-        /// <summary>IShellLink.Resolve fFlags</summary>
+        /// <summary>IShellLinkW.Resolve fFlags</summary>
         [Flags()]
         public enum SLR_FLAGS
         {
@@ -587,7 +587,7 @@ namespace Conhost.UIA.Tests.Common.NativeMethods
 
         // http://msdn.microsoft.com/en-us/library/windows/desktop/bb774950(v=vs.85).aspx
         // http://pinvoke.net/default.aspx/Interfaces/IShellLinkW.html
-        /// <summary>The IShellLink interface allows Shell links to be created, modified, and resolved</summary>
+        /// <summary>The IShellLinkW interface allows Shell links to be created, modified, and resolved</summary>
         [ComImport(), InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("000214F9-0000-0000-C000-000000000046")]
         public interface IShellLinkW
         {

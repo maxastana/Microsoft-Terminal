@@ -74,7 +74,7 @@ UINT GetItemHeight(const HWND hDlg)
         hbmTT = nullptr;
     }
 
-    hbmTT = LoadBitmap(ghInstance, MAKEINTRESOURCE(BM_TRUETYPE_ICON));
+    hbmTT = LoadBitmapW(ghInstance, MAKEINTRESOURCEW(BM_TRUETYPE_ICON));
     GetObject(hbmTT, sizeof(BITMAP), &bmTT);
 
     // Compute the height of face name listbox entries
@@ -160,7 +160,7 @@ static void AddCustomFontSizeToListIfNeeded(__in const HWND hDlg)
     WCHAR wszBuf[3]; // only need space for point sizes. the max we allow is "72"
 
     // check to see if we have text
-    if (GetDlgItemText(hDlg, IDD_POINTSLIST, wszBuf, ARRAYSIZE(wszBuf)) > 0)
+    if (GetDlgItemTextW(hDlg, IDD_POINTSLIST, wszBuf, ARRAYSIZE(wszBuf)) > 0)
     {
         // we have text, now retrieve it as an actual size
         BOOL fTranslated;
@@ -171,22 +171,22 @@ static void AddCustomFontSizeToListIfNeeded(__in const HWND hDlg)
             IsFontSizeCustom(gpStateInfo->FaceName, nPointSize))
         {
             // we got a proper custom size. let's see if it's in our point size list
-            LONG iSize = (LONG)SendDlgItemMessage(hDlg, IDD_POINTSLIST, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)wszBuf);
+            LONG iSize = (LONG)SendDlgItemMessageW(hDlg, IDD_POINTSLIST, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)wszBuf);
             if (iSize == CB_ERR)
             {
                 // the size isn't in our list, so we haven't created them yet. do so now.
                 CreateSizeForAllTTFonts(nPointSize);
 
                 // add the size to the dialog list and select it
-                iSize = (LONG)SendDlgItemMessage(hDlg, IDD_POINTSLIST, CB_ADDSTRING, 0, (LPARAM)wszBuf);
-                SendDlgItemMessage(hDlg, IDD_POINTSLIST, CB_SETCURSEL, iSize, 0);
+                iSize = (LONG)SendDlgItemMessageW(hDlg, IDD_POINTSLIST, CB_ADDSTRING, 0, (LPARAM)wszBuf);
+                SendDlgItemMessageW(hDlg, IDD_POINTSLIST, CB_SETCURSEL, iSize, 0);
 
                 // get the current font selection
-                LONG lCurrentFont = (LONG)SendDlgItemMessage(hDlg, IDD_FACENAME, LB_GETCURSEL, 0, 0);
+                LONG lCurrentFont = (LONG)SendDlgItemMessageW(hDlg, IDD_FACENAME, LB_GETCURSEL, 0, 0);
 
                 // now get the current font's face name
                 WCHAR wszFontFace[LF_FACESIZE];
-                SendDlgItemMessage(hDlg,
+                SendDlgItemMessageW(hDlg,
                                    IDD_FACENAME,
                                    LB_GETTEXT,
                                    (WPARAM)lCurrentFont,
@@ -202,7 +202,7 @@ static void AddCustomFontSizeToListIfNeeded(__in const HWND hDlg)
                                                  coordFontSize,
                                                  0,
                                                  gpStateInfo->CodePage);
-                SendDlgItemMessage(hDlg, IDD_POINTSLIST, CB_SETITEMDATA, (WPARAM)iSize, (LPARAM)iFont);
+                SendDlgItemMessageW(hDlg, IDD_POINTSLIST, CB_SETITEMDATA, (WPARAM)iSize, (LPARAM)iFont);
             }
         }
     }
@@ -235,21 +235,21 @@ FontDlgProc(
         /*
          * Load the font description strings
          */
-        LoadString(ghInstance, IDS_RASTERFONT, wszRasterFonts, ARRAYSIZE(wszRasterFonts));
+        LoadStringW(ghInstance, IDS_RASTERFONT, wszRasterFonts, ARRAYSIZE(wszRasterFonts));
         DBGFONTS(("wszRasterFonts = \"%ls\"\n", wszRasterFonts));
 
-        LoadString(ghInstance, IDS_SELECTEDFONT, wszSelectedFont, ARRAYSIZE(wszSelectedFont));
+        LoadStringW(ghInstance, IDS_SELECTEDFONT, wszSelectedFont, ARRAYSIZE(wszSelectedFont));
         DBGFONTS(("wszSelectedFont = \"%ls\"\n", wszSelectedFont));
 
         /* Save current font size as dialog window's user data */
 
         if (g_fEastAsianSystem)
         {
-            SetWindowLongPtr(hDlg, GWLP_USERDATA, MAKELONG(FontInfo[g_currentFontIndex].tmCharSet, FontInfo[g_currentFontIndex].Size.Y));
+            SetWindowLongPtrW(hDlg, GWLP_USERDATA, MAKELONG(FontInfo[g_currentFontIndex].tmCharSet, FontInfo[g_currentFontIndex].Size.Y));
         }
         else
         {
-            SetWindowLongPtr(hDlg, GWLP_USERDATA, MAKELONG(FontInfo[g_currentFontIndex].Size.X, FontInfo[g_currentFontIndex].Size.Y));
+            SetWindowLongPtrW(hDlg, GWLP_USERDATA, MAKELONG(FontInfo[g_currentFontIndex].Size.X, FontInfo[g_currentFontIndex].Size.Y));
         }
 
         if (g_fHostedInFileProperties || gpStateInfo->Defaults)
@@ -368,11 +368,11 @@ FontDlgProc(
                 LONG l;
 
                 DBGFONTS(("LBN_SELCHANGE from FACENAME\n"));
-                l = (LONG)SendDlgItemMessage(hDlg, IDD_FACENAME, LB_GETCURSEL, 0, 0L);
-                bLB = (BOOL)SendDlgItemMessage(hDlg, IDD_FACENAME, LB_GETITEMDATA, l, 0L);
+                l = (LONG)SendDlgItemMessageW(hDlg, IDD_FACENAME, LB_GETCURSEL, 0, 0L);
+                bLB = (BOOL)SendDlgItemMessageW(hDlg, IDD_FACENAME, LB_GETITEMDATA, l, 0L);
                 if (!bLB)
                 {
-                    SendDlgItemMessage(hDlg, IDD_FACENAME, LB_GETTEXT, l, (LPARAM)atchNewFace);
+                    SendDlgItemMessageW(hDlg, IDD_FACENAME, LB_GETTEXT, l, (LPARAM)atchNewFace);
                     DBGFONTS(("LBN_EDITUPDATE, got TT face \"%ls\"\n", atchNewFace));
                 }
                 FontIndex = FontListCreate(hDlg,
@@ -515,7 +515,7 @@ FontDlgProc(
 
         // Now reset our item height. This is to work around a limitation of automatic dialog DPI scaling where
         // WM_MEASUREITEM doesn't get sent when the DPI has changed.
-        SendDlgItemMessage(hDlg, IDD_FACENAME, LB_SETITEMHEIGHT, 0, GetItemHeight(hDlg));
+        SendDlgItemMessageW(hDlg, IDD_FACENAME, LB_SETITEMHEIGHT, 0, GetItemHeight(hDlg));
         break;
 
     default:
@@ -617,7 +617,7 @@ void AddFontSizesToList(PCWSTR pwszTTFace,
         if (TM_IS_TT_FONT(FontInfo[i].Family))
         {
             // point size
-            StringCchPrintf(wszText,
+            StringCchPrintfW(wszText,
                             ARRAYSIZE(wszText),
                             TEXT("%2d"),
                             FontInfo[i].SizeWant.Y);
@@ -645,7 +645,7 @@ void AddFontSizesToList(PCWSTR pwszTTFace,
                 (!(dwExStyle & WS_EX_RIGHT) && (dwExStyle & WS_EX_LAYOUTRTL)))
             {
                 // flip  it so that the hidden part be at the far left
-                StringCchPrintf(wszText,
+                StringCchPrintfW(wszText,
                                 ARRAYSIZE(wszText),
                                 TEXT("#%d                %2d x %2d"),
                                 nSameSize,
@@ -654,7 +654,7 @@ void AddFontSizesToList(PCWSTR pwszTTFace,
             }
             else
             {
-                StringCchPrintf(wszText,
+                StringCchPrintfW(wszText,
                                 ARRAYSIZE(wszText),
                                 TEXT("%2d x %2d                #%d"),
                                 ShowX,
@@ -740,12 +740,12 @@ int FontListCreate(
         hWndFaceCombo = GetDlgItem(hDlg, IDD_FACENAME);
 
         // empty faces list
-        SendMessage(hWndFaceCombo, LB_RESETCONTENT, 0, 0);
+        SendMessageW(hWndFaceCombo, LB_RESETCONTENT, 0, 0);
 
         // before doing anything else, add raster fonts to the list. Note that the item data being set here indicates
         // that it's a raster font. the actual font indices are stored as item data on the pixels list.
-        lListIndex = (LONG)SendMessage(hWndFaceCombo, LB_ADDSTRING, 0, (LPARAM)wszRasterFonts);
-        SendMessage(hWndFaceCombo, LB_SETITEMDATA, lListIndex, TRUE);
+        lListIndex = (LONG)SendMessageW(hWndFaceCombo, LB_ADDSTRING, 0, (LPARAM)wszRasterFonts);
+        SendMessageW(hWndFaceCombo, LB_SETITEMDATA, lListIndex, TRUE);
         DBGFONTS(("Added \"%ls\", set Item Data %d = TRUE\n", wszRasterFonts, lListIndex));
 
         // now enumerate all of the new truetype font face names we've loaded that are appropriate for our codepage. add them to
@@ -774,8 +774,8 @@ int FontListCreate(
                     fFindTTFont = TRUE;
                 }
 
-                lListIndex = (LONG)SendMessage(hWndFaceCombo, LB_ADDSTRING, 0, (LPARAM)panFace->atch);
-                SendMessage(hWndFaceCombo, LB_SETITEMDATA, lListIndex, FALSE);
+                lListIndex = (LONG)SendMessageW(hWndFaceCombo, LB_ADDSTRING, 0, (LPARAM)panFace->atch);
+                SendMessageW(hWndFaceCombo, LB_SETITEMDATA, lListIndex, FALSE);
                 DBGFONTS(("Added \"%ls\", set Item Data %d = FALSE\n",
                           panFace->atch,
                           lListIndex));
@@ -858,7 +858,7 @@ int FontListCreate(
     if ((dwExStyle & WS_EX_LAYOUTRTL) && !(dwExStyle & WS_EX_RTLREADING))
     {
         // if mirrored RTL Reading means LTR !!
-        SetWindowLongPtr(hWndShow, GWL_EXSTYLE, dwExStyle | WS_EX_RTLREADING);
+        SetWindowLongPtrW(hWndShow, GWL_EXSTYLE, dwExStyle | WS_EX_RTLREADING);
     }
 
     /* Initialize hWndShow list/combo box */
@@ -965,13 +965,13 @@ VOID DrawItemFontList(const HWND hDlg, const LPDRAWITEMSTRUCT lpdis)
          * are fonts their lengths are the same. Third, a buffer overrun here
          * isn't really interesting from a security perspective, anyway.
          */
-        if (SendMessage(hWndItem, LB_GETTEXTLEN, lpdis->itemID, 0) >= ARRAYSIZE(wszFace))
+        if (SendMessageW(hWndItem, LB_GETTEXTLEN, lpdis->itemID, 0) >= ARRAYSIZE(wszFace))
         {
             return;
         }
 
-        SendMessage(hWndItem, LB_GETTEXT, lpdis->itemID, (LPARAM)wszFace);
-        bLB = (BOOL)SendMessage(hWndItem, LB_GETITEMDATA, lpdis->itemID, 0L);
+        SendMessageW(hWndItem, LB_GETTEXT, lpdis->itemID, (LPARAM)wszFace);
+        bLB = (BOOL)SendMessageW(hWndItem, LB_GETITEMDATA, lpdis->itemID, 0L);
         dxttbmp = bLB ? 0 : bmTT.bmWidth;
 
         DBGFONTS(("DrawItemFontList must redraw \"%ls\" %s\n", wszFace, bLB ? "Raster" : "TrueType"));
@@ -1029,7 +1029,7 @@ Return Value:
     int nTmp = 0;
     BOOL bOK;
 
-    if (GetDlgItemText(hDlg, IDD_POINTSLIST, szBuf, ARRAYSIZE(szBuf)))
+    if (GetDlgItemTextW(hDlg, IDD_POINTSLIST, szBuf, ARRAYSIZE(szBuf)))
     {
         nTmp = GetDlgItemInt(hDlg, IDD_POINTSLIST, &bOK, TRUE);
         if (bOK && nTmp >= Min && nTmp <= Max)
@@ -1073,7 +1073,7 @@ Return Value:
         BeginPaint(hWnd, &ps);
 
         /* Draw the font sample */
-        if (GetWindowLong(hWnd, GWL_ID) == IDD_COLOR_POPUP_COLORS)
+        if (GetWindowLongW(hWnd, GWL_ID) == IDD_COLOR_POPUP_COLORS)
         {
             rgbText = GetNearestColor(ps.hdc, PopupTextColor(gpStateInfo));
             rgbBk = GetNearestColor(ps.hdc, PopupBkColor(gpStateInfo));
@@ -1105,7 +1105,7 @@ Return Value:
         break;
 
     default:
-        return DefWindowProc(hWnd, wMessage, wParam, lParam);
+        return DefWindowProcW(hWnd, wMessage, wParam, lParam);
     }
     return 0L;
 }
@@ -1403,7 +1403,7 @@ int SelectCurrentSize(HWND hDlg, BOOL bLB, int FontIndex)
          * Look for a reasonable default size: looking backwards, find
          * the first one same height or smaller.
          */
-        DWORD Size = GetWindowLong(hDlg, GWLP_USERDATA);
+        DWORD Size = GetWindowLongW(hDlg, GWLP_USERDATA);
 
         if (g_fEastAsianSystem &&
             bLB &&
@@ -1459,7 +1459,7 @@ BOOL SelectCurrentFont(
 
     bLB = !TM_IS_TT_FONT(FontInfo[FontIndex].Family);
 
-    SendDlgItemMessage(hDlg,
+    SendDlgItemMessageW(hDlg,
                        IDD_FACENAME,
                        LB_SELECTSTRING,
                        (WPARAM)-1,
@@ -1542,8 +1542,8 @@ BOOL PreviewUpdate(
     {
         COORD NewSize;
 
-        lIndex = (LONG)SendDlgItemMessage(hDlg, IDD_FACENAME, LB_GETCURSEL, 0, 0L);
-        SendDlgItemMessage(hDlg, IDD_FACENAME, LB_GETTEXT, lIndex, (LPARAM)wszFace);
+        lIndex = (LONG)SendDlgItemMessageW(hDlg, IDD_FACENAME, LB_GETCURSEL, 0, 0L);
+        SendDlgItemMessageW(hDlg, IDD_FACENAME, LB_GETTEXT, lIndex, (LPARAM)wszFace);
         NewSize.X = 0;
         NewSize.Y = (SHORT)GetPointSizeInRange(hDlg, MIN_PIXEL_HEIGHT, MAX_PIXEL_HEIGHT);
 
@@ -1554,8 +1554,8 @@ BOOL PreviewUpdate(
              * Use wszText, wszBuf to put up an error msg for bad point size
              */
             gbPointSizeError = TRUE;
-            LoadString(ghInstance, IDS_FONTSIZE, wszBuf, ARRAYSIZE(wszBuf));
-            StringCchPrintf(wszText,
+            LoadStringW(ghInstance, IDS_FONTSIZE, wszBuf, ARRAYSIZE(wszBuf));
+            StringCchPrintfW(wszText,
                             ARRAYSIZE(wszText),
                             wszBuf,
                             MIN_PIXEL_HEIGHT,
@@ -1614,18 +1614,18 @@ BOOL PreviewUpdate(
     SetDlgItemText(hDlg, IDD_GROUP, wszFace);
 
     /* Put the font size in the static boxes */
-    StringCchPrintf(wszText, ARRAYSIZE(wszText), TEXT("%u"), lpFont->Size.X);
+    StringCchPrintfW(wszText, ARRAYSIZE(wszText), TEXT("%u"), lpFont->Size.X);
     hWnd = GetDlgItem(hDlg, IDD_FONTWIDTH);
     SetWindowText(hWnd, wszText);
     InvalidateRect(hWnd, nullptr, TRUE);
-    StringCchPrintf(wszText, ARRAYSIZE(wszText), TEXT("%u"), lpFont->Size.Y);
+    StringCchPrintfW(wszText, ARRAYSIZE(wszText), TEXT("%u"), lpFont->Size.Y);
     hWnd = GetDlgItem(hDlg, IDD_FONTHEIGHT);
     SetWindowText(hWnd, wszText);
     InvalidateRect(hWnd, nullptr, TRUE);
 
     /* Force the preview windows to repaint */
     hWnd = GetDlgItem(hDlg, IDD_PREVIEWWINDOW);
-    SendMessage(hWnd, CM_PREVIEW_UPDATE, 0, 0);
+    SendMessageW(hWnd, CM_PREVIEW_UPDATE, 0, 0);
     hWnd = GetDlgItem(hDlg, IDD_FONTWINDOW);
     InvalidateRect(hWnd, nullptr, TRUE);
 

@@ -227,7 +227,7 @@ void BufferTests::ChafaGifPerformance()
     // NOTE: providing g_hInstance is important, NULL might not work
     HMODULE hModule = (HMODULE)&__ImageBase;
 
-    res = FindResource(hModule, MAKEINTRESOURCE(CHAFA_CONTENT), RT_RCDATA);
+    res = FindResource(hModule, MAKEINTRESOURCEW(CHAFA_CONTENT), RT_RCDATA);
     if (!res)
     {
         VERIFY_FAIL(L"Couldn't find resource.");

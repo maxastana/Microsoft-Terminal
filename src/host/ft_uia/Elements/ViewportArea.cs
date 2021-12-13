@@ -89,8 +89,8 @@ namespace Conhost.UIA.Tests.Elements
             User32.RECT lpRect;
             User32.GetClientRect(hWnd, out lpRect);
 
-            int style = User32.GetWindowLong(hWnd, User32.GWL_STYLE);
-            int exStyle = User32.GetWindowLong(hWnd, User32.GWL_EXSTYLE);
+            int style = User32.GetWindowLongW(hWnd, User32.GWL_STYLE);
+            int exStyle = User32.GetWindowLongW(hWnd, User32.GWL_EXSTYLE);
 
             Verify.IsTrue(User32.AdjustWindowRectEx(ref lpRect, style, false, exStyle));
 

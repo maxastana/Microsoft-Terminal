@@ -74,7 +74,7 @@ std::wostream& operator<<(std::wostream& stream, const IInputEvent* pEvent);
 #define CTRL_PRESSED (RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED)
 #define MOD_PRESSED (SHIFT_PRESSED | ALT_PRESSED | CTRL_PRESSED)
 
-// Note taken from VkKeyScan docs (https://msdn.microsoft.com/en-us/library/windows/desktop/ms646329(v=vs.85).aspx):
+// Note taken from VkKeyScanW docs (https://msdn.microsoft.com/en-us/library/windows/desktop/ms646329(v=vs.85).aspx):
 // For keyboard layouts that use the right-hand ALT key as a shift key
 // (for example, the French keyboard layout), the shift state is
 // represented by the value 6, because the right-hand ALT key is

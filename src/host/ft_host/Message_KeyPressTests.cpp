@@ -130,7 +130,7 @@ class KeyPressTests
         const unsigned int messageSendCount = 1000;
         for (unsigned int i = 0; i < messageSendCount; ++i)
         {
-            SendMessage(hwnd,
+            SendMessageW(hwnd,
                         WM_CHAR,
                         0x41,
                         repeatCount);
@@ -192,14 +192,14 @@ class KeyPressTests
         Log::Comment(NoThrowString().Format(L"Mode:0x%x", dwInMode));
 
         UINT vkCtrl = VK_LCONTROL; // Need this instead of VK_CONTROL
-        UINT uiCtrlScancode = MapVirtualKey(vkCtrl, MAPVK_VK_TO_VSC);
+        UINT uiCtrlScancode = MapVirtualKeyW(vkCtrl, MAPVK_VK_TO_VSC);
         // According to
         // KEY_KEYDOWN https://msdn.microsoft.com/en-us/library/windows/desktop/ms646280(v=vs.85).aspx
         // KEY_UP https://msdn.microsoft.com/en-us/library/windows/desktop/ms646281(v=vs.85).aspx
         LPARAM CtrlFlags = (LOBYTE(uiCtrlScancode) << 16) | SINGLE_KEY_REPEAT;
         LPARAM CtrlUpFlags = CtrlFlags | KEY_MESSAGE_UPKEY_CODE;
 
-        UINT uiScancode = MapVirtualKey(vk, MAPVK_VK_TO_VSC);
+        UINT uiScancode = MapVirtualKeyW(vk, MAPVK_VK_TO_VSC);
         LPARAM DownFlags = (LOBYTE(uiScancode) << 16) | SINGLE_KEY_REPEAT;
         LPARAM UpFlags = DownFlags | KEY_MESSAGE_UPKEY_CODE;
 
@@ -210,10 +210,10 @@ class KeyPressTests
         // Don't Use PostMessage, those events come in the wrong order.
         // Also can't use SendInput because of the whole test window backgrounding thing.
         //      It'd work locally, until you minimize the window.
-        SendMessage(hwnd, WM_KEYDOWN, vkCtrl, CtrlFlags);
-        SendMessage(hwnd, WM_KEYDOWN, vk, DownFlags);
-        SendMessage(hwnd, WM_KEYUP, vk, UpFlags);
-        SendMessage(hwnd, WM_KEYUP, vkCtrl, CtrlUpFlags);
+        SendMessageW(hwnd, WM_KEYDOWN, vkCtrl, CtrlFlags);
+        SendMessageW(hwnd, WM_KEYDOWN, vk, DownFlags);
+        SendMessageW(hwnd, WM_KEYUP, vk, UpFlags);
+        SendMessageW(hwnd, WM_KEYUP, vkCtrl, CtrlUpFlags);
 
         Sleep(50);
 
@@ -283,20 +283,20 @@ class KeyPressTests
         // According to
         // KEY_KEYDOWN https://msdn.microsoft.com/en-us/library/windows/desktop/ms646280(v=vs.85).aspx
         // KEY_UP https://msdn.microsoft.com/en-us/library/windows/desktop/ms646281(v=vs.85).aspx
-        const UINT vsc = MapVirtualKey(VK_F11, MAPVK_VK_TO_VSC);
+        const UINT vsc = MapVirtualKeyW(VK_F11, MAPVK_VK_TO_VSC);
         const LPARAM F11Flags = (LOBYTE(vsc) << 16) | SINGLE_KEY_REPEAT;
         const LPARAM F11UpFlags = F11Flags | KEY_MESSAGE_UPKEY_CODE;
 
         // Send F11 key down and up. lParam is VirtualScanCode and RepeatCount
-        SendMessage(hwnd, WM_KEYDOWN, VK_F11, F11Flags);
-        SendMessage(hwnd, WM_KEYUP, VK_F11, F11UpFlags);
+        SendMessageW(hwnd, WM_KEYDOWN, VK_F11, F11Flags);
+        SendMessageW(hwnd, WM_KEYUP, VK_F11, F11UpFlags);
 
         LONG maxStyle = GetWindowLongW(hwnd, GWL_STYLE);
         LONG maxExStyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
 
         // Send F11 key down and up. lParam is VirtualScanCode and RepeatCount
-        SendMessage(hwnd, WM_KEYDOWN, VK_F11, F11Flags);
-        SendMessage(hwnd, WM_KEYUP, VK_F11, F11UpFlags);
+        SendMessageW(hwnd, WM_KEYDOWN, VK_F11, F11Flags);
+        SendMessageW(hwnd, WM_KEYUP, VK_F11, F11UpFlags);
 
         LONG newStyle = GetWindowLongW(hwnd, GWL_STYLE);
         LONG newExStyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
@@ -369,7 +369,7 @@ void KeyPressTests::TestAltGr()
     VERIFY_ARE_EQUAL(events, 0u);
 
     // send the key event that will be turned into an '@'
-    UINT scanCode = MapVirtualKey('Q', MAPVK_VK_TO_VSC);
+    UINT scanCode = MapVirtualKeyW('Q', MAPVK_VK_TO_VSC);
     PostMessage(hwnd, WM_KEYDOWN, 'Q', KEY_MESSAGE_CONTEXT_CODE | SINGLE_KEY_REPEAT | (scanCode << 16));
     Sleep(SLEEP_WAIT_TIME);
 

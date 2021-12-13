@@ -1209,7 +1209,7 @@ void ApiRoutines::GetConsoleDisplayModeImpl(ULONG& flags) noexcept
 {
     try
     {
-        // SetIsFullscreen() below ultimately calls SetwindowLong, which ultimately calls SendMessage(). If we retain
+        // SetIsFullscreen() below ultimately calls SetwindowLong, which ultimately calls SendMessageW(). If we retain
         // the console lock, we'll deadlock since ConsoleWindowProc takes the lock before processing messages. Instead,
         // we'll release early.
         LockConsole();

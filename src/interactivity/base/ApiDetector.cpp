@@ -74,7 +74,7 @@ using namespace Microsoft::Console::Interactivity;
     //       modules skipping over the reverse forwarders.
     //
     //       This however has the side-effect of not working on downlevel.
-    //       LoadLibraryEx asserts that the flags passed in are valid. If any
+    //       LoadLibraryExW asserts that the flags passed in are valid. If any
     //       invalid flags are passed, it sets the last error to
     //       ERROR_INVALID_PARAMETER and returns. Since
     //       LOAD_LIBRARY_SEARCH_SYSTEM32_NO_FORWARDER does not exist on

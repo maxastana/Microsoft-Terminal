@@ -12,7 +12,7 @@
 using namespace winrt::Microsoft::Terminal::Settings::Model;
 
 //  This property key isn't already defined in propkey.h, but is used by UWP Jumplist to determine the icon of the jumplist item.
-//  IShellLink's SetIconLocation isn't going to read "ms-appx://" icon paths, so we'll need to use this to set the icon.
+//  IShellLinkW's SetIconLocation isn't going to read "ms-appx://" icon paths, so we'll need to use this to set the icon.
 DEFINE_PROPERTYKEY(PKEY_AppUserModel_DestListLogoUri, 0x9F4C2855, 0x9F79, 0x4B39, 0xA8, 0xD0, 0xE1, 0xD4, 0x2D, 0xE1, 0xD5, 0xF3, 29);
 #define INIT_PKEY_AppUserModel_DestListLogoUri                                             \
     {                                                                                      \
