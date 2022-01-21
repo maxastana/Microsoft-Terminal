@@ -18,15 +18,15 @@ using namespace Microsoft::Console::VirtualTerminal;
 // Return Value:
 // True if handled successfully. False otherwise.
 bool DispatchCommon::s_ResizeWindow(ConGetSet& conApi,
-                                    const size_t width,
-                                    const size_t height)
+                                    const til::CoordType width,
+                                    const til::CoordType height)
 {
     SHORT sColumns = 0;
     SHORT sRows = 0;
 
     // We should do nothing if 0 is passed in for a size.
-    bool success = SUCCEEDED(SizeTToShort(width, &sColumns)) &&
-                   SUCCEEDED(SizeTToShort(height, &sRows)) &&
+    bool success = SUCCEEDED(IntToShort(width, &sColumns)) &&
+                   SUCCEEDED(IntToShort(height, &sRows)) &&
                    (width > 0 && height > 0);
 
     if (success)
@@ -60,7 +60,7 @@ bool DispatchCommon::s_ResizeWindow(ConGetSet& conApi,
             success = conApi.SetConsoleScreenBufferInfoEx(csbiex);
             if (success)
             {
-                success = conApi.SetConsoleWindowInfo(true, sri);
+                success = conApi.SetConsoleWindowInfo(true, til::wrap_small_rect(sri));
             }
         }
     }
