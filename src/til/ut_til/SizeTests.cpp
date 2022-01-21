@@ -68,7 +68,7 @@ class SizeTests
     {
         COORD coord{ -5, 10 };
 
-        const auto sz = til::wrap_coord_size(coord);
+        const til::size sz{ coord };
         VERIFY_ARE_EQUAL(coord.X, sz.width);
         VERIFY_ARE_EQUAL(coord.Y, sz.height);
     }
