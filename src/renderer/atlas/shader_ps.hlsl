@@ -5,25 +5,27 @@
 
 #define INVALID_COLOR 0xffffffff
 
-// These flags are shared with AtlasEngine::CellFlags.
+// These flags are shared with AtlasEngine::MetaFlags.
 //
 // clang-format off
-#define CellFlags_None            0x00000000
-#define CellFlags_Inlined         0x00000001
+#define MetaFlags_None            0x00000000
+#define MetaFlags_Occupied        0x00000001
+#define MetaFlags_HeapdKey        0x00000002
+#define MetaFlags_HeapdCoords     0x00000004
 
-#define CellFlags_ColoredGlyph    0x00000002
+#define MetaFlags_ColoredGlyph    0x00000008
 
-#define CellFlags_Cursor          0x00000008
-#define CellFlags_Selected        0x00000010
+#define MetaFlags_Cursor          0x00000010
+#define MetaFlags_Selected        0x00000020
 
-#define CellFlags_BorderLeft      0x00000020
-#define CellFlags_BorderTop       0x00000040
-#define CellFlags_BorderRight     0x00000080
-#define CellFlags_BorderBottom    0x00000100
-#define CellFlags_Underline       0x00000200
-#define CellFlags_UnderlineDotted 0x00000400
-#define CellFlags_UnderlineDouble 0x00000800
-#define CellFlags_Strikethrough   0x00001000
+#define MetaFlags_BorderLeft      0x00000040
+#define MetaFlags_BorderTop       0x00000080
+#define MetaFlags_BorderRight     0x00000100
+#define MetaFlags_BorderBottom    0x00000200
+#define MetaFlags_Underline       0x00000400
+#define MetaFlags_UnderlineDotted 0x00000800
+#define MetaFlags_UnderlineDouble 0x00001000
+#define MetaFlags_Strikethrough   0x00002000
 // clang-format on
 
 // According to Nvidia's "Understanding Structured Buffer Performance" guide
@@ -100,7 +102,7 @@ float4 main(float4 pos: SV_Position): SV_Target
 
     // Layer 1 (optional):
     // Colored cursors are drawn "in between" the background color and the text of a cell.
-    if ((cell.flags & CellFlags_Cursor) && cursorColor != INVALID_COLOR)
+    if ((cell.flags & MetaFlags_Cursor) && cursorColor != INVALID_COLOR)
     {
         // The cursor texture is stored at the top-left-most glyph cell.
         // Cursor pixels are either entirely transparent or opaque.
@@ -110,11 +112,11 @@ float4 main(float4 pos: SV_Position): SV_Target
 
     // Layer 2:
     // Step 1: Underlines
-    if ((cell.flags & CellFlags_Underline) && cellPos.y >= underlinePos.x && cellPos.y < underlinePos.y)
+    if ((cell.flags & MetaFlags_Underline) && cellPos.y >= underlinePos.x && cellPos.y < underlinePos.y)
     {
         color = alphaBlendPremultiplied(color, fg);
     }
-    if ((cell.flags & CellFlags_UnderlineDotted) && cellPos.y >= underlinePos.x && cellPos.y < underlinePos.y && (viewportPos.x / (underlinePos.y - underlinePos.x) & 3) == 0)
+    if ((cell.flags & MetaFlags_UnderlineDotted) && cellPos.y >= underlinePos.x && cellPos.y < underlinePos.y && (viewportPos.x / (underlinePos.y - underlinePos.x) & 3) == 0)
     {
         color = alphaBlendPremultiplied(color, fg);
     }
@@ -122,7 +124,7 @@ float4 main(float4 pos: SV_Position): SV_Target
     {
         float4 glyph = glyphs[decodeU16x2(cell.glyphPos) + cellPos];
 
-        if (cell.flags & CellFlags_ColoredGlyph)
+        if (cell.flags & MetaFlags_ColoredGlyph)
         {
             color = alphaBlendPremultiplied(color, glyph);
         }
@@ -136,21 +138,21 @@ float4 main(float4 pos: SV_Position): SV_Target
         }
     }
     // Step 3: Lines, but not "under"lines
-    if ((cell.flags & CellFlags_Strikethrough) && cellPos.y >= strikethroughPos.x && cellPos.y < strikethroughPos.y)
+    if ((cell.flags & MetaFlags_Strikethrough) && cellPos.y >= strikethroughPos.x && cellPos.y < strikethroughPos.y)
     {
         color = alphaBlendPremultiplied(color, fg);
     }
 
     // Layer 3 (optional):
     // Uncolored cursors invert the cells color.
-    if ((cell.flags & CellFlags_Cursor) && cursorColor == INVALID_COLOR)
+    if ((cell.flags & MetaFlags_Cursor) && cursorColor == INVALID_COLOR)
     {
         color.rgb = abs(glyphs[cellPos].rgb - color.rgb);
     }
 
     // Layer 4:
     // The current selection is drawn semi-transparent on top.
-    if (cell.flags & CellFlags_Selected)
+    if (cell.flags & MetaFlags_Selected)
     {
         color = alphaBlendPremultiplied(color, decodeRGBA(selectionColor));
     }
