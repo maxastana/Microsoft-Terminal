@@ -3,7 +3,23 @@
   <!-- This file is read by XES, which we use in our Release builds. -->
   <PropertyGroup Label="Version">
     <XesUseOneStoreVersioning>true</XesUseOneStoreVersioning>
-    <XesBaseYearForStoreVersion>2022</XesBaseYearForStoreVersion>
+
+    <!--
+    The Windows 11 build is going to have the same package name, so it *must* have a different version.
+    The easiest way for us to do this is to use the "year" field, which will trigger the Package ES versioning task
+    to add 10,000 to our minor version.
+    In short, for a given Terminal build 1.11, we will emit two different versions:
+      - 1.11.234.0 for Windows 10
+      - 1.11.10234.0 for Windows 11
+    It is my understanding that this is, like, the only version field we get control over.
+    If we rev the packages in the following year (which would increase the _base_ version by 10,000), they would be:
+      - 1.11.10456.0 for Windows 10
+      - 1.11.20456.0 for Windows 11
+    -->
+    <TerminalBaseYearForStoreVersion>2022</TerminalBaseYearForStoreVersion>
+    <XesBaseYearForStoreVersion>$(TerminalBaseYearForStoreVersion)</XesBaseYearForStoreVersion>
+    <XesBaseYearForStoreVersion Condition="'$(TerminalTargetWindowsVersion)'=='Win11'">$([MSBuild]::Subtract($(TerminalBaseYearForStoreVersion), 1))</XesBaseYearForStoreVersion>
+
     <VersionMajor>1</VersionMajor>
     <VersionMinor>14</VersionMinor>
     <VersionInfoProductName>Windows Terminal</VersionInfoProductName>
