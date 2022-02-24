@@ -21,6 +21,20 @@ pr:
       - samples/*
       - tools/*
 
+parameters:
+  - name: buildPlatforms
+    type: object
+    default:
+      - x64
+      - x86
+      - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+        - arm64
+  - name: testPlatforms
+    type: object
+    default:
+      - x64
+      - x86
+
 variables:
   - name: runCodesignValidationInjectionBG
     value: false
@@ -39,45 +53,25 @@ stages:
         parameters:
           platform: x64
 
-  - stage: Build_x64
-    displayName: Build x64
-    dependsOn: []
-    condition: succeeded()
-    jobs:
-      - template: ./templates/build-console-ci.yml
-        parameters:
-          platform: x64
-  - stage: Build_x86
-    displayName: Build x86
-    dependsOn: []
-    jobs:
-      - template: ./templates/build-console-ci.yml
-        parameters:
-          platform: x86
-  - stage: Build_ARM64
-    displayName: Build ARM64
-    dependsOn: []
-    condition: not(eq(variables['Build.Reason'], 'PullRequest'))
-    jobs:
-      - template: ./templates/build-console-ci.yml
-        parameters:
-          platform: ARM64
+  - ${{ each platform in parameters.buildPlatforms }}:
+    - stage: Build_${{ platform }}
+      displayName: Build ${{ platform }}
+      dependsOn: []
+      condition: succeeded()
+      jobs:
+        - template: ./templates/build-console-ci.yml
+          parameters:
+            platform: ${{ platform }}
 
-  - stage: Test_x64
-    displayName: Test x64
-    dependsOn: [Build_x64]
-    condition: succeeded()
-    jobs:
-      - template: ./templates/test-console-ci.yml
-        parameters:
-          platform: x64
-  - stage: Test_x86
-    displayName: Test x86
-    dependsOn: [Build_x86]
-    jobs:
-      - template: ./templates/test-console-ci.yml
-        parameters:
-          platform: x86
+  - ${{ each platform in parameters.testPlatforms }}:
+    - stage: Test_${{ platform }}
+      displayName: Test ${{ platform }}
+      dependsOn: [Build_${{ platform }}]
+      condition: succeeded()
+      jobs:
+        - template: ./templates/test-console-ci.yml
+          parameters:
+            platform: ${{ platform }}
 
   - stage: Helix_x64
     displayName: Helix x64
