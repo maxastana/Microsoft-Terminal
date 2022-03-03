@@ -1541,12 +1541,7 @@ void DxEngine::WaitUntilCanRender() noexcept
                 // and not try again with full presentation.
                 recreate = hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET;
 
-                // Log this as we actually don't expect it to happen, we just will try again
-                // below for robustness of our drawing.
-                if (FAILED(hr) && !recreate)
-                {
-                    LOG_HR(hr);
-                }
+                LOG_IF_FAILED(hr);
             }
 
             // If it's the first frame through, we cannot do partial presentation.
@@ -1571,13 +1566,14 @@ void DxEngine::WaitUntilCanRender() noexcept
                     // We don't need to end painting here, as the renderer has done it for us.
                     _ReleaseDeviceResources();
                     FAIL_FAST_IF_FAILED(InvalidateAll());
-                    return E_PENDING; // Indicate a retry to the renderer.
                 }
                 // Otherwise, we don't know what to do with this error. Report it.
                 else
                 {
-                    FAIL_FAST_HR(hr);
+                    LOG_HR(hr);
                 }
+
+                return E_PENDING; // Indicate a retry to the renderer.
             }
 
             // If we are doing full repaints we don't need to copy front buffer to back buffer
