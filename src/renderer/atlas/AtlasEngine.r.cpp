@@ -4,6 +4,8 @@
 #include "pch.h"
 #include "AtlasEngine.h"
 
+#include <fstream>
+
 #include "dwrite.h"
 
 // #### NOTE ####
@@ -202,7 +204,9 @@ void AtlasEngine::_adjustAtlasSize()
         desc.ArraySize = 1;
         desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
         desc.SampleDesc = { 1, 0 };
+        desc.Usage = D3D11_USAGE_DEFAULT;
         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         THROW_IF_FAILED(_r.device->CreateTexture2D(&desc, nullptr, atlasBuffer.addressof()));
         THROW_IF_FAILED(_r.device->CreateShaderResourceView(atlasBuffer.get(), nullptr, atlasView.addressof()));
     }
@@ -246,7 +250,20 @@ void AtlasEngine::_reserveScratchpadSize(u16 minWidth)
     _r.d2dRenderTarget.reset();
     _r.atlasScratchpad.reset();
 
+#if ATLAS_D2D_SOFTWARE_RENDERING
     {
+        D2D1_RENDER_TARGET_PROPERTIES props{};
+        props.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
+        props.pixelFormat = { DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED };
+        props.dpiX = static_cast<float>(_r.dpi);
+        props.dpiY = static_cast<float>(_r.dpi);
+        THROW_IF_FAILED(_sr.wicFactory->CreateBitmap(_r.cellSize.x * newWidth, _r.cellSize.y, GUID_WICPixelFormat32bppPBGRA, WICBitmapCacheOnLoad, _r.atlasScratchpad.put()));
+        THROW_IF_FAILED(_sr.d2dFactory->CreateWicBitmapRenderTarget(_r.atlasScratchpad.get(), &props, _r.d2dRenderTarget.put()));
+    }
+#else
+    {
+        const auto surface = _r.atlasScratchpad.query<IDXGISurface>();
+
         D3D11_TEXTURE2D_DESC desc{};
         desc.Width = _r.cellSize.x * newWidth;
         desc.Height = _r.cellSize.y;
@@ -256,12 +273,6 @@ void AtlasEngine::_reserveScratchpadSize(u16 minWidth)
         desc.SampleDesc = { 1, 0 };
         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
         THROW_IF_FAILED(_r.device->CreateTexture2D(&desc, nullptr, _r.atlasScratchpad.put()));
-    }
-    {
-        const auto surface = _r.atlasScratchpad.query<IDXGISurface>();
-
-        wil::com_ptr<IDWriteRenderingParams1> renderingParams;
-        DWrite_GetRenderParams(_sr.dwriteFactory.get(), &_r.gamma, &_r.cleartypeEnhancedContrast, &_r.grayscaleEnhancedContrast, renderingParams.addressof());
 
         D2D1_RENDER_TARGET_PROPERTIES props{};
         props.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
@@ -269,6 +280,11 @@ void AtlasEngine::_reserveScratchpadSize(u16 minWidth)
         props.dpiX = static_cast<float>(_r.dpi);
         props.dpiY = static_cast<float>(_r.dpi);
         THROW_IF_FAILED(_sr.d2dFactory->CreateDxgiSurfaceRenderTarget(surface.get(), &props, _r.d2dRenderTarget.put()));
+    }
+#endif
+    {
+        wil::com_ptr<IDWriteRenderingParams1> renderingParams;
+        DWrite_GetRenderParams(_sr.dwriteFactory.get(), &_r.gamma, &_r.cleartypeEnhancedContrast, &_r.grayscaleEnhancedContrast, renderingParams.addressof());
 
         // We don't really use D2D for anything except DWrite, but it
         // can't hurt to ensure that everything it does is pixel aligned.
@@ -305,8 +321,18 @@ void AtlasEngine::_processGlyphQueue()
     _r.glyphQueue.clear();
 }
 
+static std::ofstream file{ "R:/out.txt" };
+
 void AtlasEngine::_drawGlyph(const AtlasQueueItem& item) const
 {
+    const auto beg = std::chrono::high_resolution_clock::now();
+    const auto defer = wil::scope_exit([&]() {
+        const auto end = std::chrono::high_resolution_clock::now();
+        const auto out = std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(end - beg).count()) + '\n';
+        file << out;
+        file.flush();
+    });
+
     const auto key = item.key->data();
     const auto value = item.value->data();
     const auto coords = &value->coords[0];
@@ -354,7 +380,7 @@ void AtlasEngine::_drawGlyph(const AtlasQueueItem& item) const
         //
         // Since our shader only draws whatever is in the atlas, and since we don't replace glyph tiles that are in use,
         // we can safely (?) tell the GPU that we don't overwrite parts of our atlas that are in use.
-        _copyScratchpadTile(i, coords[i], D3D11_COPY_NO_OVERWRITE);
+        _copyScratchpadTile(i, coords[i], 0);
     }
 }
 
@@ -424,8 +450,37 @@ void AtlasEngine::_drawCursor()
     _copyScratchpadTile(0, {});
 }
 
-void AtlasEngine::_copyScratchpadTile(uint32_t scratchpadIndex, u16x2 target, uint32_t copyFlags) const noexcept
+void AtlasEngine::_copyScratchpadTile(uint32_t scratchpadIndex, u16x2 target, uint32_t copyFlags) const
 {
+#if ATLAS_D2D_SOFTWARE_RENDERING
+    WICRect rect;
+    rect.X = scratchpadIndex * _r.cellSize.x;
+    rect.Y = 0;
+    rect.Width = _r.cellSize.x;
+    rect.Height = _r.cellSize.y;
+
+    D3D11_BOX box;
+    box.left = target.x;
+    box.top = target.y;
+    box.front = 0;
+    box.right = target.x + _r.cellSize.x;
+    box.bottom = target.y + _r.cellSize.y;
+    box.back = 1;
+
+    wil::com_ptr<IWICBitmapLock> lock;
+    THROW_IF_FAILED(_r.atlasScratchpad->Lock(&rect, WICBitmapLockRead, lock.addressof()));
+
+    UINT stride;
+    THROW_IF_FAILED(lock->GetStride(&stride));
+
+    UINT size;
+    WICInProcPointer src;
+    THROW_IF_FAILED(lock->GetDataPointer(&size, &src));
+
+    _r.deviceContext->UpdateSubresource1(_r.atlasBuffer.get(), 0, &box, src, stride, 0, copyFlags);
+
+#else
+
     D3D11_BOX box;
     box.left = scratchpadIndex * _r.cellSize.x;
     box.top = 0;
@@ -435,4 +490,5 @@ void AtlasEngine::_copyScratchpadTile(uint32_t scratchpadIndex, u16x2 target, ui
     box.back = 1;
 #pragma warning(suppress : 26447) // The function is declared 'noexcept' but calls function '...' which may throw exceptions (f.6).
     _r.deviceContext->CopySubresourceRegion1(_r.atlasBuffer.get(), 0, target.x, target.y, 0, _r.atlasScratchpad.get(), 0, &box, copyFlags);
+#endif
 }
