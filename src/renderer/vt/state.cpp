@@ -103,7 +103,7 @@ VtEngine::VtEngine(_In_ wil::unique_hfile pipe,
     CATCH_RETURN();
 }
 
-[[nodiscard]] HRESULT VtEngine::_Flush() noexcept
+[[nodiscard]] HRESULT VtEngine::Flush() noexcept
 {
 #ifdef UNIT_TESTING
     if (_hFile.get() == INVALID_HANDLE_VALUE)
@@ -113,7 +113,7 @@ VtEngine::VtEngine(_In_ wil::unique_hfile pipe,
     }
 #endif
 
-    if (!_pipeBroken)
+    if (!_buffer.empty() && !_pipeBroken)
     {
         bool fSuccess = !!WriteFile(_hFile.get(), _buffer.data(), gsl::narrow_cast<DWORD>(_buffer.size()), nullptr, nullptr);
         _buffer.clear();
@@ -375,7 +375,7 @@ void VtEngine::SetTerminalOwner(Microsoft::Console::VirtualTerminal::VtIo* const
 HRESULT VtEngine::RequestCursor() noexcept
 {
     RETURN_IF_FAILED(_RequestCursor());
-    RETURN_IF_FAILED(_Flush());
+    RETURN_IF_FAILED(Flush());
     return S_OK;
 }
 
@@ -452,6 +452,6 @@ void VtEngine::SetResizeQuirk(const bool resizeQuirk)
 HRESULT VtEngine::RequestWin32Input() noexcept
 {
     RETURN_IF_FAILED(_RequestWin32Input());
-    RETURN_IF_FAILED(_Flush());
+    RETURN_IF_FAILED(Flush());
     return S_OK;
 }

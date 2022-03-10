@@ -1812,6 +1812,13 @@ bool StateMachine::FlushToTerminal() noexcept
         });
     }
 
+    if (success)
+    {
+        success = _SafeExecute([=]() {
+            return _engine->Flush();
+        });
+    }
+
     return success;
 }
 

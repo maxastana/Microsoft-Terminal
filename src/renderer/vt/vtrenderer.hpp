@@ -82,6 +82,7 @@ namespace Microsoft::Console::Render
         void SetResizeQuirk(const bool resizeQuirk);
         [[nodiscard]] virtual HRESULT ManuallyClearScrollback() noexcept;
         [[nodiscard]] HRESULT RequestWin32Input() noexcept;
+        [[nodiscard]] virtual HRESULT Flush() noexcept;
 
     protected:
         wil::unique_hfile _hFile;
@@ -129,7 +130,6 @@ namespace Microsoft::Console::Render
         std::optional<TextColor> _newBottomLineBG{ std::nullopt };
 
         [[nodiscard]] HRESULT _Write(std::string_view const str) noexcept;
-        [[nodiscard]] HRESULT _Flush() noexcept;
 
         template<typename S, typename... Args>
         [[nodiscard]] HRESULT _WriteFormatted(S&& format, Args&&... args)
